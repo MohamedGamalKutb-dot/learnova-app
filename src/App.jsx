@@ -21,7 +21,7 @@ import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
-    <BrowserRouter basename="/learnova-app/">
+    <BrowserRouter>
       <AppProvider>
         <AuthProvider>
           <DataProvider>
