@@ -5,58 +5,43 @@ import { useData } from '../context/DataContext';
 
 export default function CalmingPage() {
     const navigate = useNavigate();
-    const { isArabic } = useApp();
+    const { isDark, isArabic } = useApp();
     const { trackBreathingExercise, trackCalmingSession } = useData();
 
     const [sessionMinutes, setSessionMinutes] = useState(5);
     const [remainingSeconds, setRemainingSeconds] = useState(300);
     const [isSessionActive, setIsSessionActive] = useState(false);
     const [isBreathing, setIsBreathing] = useState(false);
-    const [breathPhase, setBreathPhase] = useState('start'); // start, in, hold, out
+    const [breathPhase, setBreathPhase] = useState('start');
     const intervalRef = useRef(null);
     const breathRef = useRef(null);
     const [visualPhase, setVisualPhase] = useState(0);
 
-    // Breathing animation
+    const accent = '#8B5CF6';
+
     useEffect(() => {
-        if (!isBreathing) {
-            if (breathRef.current) clearInterval(breathRef.current);
-            setBreathPhase('start');
-            return;
-        }
+        if (!isBreathing) { if (breathRef.current) clearInterval(breathRef.current); setBreathPhase('start'); return; }
         const phases = ['in', 'hold', 'out', 'hold'];
         let idx = 0;
         setBreathPhase('in');
-        breathRef.current = setInterval(() => {
-            idx = (idx + 1) % phases.length;
-            setBreathPhase(phases[idx]);
-        }, 4000);
+        breathRef.current = setInterval(() => { idx = (idx + 1) % phases.length; setBreathPhase(phases[idx]); }, 4000);
         return () => { if (breathRef.current) clearInterval(breathRef.current); };
     }, [isBreathing]);
 
-    // Session timer
     useEffect(() => {
         if (!isSessionActive) { if (intervalRef.current) clearInterval(intervalRef.current); return; }
         intervalRef.current = setInterval(() => {
-            setRemainingSeconds(prev => {
-                if (prev <= 1) { setIsSessionActive(false); return 0; }
-                return prev - 1;
-            });
+            setRemainingSeconds(prev => { if (prev <= 1) { setIsSessionActive(false); return 0; } return prev - 1; });
         }, 1000);
         return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
     }, [isSessionActive]);
 
-    // Visual animation
     useEffect(() => {
         const id = setInterval(() => setVisualPhase(p => (p + 0.01) % 1), 50);
         return () => clearInterval(id);
     }, []);
 
-    const formatTime = (s) => {
-        const min = String(Math.floor(s / 60)).padStart(2, '0');
-        const sec = String(s % 60).padStart(2, '0');
-        return `${min}:${sec}`;
-    };
+    const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
     const breathLabel = () => {
         if (breathPhase === 'start') return isArabic ? 'ابدأ' : 'Start';
@@ -65,87 +50,113 @@ export default function CalmingPage() {
         return isArabic ? 'انتظر' : 'Hold';
     };
 
-    const breathScale = breathPhase === 'in' || breathPhase === 'hold' ? 1 : 0.6;
+    const breathScale = breathPhase === 'in' || breathPhase === 'hold' ? 1 : 0.65;
+    const breathColor = breathPhase === 'in' ? '#8B5CF6' : breathPhase === 'out' ? '#F59E0B' : '#6C63FF';
 
     return (
-        <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #1A1A2E 0%, rgba(184,169,232,0.3) 50%, #1A1A2E 100%)', direction: isArabic ? 'rtl' : 'ltr' }}>
-            {/* AppBar */}
-            <div style={{ background: '#16213E', color: '#fff', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer' }}>←</button>
-                <h1 style={{ flex: 1, textAlign: 'center', fontSize: 18, fontWeight: 700, margin: 0 }}>{isArabic ? 'منطقة الهدوء' : 'Calming Zone'}</h1>
-                <div style={{ width: 30 }} />
-            </div>
+        <div className="min-h-screen font-[Inter,'Segoe_UI',sans-serif]"
+            style={{ background: isDark ? 'linear-gradient(180deg, #0D1117 0%, #161B22 50%, #0D1117 100%)' : 'linear-gradient(180deg, #EDE9FE 0%, #FAFBFF 50%, #EDE9FE 100%)' }}>
 
-            <div style={{ padding: 20, maxWidth: 500, margin: '0 auto' }}>
+            {/* Navbar */}
+            <nav className={`flex items-center gap-3 py-3 px-6 max-w-[700px] mx-auto border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
+                <button onClick={() => navigate(-1)}
+                    className={`w-9 h-9 rounded-[10px] border flex items-center justify-center text-base cursor-pointer ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'}`}>←</button>
+                <h1 className={`flex-1 text-lg font-bold m-0 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                    🧘 {isArabic ? 'منطقة الهدوء' : 'Calming Zone'}
+                </h1>
+            </nav>
+
+            <div className="max-w-[700px] mx-auto py-6 px-6 pb-10">
                 {/* Breathing Section */}
-                <div style={{ background: 'rgba(31,41,64,0.6)', borderRadius: 28, padding: 24, border: '1px solid rgba(184,169,232,0.2)', textAlign: 'center', marginBottom: 24 }}>
-                    <h3 style={{ color: '#fff', fontSize: 20, fontWeight: 700, marginBottom: 20 }}>{isArabic ? '🫁 تمرين التنفس' : '🫁 Breathing Exercise'}</h3>
-                    <div style={{
-                        width: 160, height: 160, margin: '0 auto', borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(184,169,232,0.6), rgba(126,182,216,0.3), transparent)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transform: `scale(${breathScale})`, transition: 'transform 4s ease-in-out',
-                        boxShadow: '0 0 30px rgba(184,169,232,0.3)',
-                    }}>
-                        <span style={{ color: '#fff', fontSize: 18, fontWeight: 600, textAlign: 'center' }}>{breathLabel()}</span>
+                <div className={`rounded-[20px] p-8 text-center mb-5 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(139,92,246,0.08)]'}`}>
+                    <h3 className={`text-lg font-bold mb-6 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        🫁 {isArabic ? 'تمرين التنفس' : 'Breathing Exercise'}
+                    </h3>
+
+                    {/* Breathing Circle */}
+                    <div className="w-[180px] h-[180px] mx-auto rounded-full flex items-center justify-center relative"
+                        style={{
+                            background: `radial-gradient(circle, ${breathColor}30, ${breathColor}10, transparent)`,
+                            transform: `scale(${breathScale})`, transition: 'transform 4s ease-in-out',
+                            boxShadow: `0 0 40px ${breathColor}20`,
+                        }}>
+                        <div className="absolute inset-0 rounded-full"
+                            style={{ border: `3px solid ${breathColor}30`, animation: isBreathing ? 'pulse 4s ease-in-out infinite' : 'none' }} />
+                        <div className={`w-[120px] h-[120px] rounded-full flex flex-col items-center justify-center gap-1 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}>
+                            <span className="text-sm font-bold" style={{ color: breathColor }}>{breathLabel()}</span>
+                            <span className="text-2xl">{breathPhase === 'in' ? '🌬️' : breathPhase === 'out' ? '💨' : '😌'}</span>
+                        </div>
                     </div>
-                    <button onClick={() => { setIsBreathing(!isBreathing); if (!isBreathing) trackBreathingExercise(); }} style={{
-                        marginTop: 16, padding: '12px 24px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                        background: isBreathing ? 'rgba(248,180,180,0.3)' : 'rgba(184,169,232,0.3)',
-                        color: '#fff', fontWeight: 600, fontSize: 15,
-                    }}>
-                        {isBreathing ? (isArabic ? '⬛ إيقاف' : '⬛ Stop') : (isArabic ? '▶ ابدأ التنفس' : '▶ Start Breathing')}
+
+                    <button onClick={() => { setIsBreathing(!isBreathing); if (!isBreathing) trackBreathingExercise(); }}
+                        className="mt-6 py-3 px-8 rounded-xl border-none cursor-pointer font-bold text-[15px] transition-all duration-300"
+                        style={{
+                            background: isBreathing ? (isDark ? '#21262D' : '#FEF2F2') : `linear-gradient(135deg, ${accent}, #A78BFA)`,
+                            color: isBreathing ? '#EF4444' : '#fff',
+                            boxShadow: isBreathing ? 'none' : `0 4px 16px ${accent}40`,
+                        }}>
+                        {isBreathing ? (isArabic ? '⏹ إيقاف' : '⏹ Stop') : (isArabic ? '▶️ ابدأ التنفس' : '▶️ Start Breathing')}
                     </button>
                 </div>
 
-                {/* Timer */}
-                <div style={{ background: 'rgba(31,41,64,0.6)', borderRadius: 28, padding: 20, border: '1px solid rgba(249,228,167,0.2)', marginBottom: 24, textAlign: 'center' }}>
-                    <h3 style={{ color: '#fff', fontSize: 20, fontWeight: 700, marginBottom: 16 }}>{isArabic ? '⏱️ مؤقت الجلسة' : '⏱️ Session Timer'}</h3>
+                {/* Timer Section */}
+                <div className={`rounded-[20px] p-8 text-center mb-5 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(245,158,11,0.08)]'}`}>
+                    <h3 className={`text-lg font-bold mb-5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        ⏱️ {isArabic ? 'مؤقت الجلسة' : 'Session Timer'}
+                    </h3>
+
                     {!isSessionActive && (
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
+                        <div className="flex justify-center gap-2 mb-5">
                             {[3, 5, 10, 15].map(min => (
-                                <button key={min} onClick={() => { setSessionMinutes(min); setRemainingSeconds(min * 60); }} style={{
-                                    padding: '8px 16px', borderRadius: 12,
-                                    background: sessionMinutes === min ? 'rgba(249,228,167,0.3)' : 'transparent',
-                                    color: sessionMinutes === min ? '#F9E4A7' : '#E0E0E0',
-                                    border: `1px solid ${sessionMinutes === min ? '#F9E4A7' : '#555'}`,
-                                    cursor: 'pointer', fontWeight: sessionMinutes === min ? 700 : 400,
-                                }}>{min}m</button>
+                                <button key={min} onClick={() => { setSessionMinutes(min); setRemainingSeconds(min * 60); }}
+                                    className={`py-2.5 px-4 rounded-[10px] cursor-pointer text-sm border transition-all duration-200 ${sessionMinutes === min
+                                            ? 'bg-amber-500 text-white border-amber-500 font-bold shadow-[0_4px_12px_rgba(245,158,11,0.3)]'
+                                            : `font-medium ${isDark ? 'bg-card-dark text-text-dark border-border-dark' : 'bg-card text-text border-border'}`
+                                        }`}>{min}m</button>
                             ))}
                         </div>
                     )}
-                    <div style={{ fontSize: 48, fontWeight: 700, color: '#F9E4A7', margin: '12px 0' }}>{formatTime(remainingSeconds)}</div>
+
+                    <div className="text-[56px] font-extrabold text-amber-500 my-3 font-mono tracking-[4px]">
+                        {formatTime(remainingSeconds)}
+                    </div>
+
                     <button onClick={() => {
                         if (isSessionActive) { setIsSessionActive(false); trackCalmingSession(sessionMinutes); }
                         else { setRemainingSeconds(sessionMinutes * 60); setIsSessionActive(true); }
-                    }} style={{
-                        padding: '12px 24px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                        background: isSessionActive ? 'rgba(248,180,180,0.3)' : 'rgba(249,228,167,0.3)',
-                        color: '#fff', fontWeight: 600, fontSize: 15,
-                    }}>
-                        {isSessionActive ? (isArabic ? '⬛ إيقاف' : '⬛ Stop') : (isArabic ? '▶ بدء الجلسة' : '▶ Start Session')}
+                    }}
+                        className="py-3 px-8 rounded-xl border-none cursor-pointer font-bold text-[15px] transition-all duration-300"
+                        style={{
+                            background: isSessionActive ? (isDark ? '#21262D' : '#FEF2F2') : 'linear-gradient(135deg, #F59E0B, #F97316)',
+                            color: isSessionActive ? '#EF4444' : '#fff',
+                            boxShadow: isSessionActive ? 'none' : '0 4px 16px rgba(245,158,11,0.4)',
+                        }}>
+                        {isSessionActive ? (isArabic ? '⏹ إيقاف' : '⏹ Stop') : (isArabic ? '▶️ بدء الجلسة' : '▶️ Start Session')}
                     </button>
                 </div>
 
-                {/* Visual Dots */}
-                <div style={{ height: 120, position: 'relative' }}>
+                {/* Ambient Visual */}
+                <div className={`rounded-[20px] p-6 text-center border overflow-hidden relative h-[120px] ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                    <h3 className={`text-sm font-semibold mb-2 relative z-[1] ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        ✨ {isArabic ? 'تأمل بصري' : 'Visual Meditation'}
+                    </h3>
                     {Array.from({ length: 12 }).map((_, i) => {
                         const prog = (visualPhase + i / 12) % 1;
-                        const colors = ['#7EB6D8', '#B8A9E8', '#A8E6CF', '#F2A7B3', '#F9E4A7'];
+                        const colors = ['#8B5CF6', '#6C63FF', '#10B981', '#F59E0B', '#EC4899'];
                         return (
-                            <div key={i} style={{
-                                position: 'absolute',
-                                left: `${(Math.sin(i * 2.1) * 0.5 + 0.5) * 80 + 5}%`,
-                                top: `${Math.sin(prog * Math.PI * 2) * 30 + 50}px`,
-                                width: 12 + (i % 3) * 8, height: 12 + (i % 3) * 8,
-                                borderRadius: '50%', background: colors[i % 5],
-                                opacity: 0.3 + 0.4 * Math.sin(prog * Math.PI),
-                                transition: 'opacity 0.3s',
+                            <div key={i} className="absolute rounded-full transition-opacity duration-300" style={{
+                                left: `${(Math.sin(i * 2.1) * 0.5 + 0.5) * 85 + 5}%`,
+                                top: `${Math.sin(prog * Math.PI * 2) * 25 + 55}px`,
+                                width: 10 + (i % 3) * 6, height: 10 + (i % 3) * 6,
+                                background: colors[i % 5],
+                                opacity: 0.25 + 0.35 * Math.sin(prog * Math.PI),
                             }} />
                         );
                     })}
                 </div>
             </div>
-        </div >
+
+            <style>{`@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.05); opacity: 0.6; } }`}</style>
+        </div>
     );
 }

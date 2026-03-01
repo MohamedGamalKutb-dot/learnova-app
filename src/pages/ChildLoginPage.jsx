@@ -13,21 +13,10 @@ export default function ChildLoginPage() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    const bg = isDark ? '#1A1A2E' : '#F7F9FC';
-    const cardBg = isDark ? '#1F2940' : '#fff';
-    const text = isDark ? '#E0E0E0' : '#2D3436';
-    const accent = '#6C63FF';
-    const inputStyle = {
-        width: '100%', padding: '14px 16px', borderRadius: 16, fontSize: 15,
-        border: `1.5px solid ${isDark ? '#3a4a6a' : '#ddd'}`, background: isDark ? '#2a3654' : '#fff',
-        color: text, outline: 'none', transition: 'border 0.3s',
-    };
-
     const handleLogin = () => {
         if (!email.trim()) { setError(isArabic ? 'أدخل البريد الإلكتروني' : 'Enter your email'); return; }
         if (!password) { setError(isArabic ? 'أدخل كلمة المرور' : 'Enter your password'); return; }
         setError('');
-
         const result = loginChild(email.trim(), password);
         if (result.success) {
             navigate('/child-home');
@@ -37,83 +26,95 @@ export default function ChildLoginPage() {
         }
     };
 
+    const inputCls = `w-full py-3.5 px-4 rounded-xl text-[15px] border outline-none transition-[border] duration-300 font-[inherit] box-border ${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`;
+
     return (
-        <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', direction: isArabic ? 'rtl' : 'ltr', padding: 16 }}>
-            <div style={{ background: cardBg, borderRadius: 32, padding: '40px 28px', boxShadow: '0 8px 40px rgba(108,99,255,0.12)', maxWidth: 420, width: '100%', animation: 'fadeSlideUp 0.4s ease-out' }}>
-                {/* Header */}
-                <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: `linear-gradient(135deg, ${accent}, #FF6584)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 40 }}>🎮</div>
-                    <h1 style={{ fontSize: 28, fontWeight: 800, color: text, margin: 0 }}>{isArabic ? 'مرحباً بعودتك!' : 'Welcome Back!'}</h1>
-                    <p style={{ color: '#999', fontSize: 14, marginTop: 6 }}>{isArabic ? 'سجل دخول العب وتعلم' : 'Log in to Play & Learn'}</p>
+        <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+            {/* Left: Branding */}
+            <div className="flex-1 hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent to-[#8B5CF6] to-[#FF6584] p-10 relative overflow-hidden min-h-screen">
+                <div className="absolute top-[10%] left-[10%] text-5xl opacity-15" style={{ animation: 'float 6s ease-in-out infinite' }}>🎮</div>
+                <div className="absolute top-[30%] right-[15%] text-[40px] opacity-[0.12]" style={{ animation: 'float 8s ease-in-out infinite 1s' }}>⭐</div>
+                <div className="absolute bottom-[15%] left-[20%] text-[45px] opacity-10" style={{ animation: 'float 7s ease-in-out infinite 2s' }}>🧩</div>
+                <div className="absolute bottom-[30%] right-[10%] text-[35px] opacity-[0.12]" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>🎈</div>
+
+                <div className="text-[80px] mb-5 z-[1]">🎮</div>
+                <h2 className="text-white text-[32px] font-extrabold text-center z-[1] mb-2.5">
+                    {isArabic ? 'مرحباً بعودتك!' : 'Welcome Back!'}
+                </h2>
+                <p className="text-white/80 text-base text-center max-w-[300px] z-[1] leading-relaxed">
+                    {isArabic ? 'سجل دخولك عشان ترجع تلعب وتتعلم حاجات جديدة!' : 'Log in to continue playing and learning new things!'}
+                </p>
+                <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer mt-10 z-[1] text-white/70 text-sm">
+                    <span>🧩</span>
+                    <span className="font-bold text-white">LearnNeur</span>
                 </div>
+            </div>
 
-                {/* Email Input */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 6, display: 'block' }}>{isArabic ? '✉️ البريد الإلكتروني' : '✉️ Email Address'}</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder={isArabic ? 'example@email.com' : 'example@email.com'}
-                    style={{
-                        ...inputStyle,
-                        fontSize: 16, fontWeight: 500, fontFamily: 'inherit', letterSpacing: 'normal', textTransform: 'none'
-                    }}
-                />
+            {/* Right: Form */}
+            <div className="flex-1 flex items-center justify-center py-10 px-6 min-h-screen">
+                <div className="max-w-[420px] w-full">
+                    <button onClick={() => navigate('/choice')}
+                        className={`bg-transparent border-none cursor-pointer text-sm font-medium mb-8 flex items-center gap-1.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                        ← {isArabic ? 'رجوع' : 'Back'}
+                    </button>
 
-                {/* Spacing */}
-                <div style={{ marginBottom: 16 }}></div>
+                    <h1 className={`text-[28px] font-extrabold mb-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        {isArabic ? '🎮 تسجيل دخول الطفل' : '🎮 Child Login'}
+                    </h1>
+                    <p className={`text-sm mb-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                        {isArabic ? 'أدخل بياناتك عشان تلعب وتتعلم' : 'Enter your details to play and learn'}
+                    </p>
 
-                {/* Password */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 6, display: 'block' }}>{isArabic ? '🔒 كلمة المرور' : '🔒 Password'}</label>
-                <div style={{ position: 'relative' }}>
-                    <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter your password'}
-                        style={inputStyle}
-                        onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                    />
-                    <button onClick={() => setShowPassword(!showPassword)} style={{
-                        position: 'absolute', right: isArabic ? 'auto' : 14, left: isArabic ? 14 : 'auto',
-                        top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18,
-                    }}>{showPassword ? '🙈' : '👁️'}</button>
-                </div>
+                    {/* Email */}
+                    <label className={`text-[13px] font-semibold mb-1.5 block ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        {isArabic ? 'البريد الإلكتروني' : 'Email Address'}
+                    </label>
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                        placeholder="example@email.com" className={inputCls} />
 
-                {/* Error */}
-                {error && (
-                    <div style={{ background: 'rgba(255,101,132,0.1)', borderRadius: 12, padding: '10px 14px', marginTop: 12 }}>
-                        <span style={{ color: '#FF6584', fontSize: 13, fontWeight: 600 }}>⚠️ {error}</span>
+                    <div className="mb-5" />
+
+                    {/* Password */}
+                    <label className={`text-[13px] font-semibold mb-1.5 block ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        {isArabic ? 'كلمة المرور' : 'Password'}
+                    </label>
+                    <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter your password'}
+                            className={inputCls} onKeyDown={e => e.key === 'Enter' && handleLogin()} />
+                        <button onClick={() => setShowPassword(!showPassword)}
+                            className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-lg end-3.5">
+                            {showPassword ? '🙈' : '👁️'}
+                        </button>
                     </div>
-                )}
 
-                {/* Login Button */}
-                <button onClick={handleLogin} style={{
-                    width: '100%', padding: 16, borderRadius: 18, border: 'none', cursor: 'pointer',
-                    background: `linear-gradient(135deg, ${accent}, #4ECDC4)`,
-                    color: '#fff', fontWeight: 700, fontSize: 17, marginTop: 20,
-                    boxShadow: '0 4px 16px rgba(108,99,255,0.3)', transition: 'transform 0.2s',
-                }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                >{isArabic ? '🚀 دخول' : '🚀 Log In'}</button>
+                    {/* Error */}
+                    {error && (
+                        <div className={`rounded-[10px] py-2.5 px-3.5 mt-3 border ${isDark ? 'bg-[rgba(255,101,132,0.1)]' : 'bg-red-50'} border-[rgba(255,101,132,0.2)]`}>
+                            <span className="text-red-500 text-[13px] font-semibold">⚠️ {error}</span>
+                        </div>
+                    )}
 
-                {/* Divider */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-                    <div style={{ flex: 1, height: 1, background: isDark ? '#333' : '#eee' }} />
-                    <span style={{ color: '#999', fontSize: 12 }}>{isArabic ? 'أو' : 'OR'}</span>
-                    <div style={{ flex: 1, height: 1, background: isDark ? '#333' : '#eee' }} />
+                    {/* Login Button */}
+                    <button onClick={handleLogin}
+                        className="w-full py-4 rounded-xl border-none cursor-pointer bg-gradient-to-br from-accent to-[#8B5CF6] text-white font-bold text-base mt-6 shadow-[0_4px_16px_rgba(108,99,255,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(108,99,255,0.35)]">
+                        {isArabic ? '🚀 تسجيل الدخول' : '🚀 Log In'}
+                    </button>
+
+                    {/* Divider */}
+                    <div className="flex items-center gap-3 my-6">
+                        <div className={`flex-1 h-px ${isDark ? 'bg-border-dark' : 'bg-border'}`} />
+                        <span className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'أو' : 'OR'}</span>
+                        <div className={`flex-1 h-px ${isDark ? 'bg-border-dark' : 'bg-border'}`} />
+                    </div>
+
+                    {/* Signup */}
+                    <button onClick={() => navigate('/child-signup')}
+                        className={`w-full py-3.5 rounded-xl bg-transparent cursor-pointer font-semibold text-sm transition-all duration-200 border hover:border-accent hover:text-accent ${isDark ? 'border-border-dark text-text-dark' : 'border-border text-text'}`}>
+                        {isArabic ? '✨ إنشاء حساب جديد' : '✨ Create New Account'}
+                    </button>
                 </div>
-
-                {/* Signup Link */}
-                <button onClick={() => navigate('/child-signup')} style={{
-                    width: '100%', padding: 14, borderRadius: 16,
-                    border: `2px solid ${accent}`, background: 'transparent',
-                    color: accent, cursor: 'pointer', fontWeight: 700, fontSize: 15,
-                }}>{isArabic ? '✨ إنشاء حساب جديد' : '✨ Create New Account'}</button>
-
-                {/* Back */}
-                <button onClick={() => navigate('/')} style={{ width: '100%', padding: 12, marginTop: 10, borderRadius: 14, background: 'transparent', border: `1px solid ${isDark ? '#444' : '#ddd'}`, color: text, cursor: 'pointer', fontSize: 14 }}>← {isArabic ? 'رجوع' : 'Back'}</button>
             </div>
         </div>
     );

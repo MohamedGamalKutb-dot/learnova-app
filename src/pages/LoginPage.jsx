@@ -13,21 +13,12 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
 
-    const bg = isDark ? '#1A1A2E' : '#F7F9FC';
-    const cardBg = isDark ? '#1F2940' : '#fff';
-    const text = isDark ? '#E0E0E0' : '#2D3436';
     const accent = '#4ECDC4';
-    const inputStyle = {
-        width: '100%', padding: '14px 16px', borderRadius: 16, fontSize: 15,
-        border: `1.5px solid ${isDark ? '#3a4a6a' : '#ddd'}`, background: isDark ? '#2a3654' : '#fff',
-        color: text, outline: 'none', transition: 'border 0.3s',
-    };
 
     const handleLogin = () => {
         if (!email.trim() || !email.includes('@')) { setError(isArabic ? 'أدخل إيميل صحيح' : 'Enter a valid email'); return; }
         if (!password) { setError(isArabic ? 'أدخل كلمة المرور' : 'Enter your password'); return; }
         setError('');
-
         const result = loginParent(email.trim(), password);
         if (result.success) {
             navigate('/dashboard');
@@ -37,79 +28,109 @@ export default function LoginPage() {
         }
     };
 
+    const inputCls = `w-full py-3.5 px-4 rounded-xl text-sm border outline-none transition-[border] duration-300 font-[inherit] box-border ${isDark ? 'bg-bg-dark text-text-dark border-border-dark focus:border-accent3' : 'bg-[#F9FAFB] text-text border-border focus:border-accent3'}`;
+
     return (
-        <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', direction: isArabic ? 'rtl' : 'ltr', padding: 16 }}>
-            <div style={{ background: cardBg, borderRadius: 32, padding: '40px 28px', boxShadow: '0 8px 40px rgba(78,205,196,0.12)', maxWidth: 420, width: '100%', animation: 'fadeSlideUp 0.4s ease-out' }}>
-                {/* Header */}
-                <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: `linear-gradient(135deg, ${accent}, #8BC99A)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 40 }}>👨‍👩‍👧</div>
-                    <h1 style={{ fontSize: 28, fontWeight: 800, color: text, margin: 0 }}>{isArabic ? 'دخول ولي الأمر' : 'Parent Login'}</h1>
-                    <p style={{ color: '#999', fontSize: 14, marginTop: 6 }}>{isArabic ? 'سجل دخول لمتابعة تقدم طفلك' : 'Log in to track your child\'s progress'}</p>
+        <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+            {/* Left: Branding Panel */}
+            <div className="flex-[0_0_45%] hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent3 to-[#44B09E] relative overflow-hidden p-10">
+                <div className="absolute top-[10%] left-[10%] text-5xl opacity-15" style={{ animation: 'float 6s ease-in-out infinite' }}>📊</div>
+                <div className="absolute bottom-[15%] right-[10%] text-[40px] opacity-[0.12]" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>👨‍👩‍👧</div>
+                <div className="absolute top-[60%] left-[5%] text-[35px] opacity-10" style={{ animation: 'float 8s ease-in-out infinite 2s' }}>💜</div>
+
+                <div className="text-[80px] mb-5 z-[1]">📋</div>
+                <h2 className="text-white text-3xl font-extrabold text-center z-[1] mb-2.5">
+                    {isArabic ? 'مرحباً بعودتك' : 'Welcome Back'}
+                </h2>
+                <p className="text-white/85 text-[15px] text-center z-[1] max-w-[320px] leading-relaxed">
+                    {isArabic ? 'تابع تقدم طفلك واحصل على تقارير مفصلة ونصائح ذكية' : "Track your child's progress with detailed reports and AI-powered insights"}
+                </p>
+
+                <div className="mt-10 flex gap-3 z-[1]">
+                    {['📊', '🗺️', '🤖', '📝'].map((em, i) => (
+                        <div key={i} className="w-12 h-12 rounded-[14px] bg-white/15 flex items-center justify-center text-[22px] backdrop-blur-sm">{em}</div>
+                    ))}
                 </div>
+            </div>
 
-                {/* Email */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 6, display: 'block' }}>📧 {isArabic ? 'البريد الإلكتروني' : 'Email'}</label>
-                <input
-                    type="email" value={email} onChange={e => setEmail(e.target.value)}
-                    placeholder={isArabic ? 'your@email.com' : 'your@email.com'}
-                    style={inputStyle}
-                />
+            {/* Right: Form */}
+            <div className="flex-1 flex items-center justify-center py-10 px-6">
+                <div className="w-full max-w-[420px]">
+                    {/* Back */}
+                    <button onClick={() => navigate('/choice')}
+                        className={`flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-[13px] font-medium mb-8 p-0 font-[inherit] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                        ← {isArabic ? 'رجوع' : 'Back'}
+                    </button>
 
-                {/* Password */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 6, display: 'block', marginTop: 16 }}>🔒 {isArabic ? 'كلمة المرور' : 'Password'}</label>
-                <div style={{ position: 'relative' }}>
-                    <input
-                        type={showPassword ? 'text' : 'password'} value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'}
-                        style={inputStyle}
-                        onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                    />
-                    <button onClick={() => setShowPassword(!showPassword)} style={{
-                        position: 'absolute', right: isArabic ? 'auto' : 14, left: isArabic ? 14 : 'auto',
-                        top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18,
-                    }}>{showPassword ? '🙈' : '👁️'}</button>
-                </div>
-
-                {/* Error */}
-                {error && (
-                    <div style={{ background: 'rgba(255,101,132,0.1)', borderRadius: 12, padding: '10px 14px', marginTop: 12 }}>
-                        <span style={{ color: '#FF6584', fontSize: 13, fontWeight: 600 }}>⚠️ {error}</span>
+                    {/* Header */}
+                    <div className="mb-8">
+                        <div className="inline-flex items-center gap-2 py-1.5 px-3.5 rounded-[10px] bg-accent3/[0.07] mb-4 border border-accent3/[0.12]">
+                            <span className="text-base">👨‍👩‍👧</span>
+                            <span className="text-accent3 text-xs font-semibold">{isArabic ? 'ولي الأمر' : 'Parent Portal'}</span>
+                        </div>
+                        <h1 className={`text-[28px] font-extrabold mb-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                            {isArabic ? 'تسجيل الدخول' : 'Log In'}
+                        </h1>
+                        <p className={`text-sm m-0 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                            {isArabic ? 'سجل دخول لمتابعة تقدم طفلك' : "Sign in to track your child's progress"}
+                        </p>
                     </div>
-                )}
 
-                {/* Login Button */}
-                <button onClick={handleLogin} style={{
-                    width: '100%', padding: 16, borderRadius: 18, border: 'none', cursor: 'pointer',
-                    background: `linear-gradient(135deg, ${accent}, #8BC99A)`,
-                    color: '#fff', fontWeight: 700, fontSize: 17, marginTop: 20,
-                    boxShadow: '0 4px 16px rgba(78,205,196,0.3)', transition: 'transform 0.2s',
-                }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                >{isArabic ? '🚀 دخول' : '🚀 Log In'}</button>
+                    {/* Email */}
+                    <label className={`text-[13px] font-semibold mb-1.5 block ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        📧 {isArabic ? 'البريد الإلكتروني' : 'Email'}
+                    </label>
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                        placeholder="your@email.com" className={inputCls} />
 
-                {/* Divider */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-                    <div style={{ flex: 1, height: 1, background: isDark ? '#333' : '#eee' }} />
-                    <span style={{ color: '#999', fontSize: 12 }}>{isArabic ? 'أو' : 'OR'}</span>
-                    <div style={{ flex: 1, height: 1, background: isDark ? '#333' : '#eee' }} />
+                    {/* Password */}
+                    <label className={`text-[13px] font-semibold mb-1.5 block mt-4 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        🔒 {isArabic ? 'كلمة المرور' : 'Password'}
+                    </label>
+                    <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'}
+                            className={inputCls} onKeyDown={e => e.key === 'Enter' && handleLogin()} />
+                        <button onClick={() => setShowPassword(!showPassword)}
+                            className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-lg p-0 end-3.5">
+                            {showPassword ? '🙈' : '👁️'}
+                        </button>
+                    </div>
+
+                    {/* Error */}
+                    {error && (
+                        <div className={`rounded-[10px] py-2.5 px-3.5 mt-3.5 border ${isDark ? 'bg-red-500/10 border-red-500/20' : 'bg-red-50 border-red-200'}`}>
+                            <span className="text-red-500 text-[13px] font-semibold">⚠️ {error}</span>
+                        </div>
+                    )}
+
+                    {/* Login Button */}
+                    <button onClick={handleLogin}
+                        className="w-full py-4 rounded-xl border-none cursor-pointer bg-gradient-to-br from-accent3 to-[#44B09E] text-white font-bold text-base mt-6 shadow-[0_4px_16px_rgba(78,205,196,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(78,205,196,0.35)]">
+                        {isArabic ? '🚀 تسجيل الدخول' : '🚀 Log In'}
+                    </button>
+
+                    {/* Divider */}
+                    <div className="flex items-center gap-3 my-6">
+                        <div className={`flex-1 h-px ${isDark ? 'bg-border-dark' : 'bg-border'}`} />
+                        <span className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'أو' : 'OR'}</span>
+                        <div className={`flex-1 h-px ${isDark ? 'bg-border-dark' : 'bg-border'}`} />
+                    </div>
+
+                    {/* Signup Link */}
+                    <button onClick={() => navigate('/signup')}
+                        className="w-full py-3.5 rounded-xl border-[1.5px] border-accent3 bg-transparent text-accent3 cursor-pointer font-bold text-[15px] transition-all duration-300 hover:bg-accent3/[0.06]">
+                        {isArabic ? '✨ إنشاء حساب جديد' : '✨ Create New Account'}
+                    </button>
+
+                    {/* Info */}
+                    <div className={`rounded-xl p-3.5 mt-4 text-center border ${isDark ? 'bg-border-dark border-[#30363D]' : 'bg-green-50 border-green-200'}`}>
+                        <p className={`text-xs m-0 ${isDark ? 'text-subtext-dark' : 'text-green-800'}`}>
+                            💡 {isArabic ? 'للتسجيل كولي أمر، ستحتاج كود الطفل (LN-XXXXXX)' : "To sign up, you'll need your child's code (LN-XXXXXX)"}
+                        </p>
+                    </div>
                 </div>
-
-                {/* Signup Link */}
-                <button onClick={() => navigate('/signup')} style={{
-                    width: '100%', padding: 14, borderRadius: 16,
-                    border: `2px solid ${accent}`, background: 'transparent',
-                    color: accent, cursor: 'pointer', fontWeight: 700, fontSize: 15,
-                }}>{isArabic ? '✨ إنشاء حساب جديد' : '✨ Create New Account'}</button>
-
-                {/* Info */}
-                <div style={{ background: isDark ? '#16213E' : '#E8F5E9', borderRadius: 14, padding: 12, marginTop: 16, textAlign: 'center' }}>
-                    <p style={{ fontSize: 12, color: isDark ? '#ccc' : '#2E7D32', margin: 0 }}>💡 {isArabic ? 'للتسجيل كولي أمر، ستحتاج كود الطفل (LN-XXXXXX) الخاص بطفلك' : "To sign up, you'll need your child's code (LN-XXXXXX)"}</p>
-                </div>
-
-                {/* Back */}
-                <button onClick={() => navigate('/')} style={{ width: '100%', padding: 12, marginTop: 10, borderRadius: 14, background: 'transparent', border: `1px solid ${isDark ? '#444' : '#ddd'}`, color: text, cursor: 'pointer', fontSize: 14 }}>← {isArabic ? 'رجوع' : 'Back'}</button>
             </div>
         </div>
     );

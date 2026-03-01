@@ -13,36 +13,24 @@ export default function ChildSignupPage() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [createdId, setCreatedId] = useState(null);
-    const [step, setStep] = useState(1); // 1=form, 2=success
+    const [step, setStep] = useState(1);
 
-    const bg = isDark ? '#1A1A2E' : '#F7F9FC';
-    const cardBg = isDark ? '#1F2940' : '#fff';
-    const text = isDark ? '#E0E0E0' : '#2D3436';
     const accent = '#6C63FF';
-    const inputStyle = {
-        width: '100%', padding: '14px 16px', borderRadius: 16, fontSize: 15,
-        border: `1.5px solid ${isDark ? '#3a4a6a' : '#ddd'}`, background: isDark ? '#2a3654' : '#fff',
-        color: text, outline: 'none', transition: 'border 0.3s',
-    };
-
     const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
+    const inputCls = `w-full py-3.5 px-4 rounded-xl text-[15px] border outline-none transition-[border] duration-300 font-[inherit] box-border ${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`;
 
-    // Password strength
     const passwordStrength = () => {
         const p = form.password;
         if (!p) return { level: 0, label: '', color: '#999' };
         let score = 0;
-        if (p.length >= 6) score++;
-        if (p.length >= 8) score++;
-        if (/[A-Z]/.test(p)) score++;
-        if (/[0-9]/.test(p)) score++;
-        if (/[^A-Za-z0-9]/.test(p)) score++;
+        if (p.length >= 6) score++; if (p.length >= 8) score++;
+        if (/[A-Z]/.test(p)) score++; if (/[0-9]/.test(p)) score++; if (/[^A-Za-z0-9]/.test(p)) score++;
         const levels = [
-            { label: isArabic ? 'ضعيفة جداً' : 'Very Weak', color: '#FF6584' },
-            { label: isArabic ? 'ضعيفة' : 'Weak', color: '#FF6584' },
-            { label: isArabic ? 'متوسطة' : 'Fair', color: '#F9E4A7' },
-            { label: isArabic ? 'جيدة' : 'Good', color: '#4ECDC4' },
-            { label: isArabic ? 'قوية' : 'Strong', color: '#8BC99A' },
+            { label: isArabic ? 'ضعيفة جداً' : 'Very Weak', color: '#EF4444' },
+            { label: isArabic ? 'ضعيفة' : 'Weak', color: '#EF4444' },
+            { label: isArabic ? 'متوسطة' : 'Fair', color: '#F59E0B' },
+            { label: isArabic ? 'جيدة' : 'Good', color: '#10B981' },
+            { label: isArabic ? 'قوية' : 'Strong', color: '#059669' },
         ];
         return { level: score, ...levels[Math.min(score, 4)] };
     };
@@ -60,163 +48,146 @@ export default function ChildSignupPage() {
         const err = validate();
         if (err) { setError(err); return; }
         setError('');
-
         const result = registerChild({ ...form, avatar });
-        if (result.success) {
-            setCreatedId(result.childId);
-            setStep(2);
-        } else {
-            if (result.error === 'email_exists') setError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'This email is already registered');
-        }
+        if (result.success) { setCreatedId(result.childId); setStep(2); }
+        else if (result.error === 'email_exists') setError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'This email is already registered');
     };
 
     // SUCCESS SCREEN
     if (step === 2) {
         return (
-            <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', direction: isArabic ? 'rtl' : 'ltr' }}>
-                <div style={{ background: cardBg, borderRadius: 32, padding: 40, textAlign: 'center', boxShadow: '0 8px 40px rgba(108,99,255,0.12)', maxWidth: 420, width: '90%', animation: 'fadeInScale 0.5s ease-out' }}>
-                    <div style={{ fontSize: 72, marginBottom: 16 }}>🎉</div>
-                    <h2 style={{ color: text, fontSize: 26, fontWeight: 800 }}>{isArabic ? 'تم التسجيل بنجاح!' : 'Registration Successful!'}</h2>
-                    <p style={{ color: '#999', fontSize: 14, marginTop: 8 }}>{isArabic ? 'هذا هو الكود الخاص بك. احتفظ به!' : 'This is your unique code. Keep it safe!'}</p>
+            <div className={`min-h-screen flex items-center justify-center p-6 font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+                <div className={`rounded-3xl p-12 text-center max-w-[460px] w-full border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.06)]'}`}
+                    style={{ animation: 'fadeInUp 0.5s ease-out' }}>
+                    <div className="text-[72px] mb-4">🎉</div>
+                    <h2 className={`text-[26px] font-extrabold mb-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تم التسجيل بنجاح!' : 'Registration Successful!'}</h2>
+                    <p className={`text-sm ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'هذا هو كودك الخاص. احتفظ به!' : 'This is your unique code. Keep it safe!'}</p>
 
-                    {/* Child ID Display */}
-                    <div style={{
-                        margin: '24px auto', padding: '20px 32px', borderRadius: 20,
-                        background: `linear-gradient(135deg, ${accent}, #FF6584)`,
-                        display: 'inline-block', position: 'relative',
-                    }}>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 6, fontWeight: 600 }}>{isArabic ? 'كود الطفل' : 'CHILD CODE'}</div>
-                        <div style={{ fontSize: 36, fontWeight: 900, color: '#fff', letterSpacing: 4, fontFamily: 'monospace' }}>{createdId}</div>
+                    <div className="mx-auto my-6 py-5 px-8 rounded-2xl bg-gradient-to-br from-accent to-accent2 inline-block">
+                        <div className="text-[11px] text-white/70 mb-1.5 font-semibold uppercase tracking-wider">{isArabic ? 'كود الطفل' : 'CHILD CODE'}</div>
+                        <div className="text-4xl font-black text-white tracking-[4px] font-mono">{createdId}</div>
                     </div>
 
-                    <div style={{ background: isDark ? '#16213E' : '#FFF3E0', borderRadius: 14, padding: 14, margin: '16px 0', textAlign: 'start' }}>
-                        <p style={{ fontSize: 13, color: isDark ? '#F9E4A7' : '#E65100', fontWeight: 600 }}>
-                            ⚠️ {isArabic ? 'مهم: شاركه مع ولي أمرك عشان يقدر يتابع تقدمك!' : 'Important: Share this code with your parent so they can track your progress!'}
+                    <div className={`rounded-xl p-3.5 my-4 border text-start ${isDark ? 'bg-[#1C2333] border-[#2D333B]' : 'bg-amber-50 border-amber-200'}`}>
+                        <p className={`text-[13px] font-semibold m-0 ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>
+                            ⚠️ {isArabic ? 'مهم: شاركه مع ولي أمرك!' : 'Important: Share this code with your parent!'}
                         </p>
                     </div>
 
-                    <button onClick={() => {
-                        navigator.clipboard?.writeText(createdId);
-                    }} style={{
-                        width: '100%', padding: 14, borderRadius: 16, border: `2px solid ${accent}`,
-                        background: 'transparent', color: accent, cursor: 'pointer', fontWeight: 700, fontSize: 15, marginBottom: 10,
-                    }}>📋 {isArabic ? 'نسخ الكود' : 'Copy Code'}</button>
-
-                    <button onClick={() => navigate('/child-home')} style={{
-                        width: '100%', padding: 16, borderRadius: 16,
-                        background: `linear-gradient(135deg, ${accent}, #4ECDC4)`,
-                        color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 16,
-                    }}>🚀 {isArabic ? 'ابدأ التعلم!' : 'Start Learning!'}</button>
+                    <button onClick={() => navigator.clipboard?.writeText(createdId)}
+                        className={`w-full py-3.5 rounded-xl bg-transparent cursor-pointer font-semibold text-sm mb-2.5 border transition-all duration-200 ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}>
+                        📋 {isArabic ? 'نسخ الكود' : 'Copy Code'}
+                    </button>
+                    <button onClick={() => navigate('/child-home')}
+                        className="w-full py-4 rounded-xl bg-gradient-to-br from-accent to-[#8B5CF6] text-white border-none cursor-pointer font-bold text-base shadow-[0_4px_16px_rgba(108,99,255,0.25)]">
+                        🚀 {isArabic ? 'ابدأ التعلم!' : 'Start Learning!'}
+                    </button>
                 </div>
             </div>
         );
     }
 
-    // SIGNUP FORM
     const strength = passwordStrength();
     return (
-        <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', direction: isArabic ? 'rtl' : 'ltr', padding: 16 }}>
-            <div style={{ background: cardBg, borderRadius: 32, padding: '32px 28px', boxShadow: '0 8px 40px rgba(108,99,255,0.12)', maxWidth: 440, width: '100%', animation: 'fadeSlideUp 0.4s ease-out' }}>
-                {/* Header */}
-                <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                    <div style={{ fontSize: 48, marginBottom: 8 }}>🎮</div>
-                    <h1 style={{ fontSize: 26, fontWeight: 800, color: text, margin: 0 }}>{isArabic ? 'تسجيل طفل جديد' : 'Create Account'}</h1>
-                    <p style={{ color: '#999', fontSize: 13, marginTop: 4 }}>{isArabic ? 'سجل عشان تبدأ رحلة التعلم' : 'Sign up to start your learning journey'}</p>
+        <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+            {/* Left: Branding */}
+            <div className="flex-1 hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent2 to-pink-500 to-accent p-10 relative overflow-hidden">
+                <div className="absolute top-[10%] left-[10%] text-5xl opacity-15" style={{ animation: 'float 6s ease-in-out infinite' }}>✨</div>
+                <div className="absolute bottom-[20%] right-[15%] text-[40px] opacity-[0.12]" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>🎮</div>
+                <div className="text-[80px] mb-5 z-[1]">✨</div>
+                <h2 className="text-white text-3xl font-extrabold text-center z-[1] mb-2.5">{isArabic ? 'إنشاء حساب جديد' : 'Create Account'}</h2>
+                <p className="text-white/80 text-[15px] text-center max-w-[280px] z-[1] leading-relaxed">{isArabic ? 'سجل عشان تبدأ رحلة التعلم الممتعة!' : 'Sign up to start your fun learning journey!'}</p>
+                <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer mt-10 z-[1] text-white/70 text-sm">
+                    <span>🧩</span><span className="font-bold text-white">LearnNeur</span>
                 </div>
+            </div>
 
-                {/* Avatar */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
-                    {['👦', '👧', '🧒', '👶', '🐱', '🐻', '🦊', '🐰'].map(em => (
-                        <button key={em} onClick={() => setAvatar(em)} style={{
-                            width: 44, height: 44, borderRadius: '50%', cursor: 'pointer', fontSize: 22,
-                            border: `${avatar === em ? 2 : 1}px solid ${avatar === em ? accent : isDark ? '#444' : '#ddd'}`,
-                            background: avatar === em ? `${accent}20` : 'transparent',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s',
-                        }}>{em}</button>
-                    ))}
-                </div>
+            {/* Right: Form */}
+            <div className="flex-1 flex items-center justify-center py-10 px-6 overflow-y-auto">
+                <div className="max-w-[440px] w-full">
+                    <button onClick={() => navigate('/choice')}
+                        className={`bg-transparent border-none cursor-pointer text-sm font-medium mb-6 flex items-center gap-1.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                        ← {isArabic ? 'رجوع' : 'Back'}
+                    </button>
 
-                {/* Name */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 4, display: 'block' }}>{isArabic ? '📛 الاسم' : '📛 Name'}</label>
-                <input value={form.name} onChange={e => set('name', e.target.value)} placeholder={isArabic ? 'اسم الطفل' : "Child's name"} style={inputStyle} />
+                    <h1 className={`text-[26px] font-extrabold mb-1 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? '✨ تسجيل طفل جديد' : '✨ New Child Account'}</h1>
+                    <p className={`text-[13px] mb-6 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'سجل عشان تبدأ رحلة التعلم' : 'Sign up to start your learning journey'}</p>
 
-                {/* Age & Gender Row */}
-                <div style={{ display: 'flex', gap: 10, margin: '12px 0' }}>
-                    <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 4, display: 'block' }}>{isArabic ? '🎂 العمر' : '🎂 Age'}</label>
-                        <input type="number" value={form.age} onChange={e => set('age', e.target.value)} min="2" max="18" placeholder={isArabic ? 'العمر' : 'Age'} style={inputStyle} />
+                    {/* Avatars */}
+                    <div className="flex gap-2 mb-5 flex-wrap">
+                        {['👦', '👧', '🧒', '👶', '🐱', '🐻', '🦊', '🐰'].map(em => (
+                            <button key={em} onClick={() => setAvatar(em)}
+                                className={`w-11 h-11 rounded-xl cursor-pointer text-[22px] flex items-center justify-center transition-all duration-200 border-2 ${avatar === em ? 'border-accent bg-accent/[0.08]' : `bg-transparent ${isDark ? 'border-border-dark' : 'border-border'}`
+                                    }`}>{em}</button>
+                        ))}
                     </div>
-                    <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 4, display: 'block' }}>{isArabic ? '⚧ الجنس' : '⚧ Gender'}</label>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                            {[{ val: 'Male', label: isArabic ? 'ذكر' : 'Male', em: '👦' }, { val: 'Female', label: isArabic ? 'أنثى' : 'Female', em: '👧' }].map(g => (
-                                <button key={g.val} onClick={() => set('gender', g.val)} style={{
-                                    flex: 1, padding: '12px 8px', borderRadius: 14, cursor: 'pointer', fontSize: 13,
-                                    background: form.gender === g.val ? accent : 'transparent',
-                                    color: form.gender === g.val ? '#fff' : text,
-                                    border: `1.5px solid ${form.gender === g.val ? accent : isDark ? '#3a4a6a' : '#ddd'}`,
-                                    fontWeight: form.gender === g.val ? 700 : 400, transition: 'all 0.2s',
-                                }}>{g.em}</button>
-                            ))}
+
+                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'الاسم' : 'Name'}</label>
+                    <input value={form.name} onChange={e => set('name', e.target.value)} placeholder={isArabic ? 'اسم الطفل' : "Child's name"} className={inputCls} />
+
+                    <div className="flex gap-3 my-4">
+                        <div className="flex-1">
+                            <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'العمر' : 'Age'}</label>
+                            <input type="number" value={form.age} onChange={e => set('age', e.target.value)} min="2" max="18" placeholder={isArabic ? 'العمر' : 'Age'} className={inputCls} />
+                        </div>
+                        <div className="flex-1">
+                            <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'الجنس' : 'Gender'}</label>
+                            <div className="flex gap-1.5">
+                                {[{ val: 'Male', em: '👦' }, { val: 'Female', em: '👧' }].map(g => (
+                                    <button key={g.val} onClick={() => set('gender', g.val)}
+                                        className={`flex-1 py-3 px-2 rounded-xl cursor-pointer text-lg font-bold border transition-all duration-200 ${form.gender === g.val ? 'bg-accent text-white border-accent' : `bg-transparent ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`
+                                            }`}>{g.em}</button>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Email */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 4, display: 'block', marginTop: 12 }}>{isArabic ? '📧 البريد الإلكتروني' : '📧 Email'}</label>
-                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder={isArabic ? 'your@email.com' : 'your@email.com'} style={inputStyle} />
+                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'البريد الإلكتروني' : 'Email'}</label>
+                    <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="your@email.com" className={inputCls} />
+                    <div className="mb-4" />
 
-                {/* Password */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 4, display: 'block', marginTop: 12 }}>{isArabic ? '🔒 كلمة المرور' : '🔒 Password'}</label>
-                <div style={{ position: 'relative' }}>
-                    <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'} style={inputStyle} />
-                    <button onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: isArabic ? 'auto' : 12, left: isArabic ? 12 : 'auto', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>{showPassword ? '🙈' : '👁️'}</button>
-                </div>
-                {/* Password Strength */}
-                {form.password && (
-                    <div style={{ marginTop: 6, marginBottom: 4 }}>
-                        <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: strength.level >= i ? strength.color : isDark ? '#333' : '#eee', transition: 'background 0.3s' }} />
-                            ))}
-                        </div>
-                        <span style={{ fontSize: 11, color: strength.color, fontWeight: 600 }}>{strength.label}</span>
+                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'كلمة المرور' : 'Password'}</label>
+                    <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'} className={inputCls} />
+                        <button onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-lg end-3">
+                            {showPassword ? '🙈' : '👁️'}
+                        </button>
                     </div>
-                )}
-
-                {/* Confirm Password */}
-                <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 4, display: 'block', marginTop: 12 }}>{isArabic ? '🔒 تأكيد كلمة المرور' : '🔒 Confirm Password'}</label>
-                <div style={{ position: 'relative' }}>
-                    <input type={showPassword ? 'text' : 'password'} value={form.confirmPassword} onChange={e => set('confirmPassword', e.target.value)} placeholder={isArabic ? 'أعد إدخال كلمة المرور' : 'Re-enter password'} style={inputStyle} />
-                    {form.confirmPassword && (
-                        <span style={{ position: 'absolute', right: isArabic ? 'auto' : 12, left: isArabic ? 12 : 'auto', top: '50%', transform: 'translateY(-50%)', fontSize: 18 }}>
-                            {form.password === form.confirmPassword ? '✅' : '❌'}
-                        </span>
+                    {form.password && (
+                        <div className="mt-1.5">
+                            <div className="flex gap-[3px] mb-1">
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <div key={i} className="flex-1 h-[3px] rounded-sm transition-colors duration-300"
+                                        style={{ background: strength.level >= i ? strength.color : (isDark ? '#21262D' : '#E5E7EB') }} />
+                                ))}
+                            </div>
+                            <span className="text-[11px] font-semibold" style={{ color: strength.color }}>{strength.label}</span>
+                        </div>
                     )}
+                    <div className="mb-4" />
+
+                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'}</label>
+                    <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} value={form.confirmPassword} onChange={e => set('confirmPassword', e.target.value)} placeholder={isArabic ? 'أعد إدخال كلمة المرور' : 'Re-enter password'} className={inputCls} />
+                        {form.confirmPassword && <span className="absolute top-1/2 -translate-y-1/2 text-base end-3">{form.password === form.confirmPassword ? '✅' : '❌'}</span>}
+                    </div>
+
+                    {error && (
+                        <div className={`rounded-[10px] py-2.5 px-3.5 my-3 border ${isDark ? 'bg-[rgba(255,101,132,0.1)]' : 'bg-red-50'} border-red-500/20`}>
+                            <span className="text-red-500 text-[13px] font-semibold">⚠️ {error}</span>
+                        </div>
+                    )}
+
+                    <button onClick={handleRegister}
+                        className="w-full py-4 rounded-xl border-none cursor-pointer bg-gradient-to-br from-accent2 to-pink-500 text-white font-bold text-base mt-5 shadow-[0_4px_16px_rgba(255,101,132,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(255,101,132,0.45)]">
+                        {isArabic ? '🎮 سجل وابدأ!' : '🎮 Register & Start!'}
+                    </button>
+
+                    <div className="text-center mt-5">
+                        <span className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
+                        <button onClick={() => navigate('/child-login')} className="bg-transparent border-none text-accent cursor-pointer font-bold text-[13px]">{isArabic ? 'سجل دخول' : 'Log In'}</button>
+                    </div>
                 </div>
-
-                {/* Error */}
-                {error && <div style={{ background: 'rgba(255,101,132,0.1)', borderRadius: 12, padding: '10px 14px', margin: '12px 0' }}><span style={{ color: '#FF6584', fontSize: 13, fontWeight: 600 }}>⚠️ {error}</span></div>}
-
-                {/* Register Button */}
-                <button onClick={handleRegister} style={{
-                    width: '100%', padding: 16, borderRadius: 18, border: 'none', cursor: 'pointer',
-                    background: `linear-gradient(135deg, ${accent}, #4ECDC4)`,
-                    color: '#fff', fontWeight: 700, fontSize: 17, marginTop: 16,
-                    boxShadow: '0 4px 16px rgba(108,99,255,0.3)', transition: 'transform 0.2s',
-                }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                >{isArabic ? '🎮 سجل وابدأ!' : '🎮 Register & Start!'}</button>
-
-                {/* Login Link */}
-                <div style={{ textAlign: 'center', marginTop: 16 }}>
-                    <span style={{ color: '#999', fontSize: 13 }}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
-                    <button onClick={() => navigate('/child-login')} style={{ background: 'none', border: 'none', color: accent, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>{isArabic ? 'سجل دخول' : 'Log In'}</button>
-                </div>
-
-                {/* Back */}
-                <button onClick={() => navigate('/')} style={{ width: '100%', padding: 12, marginTop: 10, borderRadius: 14, background: 'transparent', border: `1px solid ${isDark ? '#444' : '#ddd'}`, color: text, cursor: 'pointer', fontSize: 14 }}>← {isArabic ? 'رجوع' : 'Back'}</button>
             </div>
         </div>
     );

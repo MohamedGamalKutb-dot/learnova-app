@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useData } from '../context/DataContext';
@@ -9,7 +9,7 @@ export default function EmotionsPage() {
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
     const { trackEmotionLearn, trackEmotionQuiz } = useData();
-    const { currentChild, updateChildEmotionStats } = useAuth(); // Import updateChildEmotionStats
+    const { currentChild, updateChildEmotionStats } = useAuth();
 
     const [currentLevel, setCurrentLevel] = useState(1);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,22 +23,13 @@ export default function EmotionsPage() {
 
     const emotions = getUpToLevel(currentLevel);
     const currentEmotion = emotions[currentIndex] || emotions[0];
+    const historyEntries = Object.entries(currentChild?.emotionHistory || {}).sort((a, b) => new Date(b[0]) - new Date(a[0])).slice(0, 5);
 
-    // History Entries
-    const historyEntries = Object.entries(currentChild?.emotionHistory || {})
-        .sort((a, b) => new Date(b[0]) - new Date(a[0])) // Sort Newest First
-        .slice(0, 5); // Take last 5
-
-    const bg = isDark ? '#1A1A2E' : '#F7F9FC';
-    const cardBg = isDark ? '#1F2940' : '#fff';
-    const text = isDark ? '#E0E0E0' : '#2D3436';
+    const accent = '#F59E0B';
 
     const speak = useCallback((t) => {
         if ('speechSynthesis' in window) {
-            const u = new SpeechSynthesisUtterance(t);
-            u.lang = isArabic ? 'ar' : 'en-US';
-            u.rate = 0.8;
-            speechSynthesis.speak(u);
+            const u = new SpeechSynthesisUtterance(t); u.lang = isArabic ? 'ar' : 'en-US'; u.rate = 0.8; speechSynthesis.speak(u);
         }
     }, [isArabic]);
 
@@ -51,67 +42,58 @@ export default function EmotionsPage() {
             const options = [answer, ...emotions.filter(e => e.id !== answer.id).sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
             return { answer, options };
         });
-        setQuizQuestions(questions);
-        setCurrentQuestionIdx(0);
-        setCorrectAnswers(0);
-        setTotalAttempts(0);
-        setLastAnswerCorrect(null);
-        setQuizFinished(false);
-        setIsQuizMode(true);
+        setQuizQuestions(questions); setCurrentQuestionIdx(0); setCorrectAnswers(0);
+        setTotalAttempts(0); setLastAnswerCorrect(null); setQuizFinished(false); setIsQuizMode(true);
     };
 
     const answerQuiz = (optionId) => {
         if (lastAnswerCorrect !== null) return;
         const correct = quizQuestions[currentQuestionIdx].answer.id === optionId;
-        setLastAnswerCorrect(correct);
-        setTotalAttempts(p => p + 1);
+        setLastAnswerCorrect(correct); setTotalAttempts(p => p + 1);
         if (correct) setCorrectAnswers(p => p + 1);
         trackEmotionQuiz(correct);
     };
 
     const nextQuiz = () => {
         if (currentQuestionIdx >= quizQuestions.length - 1) {
-
-            // Save Session Result
             const todayKey = new Date().toLocaleDateString('en-CA');
-            if (currentChild) {
-                updateChildEmotionStats(currentChild.childId, todayKey, correctAnswers + (lastAnswerCorrect ? 0 : 0), totalAttempts); // Note: correctAnswers is state, might lag one render if used directly here, but usually safe in next step.
-                // Wait, correctAnswers state is updated asynchronously. 
-                // Better approach: Calculate final values and pass.
-            }
-            // Actually, since setCorrectAnswers is async, we use the values available.
-            // But here nextQuiz is called via button click AFTER answerQuiz has run. So state should be stable except for the very last question case if auto-advance.
-            // But we have manual "Next/Finish" button. So state is stable.
-
-            // Re-saving is fine. But we want to save ONLY ONCE at the end.
-            if (currentChild) {
-                // We need to add the stats for this session to history.
-                // WARNING: correctAnswers inside this function scope refers to state at render.
-                // It is correct because we re-render after answerQuiz.
-                updateChildEmotionStats(currentChild.childId, todayKey, correctAnswers, totalAttempts);
-            }
-
+            if (currentChild) updateChildEmotionStats(currentChild.childId, todayKey, correctAnswers, totalAttempts);
             setQuizFinished(true);
-        } else {
-            setCurrentQuestionIdx(p => p + 1);
-            setLastAnswerCorrect(null);
-        }
+        } else { setCurrentQuestionIdx(p => p + 1); setLastAnswerCorrect(null); }
     };
 
     const accuracy = totalAttempts > 0 ? correctAnswers / totalAttempts : 0;
 
-    // Quiz Finished Screen
+    const Navbar = ({ title, onBack }) => (
+        <nav className={`flex items-center gap-3 py-3 px-6 max-w-[800px] mx-auto border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
+            <button onClick={onBack}
+                className={`w-9 h-9 rounded-[10px] border flex items-center justify-center text-base cursor-pointer ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'}`}>←</button>
+            <h1 className={`flex-1 text-lg font-bold m-0 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>😊 {title}</h1>
+        </nav>
+    );
+
+    // Quiz Finished
     if (isQuizMode && quizFinished) {
+        const pct = Math.round(accuracy * 100);
+        const pctColor = pct >= 80 ? '#10B981' : pct >= 50 ? '#F59E0B' : '#EF4444';
         return (
-            <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', direction: isArabic ? 'rtl' : 'ltr' }}>
-                <div style={{ background: cardBg, borderRadius: 32, padding: 40, textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', maxWidth: 400, width: '90%' }}>
-                    <div style={{ fontSize: 80 }}>🎉</div>
-                    <h2 style={{ color: text, fontSize: 28, marginTop: 16 }}>{isArabic ? 'اكتمل الاختبار!' : 'Quiz Completed!'}</h2>
-                    <div style={{ fontSize: 60, fontWeight: 800, color: '#6C63FF', margin: '16px 0' }}>{Math.round(accuracy * 100)}%</div>
-                    <p style={{ color: '#999' }}>{isArabic ? 'دقة الإجابة' : 'Accuracy'}</p>
-                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
-                        <button onClick={startQuiz} style={{ background: '#FF6584', color: '#fff', border: 'none', borderRadius: 16, padding: '12px 24px', cursor: 'pointer', fontWeight: 600 }}>🔄 {isArabic ? 'إعادة' : 'Restart'}</button>
-                        <button onClick={() => setIsQuizMode(false)} style={{ background: 'transparent', color: text, border: `1px solid ${isDark ? '#444' : '#ddd'}`, borderRadius: 16, padding: '12px 24px', cursor: 'pointer', fontWeight: 600 }}>🚪 {isArabic ? 'خروج' : 'Exit'}</button>
+            <div className={`min-h-screen flex items-center justify-center p-6 font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+                <div className={`rounded-3xl p-12 text-center max-w-[420px] w-full border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.06)]'}`}>
+                    <div className="text-[72px]">{pct >= 80 ? '🎉' : pct >= 50 ? '👏' : '💪'}</div>
+                    <h2 className={`text-[26px] mt-4 font-extrabold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'اكتمل الاختبار!' : 'Quiz Completed!'}</h2>
+                    <div className="w-[100px] h-[100px] rounded-full mx-auto my-5 flex items-center justify-center"
+                        style={{ background: `conic-gradient(${pctColor} ${pct}%, ${isDark ? '#21262D' : '#F3F4F6'} 0%)` }}>
+                        <div className={`w-20 h-20 rounded-full flex items-center justify-center text-[22px] font-extrabold ${isDark ? 'bg-card-dark' : 'bg-card'}`} style={{ color: pctColor }}>{pct}%</div>
+                    </div>
+                    <p className={`text-sm ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{correctAnswers}/{totalAttempts} {isArabic ? 'إجابة صحيحة' : 'correct answers'}</p>
+                    <div className="flex gap-2.5 mt-6">
+                        <button onClick={startQuiz} className="flex-1 py-3.5 rounded-xl cursor-pointer font-bold bg-gradient-to-br from-amber-500 to-orange-500 text-white border-none shadow-[0_4px_12px_rgba(245,158,11,0.25)]">
+                            🔄 {isArabic ? 'إعادة' : 'Restart'}
+                        </button>
+                        <button onClick={() => setIsQuizMode(false)}
+                            className={`flex-1 py-3.5 rounded-xl cursor-pointer font-semibold bg-transparent border ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}>
+                            🚪 {isArabic ? 'خروج' : 'Exit'}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -122,136 +104,133 @@ export default function EmotionsPage() {
     if (isQuizMode) {
         const q = quizQuestions[currentQuestionIdx];
         return (
-            <div style={{ minHeight: '100vh', background: bg, direction: isArabic ? 'rtl' : 'ltr' }}>
-                <div style={{ background: isDark ? '#16213E' : '#7EB6D8', color: '#fff', padding: '16px 20px', borderRadius: '0 0 20px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <button onClick={() => setIsQuizMode(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer' }}>←</button>
-                    <h1 style={{ flex: 1, textAlign: 'center', fontSize: 18, fontWeight: 700, margin: 0 }}>{isArabic ? 'اختبار المشاعر' : 'Emotion Quiz'}</h1>
-                    <div style={{ width: 30 }} />
-                </div>
-
-                {/* Score Bar */}
-                <div style={{ margin: '16px 20px', padding: '12px 20px', background: cardBg, borderRadius: 16, display: 'flex', justifyContent: 'space-around', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                    <div style={{ textAlign: 'center' }}><div style={{ fontSize: 24, fontWeight: 700, color: '#4CAF50' }}>{correctAnswers}</div><div style={{ fontSize: 12, color: '#999' }}>{isArabic ? 'الصحيح' : 'Correct'}</div></div>
-                    <div style={{ textAlign: 'center' }}><div style={{ fontSize: 24, fontWeight: 700, color: '#7EB6D8' }}>{totalAttempts}</div><div style={{ fontSize: 12, color: '#999' }}>{isArabic ? 'المحاولات' : 'Attempts'}</div></div>
-                    <div style={{ textAlign: 'center' }}><div style={{ fontSize: 24, fontWeight: 700, color: '#B8A9E8' }}>{Math.round(accuracy * 100)}%</div><div style={{ fontSize: 12, color: '#999' }}>{isArabic ? 'الدقة' : 'Accuracy'}</div></div>
-                </div>
-
-                {/* Question */}
-                <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                    <div style={{ fontSize: 90 }}>{q.answer.emoji}</div>
-                    <h2 style={{ color: text, fontSize: 22, fontWeight: 700, margin: '16px 0' }}>{isArabic ? 'ما هذا الشعور؟' : 'What emotion is this?'}</h2>
-                </div>
-
-                {/* Options */}
-                <div style={{ padding: '0 32px' }}>
-                    {q.options.map(option => {
-                        const isCorrectAnswer = option.id === q.answer.id;
-                        let optBg = cardBg;
-                        let borderColor = isDark ? '#444' : '#ddd';
-                        let borderWidth = 1;
-                        if (lastAnswerCorrect !== null && isCorrectAnswer) {
-                            optBg = 'rgba(76,175,80,0.2)';
-                            borderColor = '#4CAF50';
-                            borderWidth = 2;
-                        } else if (lastAnswerCorrect === false && !isCorrectAnswer) {
-                            optBg = 'rgba(229,57,53,0.1)';
-                        }
-                        return (
-                            <button key={option.id} onClick={() => answerQuiz(option.id)} style={{
-                                width: '100%', padding: '16px 20px', margin: '6px 0', borderRadius: 18,
-                                background: optBg, border: `${borderWidth}px solid ${borderColor}`,
-                                cursor: lastAnswerCorrect !== null ? 'default' : 'pointer',
-                                display: 'flex', alignItems: 'center', gap: 16, textAlign: 'start',
-                            }}>
-                                <span style={{ fontSize: 28 }}>{option.emoji}</span>
-                                <span style={{ fontSize: 18, fontWeight: 600, color: text }}>{isArabic ? option.nameAr : option.name}</span>
-                                {lastAnswerCorrect !== null && isCorrectAnswer && <span style={{ marginInlineStart: 'auto', color: '#4CAF50' }}>✓</span>}
-                            </button>
-                        );
-                    })}
-                </div>
-
-                {lastAnswerCorrect !== null && (
-                    <div style={{ textAlign: 'center', marginTop: 16 }}>
-                        <button onClick={nextQuiz} style={{ background: '#6C63FF', color: '#fff', border: 'none', borderRadius: 20, padding: '12px 32px', cursor: 'pointer', fontWeight: 600, fontSize: 16 }}>
-                            {currentQuestionIdx >= quizQuestions.length - 1 ? (isArabic ? 'إنهاء' : 'Finish') : (isArabic ? 'التالي ←' : 'Next →')}
-                        </button>
+            <div className={`min-h-screen font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+                <Navbar title={isArabic ? 'اختبار المشاعر' : 'Emotion Quiz'} onBack={() => setIsQuizMode(false)} />
+                <div className="max-w-[600px] mx-auto py-5 px-6">
+                    {/* Score */}
+                    <div className="grid grid-cols-3 gap-3 mb-6">
+                        {[
+                            { val: correctAnswers, label: isArabic ? 'صحيح' : 'Correct', color: '#10B981' },
+                            { val: totalAttempts, label: isArabic ? 'المحاولات' : 'Attempts', color: '#6C63FF' },
+                            { val: `${Math.round(accuracy * 100)}%`, label: isArabic ? 'الدقة' : 'Accuracy', color: accent },
+                        ].map((s, i) => (
+                            <div key={i} className={`rounded-[14px] py-4 px-3 text-center border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                                <div className="text-[22px] font-extrabold" style={{ color: s.color }}>{s.val}</div>
+                                <div className={`text-[11px] mt-0.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{s.label}</div>
+                            </div>
+                        ))}
                     </div>
-                )}
+
+                    {/* Progress */}
+                    <div className="flex gap-1 mb-6">
+                        {quizQuestions.map((_, i) => (
+                            <div key={i} className="flex-1 h-1 rounded-sm transition-colors duration-300"
+                                style={{ background: i < currentQuestionIdx ? '#10B981' : i === currentQuestionIdx ? accent : (isDark ? '#21262D' : '#E5E7EB') }} />
+                        ))}
+                    </div>
+
+                    {/* Question */}
+                    <div className="text-center mb-6">
+                        <div className="text-[90px]">{q.answer.emoji}</div>
+                        <h2 className={`text-[22px] font-bold mt-4 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'ما هذا الشعور؟' : 'What emotion is this?'}</h2>
+                    </div>
+
+                    {/* Options */}
+                    <div className="grid gap-2.5">
+                        {q.options.map(option => {
+                            const isCorrect = option.id === q.answer.id;
+                            let optBg = isDark ? 'bg-card-dark' : 'bg-card';
+                            let optBorder = isDark ? 'border-border-dark' : 'border-border';
+                            if (lastAnswerCorrect !== null && isCorrect) { optBg = isDark ? 'bg-emerald-500/10' : 'bg-green-50'; optBorder = 'border-emerald-500'; }
+                            else if (lastAnswerCorrect === false && !isCorrect) { optBg = isDark ? 'bg-red-500/5' : 'bg-red-50'; }
+                            return (
+                                <button key={option.id} onClick={() => answerQuiz(option.id)}
+                                    className={`w-full py-4 px-5 rounded-[14px] border-[1.5px] flex items-center gap-3.5 text-start transition-all duration-200 ${optBg} ${optBorder} ${lastAnswerCorrect !== null ? 'cursor-default' : 'cursor-pointer'}`}>
+                                    <span className="text-[28px]">{option.emoji}</span>
+                                    <span className={`text-base font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? option.nameAr : option.name}</span>
+                                    {lastAnswerCorrect !== null && isCorrect && <span className="ms-auto text-emerald-500 text-lg">✓</span>}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {lastAnswerCorrect !== null && (
+                        <div className="text-center mt-5">
+                            <button onClick={nextQuiz}
+                                className="py-3.5 px-10 rounded-xl border-none cursor-pointer bg-gradient-to-br from-accent to-[#8B5CF6] text-white font-bold text-[15px] shadow-[0_4px_12px_rgba(108,99,255,0.3)]">
+                                {currentQuestionIdx >= quizQuestions.length - 1 ? (isArabic ? '✨ إنهاء' : '✨ Finish') : (isArabic ? 'التالي →' : 'Next →')}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }
 
     // Learning Mode
     return (
-        <div style={{ minHeight: '100vh', background: bg, display: 'flex', flexDirection: 'column', direction: isArabic ? 'rtl' : 'ltr' }}>
-            {/* AppBar */}
-            <div style={{ background: isDark ? '#16213E' : '#7EB6D8', color: '#fff', padding: '16px 20px', borderRadius: '0 0 20px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer' }}>←</button>
-                <h1 style={{ flex: 1, textAlign: 'center', fontSize: 18, fontWeight: 700, margin: 0 }}>{isArabic ? 'المشاعر' : 'Emotions'}</h1>
-                <div style={{ width: 30 }} />
-            </div>
+        <div className={`min-h-screen flex flex-col font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+            <Navbar title={isArabic ? 'المشاعر' : 'Emotions'} onBack={() => navigate(-1)} />
+            <div className="max-w-[800px] mx-auto py-5 px-6 flex-1 flex flex-col w-full box-border">
+                {/* Level Selector */}
+                <div className="flex justify-center gap-2.5 mb-6">
+                    {[1, 2, 3].map(level => (
+                        <button key={level} onClick={() => { setCurrentLevel(level); setCurrentIndex(0); }}
+                            className={`py-2.5 px-5 rounded-xl cursor-pointer text-[13px] border transition-all duration-200 ${currentLevel === level
+                                    ? 'bg-amber-500 text-white border-amber-500 font-bold shadow-[0_4px_12px_rgba(245,158,11,0.19)]'
+                                    : `font-medium ${isDark ? 'bg-card-dark text-text-dark border-border-dark' : 'bg-card text-text border-border'}`
+                                }`}>
+                            {[isArabic ? '⭐ سهل' : '⭐ Easy', isArabic ? '⭐⭐ متوسط' : '⭐⭐ Medium', isArabic ? '⭐⭐⭐ صعب' : '⭐⭐⭐ Hard'][level - 1]}
+                        </button>
+                    ))}
+                </div>
 
-            {/* Level Selector */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 10, padding: '16px 0' }}>
-                {[1, 2, 3].map(level => (
-                    <button key={level} onClick={() => { setCurrentLevel(level); setCurrentIndex(0); }} style={{
-                        padding: '8px 16px', borderRadius: 16,
-                        background: currentLevel === level ? '#B8A9E8' : isDark ? '#1F2940' : '#fff',
-                        color: currentLevel === level ? '#fff' : text,
-                        border: `1px solid ${currentLevel === level ? '#B8A9E8' : isDark ? '#444' : '#ddd'}`,
-                        cursor: 'pointer', fontWeight: currentLevel === level ? 700 : 500, fontSize: 13,
-                    }}>
-                        {['⭐ Easy', '⭐⭐ Medium', '⭐⭐⭐ Hard'][level - 1]}
+                {/* Emotion Card */}
+                <div className="flex-1 flex items-center justify-center px-4">
+                    <div onClick={() => speak(isArabic ? currentEmotion.nameAr : currentEmotion.name)}
+                        className={`rounded-3xl p-10 text-center w-full max-w-[440px] border cursor-pointer transition-all duration-300 ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.06)]'}`}>
+                        <div className="text-[100px]">{currentEmotion.emoji}</div>
+                        <h2 className={`text-[30px] font-extrabold my-5 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? currentEmotion.nameAr : currentEmotion.name}</h2>
+                        <p className={`text-[15px] leading-relaxed ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? currentEmotion.descriptionAr : currentEmotion.description}</p>
+                        <div className={`mt-5 inline-flex items-center gap-2 py-2.5 px-5 rounded-xl ${isDark ? 'bg-border-dark' : 'bg-[#F0F0FF]'}`}>
+                            <span className="text-accent">🔊</span>
+                            <span className="text-accent font-semibold text-[13px]">{isArabic ? 'اضغط للاستماع' : 'Tap to listen'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="flex justify-center items-center gap-4 py-6">
+                    <button onClick={prevEmotion}
+                        className={`w-12 h-12 rounded-xl border flex items-center justify-center text-xl cursor-pointer transition-all duration-200 ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'}`}>←</button>
+                    <span className={`text-[13px] font-semibold ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{currentIndex + 1} / {emotions.length}</span>
+                    <button onClick={startQuiz}
+                        className="bg-gradient-to-br from-amber-500 to-orange-500 text-white border-none rounded-xl py-3 px-7 cursor-pointer font-bold text-[15px] shadow-[0_4px_12px_rgba(245,158,11,0.25)]">
+                        🧩 {isArabic ? 'اختبار' : 'Quiz'}
                     </button>
-                ))}
-            </div>
-
-            {/* Emotion Card */}
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px' }}>
-                <div onClick={() => speak(isArabic ? currentEmotion.nameAr : currentEmotion.name)} style={{
-                    background: cardBg, borderRadius: 32, padding: 32, textAlign: 'center', width: '100%', maxWidth: 400,
-                    boxShadow: '0 8px 32px rgba(184,169,232,0.2)', cursor: 'pointer', transition: 'transform 0.3s',
-                }}>
-                    <div style={{ fontSize: 100 }}>{currentEmotion.emoji}</div>
-                    <h2 style={{ color: text, fontSize: 32, fontWeight: 700, margin: '20px 0 12px' }}>{isArabic ? currentEmotion.nameAr : currentEmotion.name}</h2>
-                    <p style={{ color: '#999', fontSize: 16, lineHeight: 1.5 }}>{isArabic ? currentEmotion.descriptionAr : currentEmotion.description}</p>
-                    <div style={{ marginTop: 20, display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(126,182,216,0.15)', padding: '10px 20px', borderRadius: 20 }}>
-                        <span style={{ color: '#7EB6D8' }}>🔊</span>
-                        <span style={{ color: '#7EB6D8', fontWeight: 600 }}>{isArabic ? 'اضغط للاستماع 🔊' : 'Tap to listen 🔊'}</span>
-                    </div>
+                    <button onClick={nextEmotion}
+                        className={`w-12 h-12 rounded-xl border flex items-center justify-center text-xl cursor-pointer transition-all duration-200 ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'}`}>→</button>
                 </div>
-            </div>
 
-            {/* Navigation */}
-            <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', padding: '20px' }}>
-                <button onClick={prevEmotion} style={{ width: 56, height: 56, borderRadius: '50%', background: cardBg, border: 'none', cursor: 'pointer', fontSize: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', color: text }}>←</button>
-                <button onClick={startQuiz} style={{ background: '#4ECDC4', color: '#fff', border: 'none', borderRadius: 20, padding: '12px 24px', cursor: 'pointer', fontWeight: 600, fontSize: 16 }}>🧩 {isArabic ? 'اختبار' : 'Quiz'}</button>
-                <button onClick={nextEmotion} style={{ width: 56, height: 56, borderRadius: '50%', background: cardBg, border: 'none', cursor: 'pointer', fontSize: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', color: text }}>→</button>
-            </div>
-
-            {/* History Stats Section */}
-            {historyEntries.length > 0 && (
-                <div style={{ padding: 16, marginTop: 'auto', borderTop: `1px solid ${isDark ? '#333' : '#eee'}` }}>
-                    <h3 style={{ fontSize: 16, color: text, marginBottom: 12 }}>{isArabic ? '📊 أداء الأسبوع الماضي' : '📊 Past Week Performance'}</h3>
-                    <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 10 }}>
-                        {historyEntries.map(([date, stats]) => {
-                            const pct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-                            return (
-                                <div key={date} style={{
-                                    minWidth: 80, padding: 10, borderRadius: 16, background: cardBg,
-                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                                    border: `1px solid ${isDark ? '#333' : '#eee'}`
-                                }}>
-                                    <div style={{ fontSize: 11, color: '#999' }}>{date.split('-').slice(1).join('/')}</div>
-                                    <div style={{ fontSize: 18, fontWeight: 700, color: pct >= 80 ? '#4CAF50' : pct >= 50 ? '#FFC107' : '#FF6584' }}>{pct}%</div>
-                                    <div style={{ fontSize: 10, color: text }}>{stats.correct}/{stats.total}</div>
-                                </div>
-                            );
-                        })}
+                {/* History */}
+                {historyEntries.length > 0 && (
+                    <div className={`p-5 rounded-2xl border mt-2 ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                        <h3 className={`text-[15px] font-bold mb-3 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>📊 {isArabic ? 'الأداء السابق' : 'Past Performance'}</h3>
+                        <div className="flex gap-2.5 overflow-x-auto">
+                            {historyEntries.map(([date, stats]) => {
+                                const pct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+                                return (
+                                    <div key={date} className={`min-w-[80px] py-3 px-2.5 rounded-xl flex flex-col items-center gap-1 border ${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}>
+                                        <div className={`text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{date.split('-').slice(1).join('/')}</div>
+                                        <div className="text-lg font-bold" style={{ color: pct >= 80 ? '#10B981' : pct >= 50 ? '#F59E0B' : '#EF4444' }}>{pct}%</div>
+                                        <div className={`text-[10px] ${isDark ? 'text-text-dark' : 'text-text'}`}>{stats.correct}/{stats.total}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

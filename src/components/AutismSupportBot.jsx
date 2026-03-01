@@ -1,207 +1,121 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { autismKnowledgeBase, defaultResponse, searchFallback } from '../data/autismKnowledgeBase';
 import { childBotData, childDefaultResponse, childFallbackResponse } from '../data/childBotData';
+import { getGeminiResponse, isGeminiAvailable } from '../api/geminiAI';
 
-// Helper to normalize text (remove diacritics, lowercase)
-const normalize = (text) => text.toLowerCase()
-    .replace(/[ًٌٍَُِّْ]/g, '') // remove tashkeel
-    .replace(/[أإآ]/g, 'ا')
-    .replace(/[ة]/g, 'ه')
-    .replace(/[ى]/g, 'ي')
-    .trim();
+const normalize = (text) => text.toLowerCase().replace(/[ًٌٍَُِّْ]/g, '').replace(/[أإآ]/g, 'ا').replace(/[ة]/g, 'ه').replace(/[ى]/g, 'ي').trim();
 
 export default function AutismSupportBot({ mode = 'parent' }) {
     const { isDark, isArabic } = useApp();
     const isChild = mode === 'child';
-
-    // Choose appropriate responses/data
     const knowledgeBase = isChild ? childBotData : autismKnowledgeBase;
-    const initialText = isChild
-        ? (isArabic ? childDefaultResponse.ar : childDefaultResponse.en)
-        : (isArabic ? defaultResponse.ar : defaultResponse.en);
-    const fallbackText = isChild
-        ? (isArabic ? childFallbackResponse.ar : childFallbackResponse.en)
-        : (isArabic ? searchFallback.ar : searchFallback.en);
+    const initialText = isChild ? (isArabic ? childDefaultResponse.ar : childDefaultResponse.en) : (isArabic ? defaultResponse.ar : defaultResponse.en);
+    const fallbackText = isChild ? (isArabic ? childFallbackResponse.ar : childFallbackResponse.en) : (isArabic ? searchFallback.ar : searchFallback.en);
+    const aiActiveText = isGeminiAvailable();
+    const accent = isChild ? '#FF6584' : '#6C63FF';
 
-    const [messages, setMessages] = useState([
-        { id: 1, text: initialText, sender: 'bot' }
-    ]);
+    const [messages, setMessages] = useState([{ id: 1, text: initialText, sender: 'bot' }]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
+    useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isTyping]);
 
-    const bg = isDark ? '#1F2940' : '#fff';
-    const text = isDark ? '#E0E0E0' : '#2D3436';
-    const accent = isChild ? '#FF6584' : '#6C63FF'; // Child uses playful pink
-    const botBg = isDark ? '#2a3654' : '#F0F2F5';
-    const userBg = accent;
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, isTyping]);
-
-    const findAnswer = (query) => {
+    const findLocalAnswer = useCallback((query) => {
         const normalizedQuery = normalize(query);
-        const queryWords = normalizedQuery.split(/\s+/); // split by spaces
-
-        // Score each topic based on keyword matches
-        let bestMatch = null;
-        let highestScore = 0;
-
+        const queryWords = normalizedQuery.split(/\s+/).filter(w => w.length > 0);
+        let bestMatch = null, highestScore = 0;
         knowledgeBase.forEach(topic => {
             let score = 0;
             topic.keywords.forEach(keyword => {
-                const normalizedKeyword = normalize(keyword);
-                // Exact match or partial match in query
-                if (normalizedQuery.includes(normalizedKeyword)) {
-                    score += 5; // Direct phrase match
-                } else if (queryWords.some(w => w.includes(normalizedKeyword) || normalizedKeyword.includes(w))) {
-                    score += 2; // Partial word match
-                }
+                const nk = normalize(keyword); if (nk.length <= 1) return;
+                if (nk.includes(' ') && normalizedQuery.includes(nk)) score += 10;
+                else if (normalizedQuery.includes(nk) && nk.length >= 3) score += 5;
+                else if (nk.length >= 3 && queryWords.some(w => (w.length >= 3 && w.includes(nk)) || (nk.length >= 3 && nk.includes(w) && w.length >= 3))) score += 2;
             });
-
-            if (score > highestScore) {
-                highestScore = score;
-                bestMatch = topic;
-            }
+            if (score > highestScore) { highestScore = score; bestMatch = topic; }
         });
-
-        // Threshold for a "good" match
-        if (bestMatch && highestScore >= 2) {
-            return {
-                text: isArabic ? bestMatch.answerAr : bestMatch.answerEn,
-                type: 'answer'
-            };
-        }
-
-        // Child Fallback: Just return simple message (no Google search)
-        if (isChild) {
-            return {
-                text: fallbackText,
-                type: 'answer' // Always 'answer' for child, no 'search' actions
-            };
-        }
-
-        // Parent Fallback: Google Search
-        return {
-            text: fallbackText,
-            type: 'search',
-            query: query
-        };
-    };
+        return bestMatch && highestScore >= 3 ? { text: isArabic ? bestMatch.answerAr : bestMatch.answerEn, type: 'answer', source: 'local' } : null;
+    }, [knowledgeBase, isArabic]);
 
     const handleSend = async (textOverride = null) => {
         const textToSend = textOverride || input;
         if (!textToSend.trim()) return;
-
-        // User Message
         const userMsg = { id: Date.now(), text: textToSend, sender: 'user' };
-        setMessages(prev => [...prev, userMsg]);
-        setInput('');
-        setIsTyping(true);
-
-        // Simulate AI Thinking Delay (random between 1s and 2s)
+        setMessages(prev => [...prev, userMsg]); setInput(''); setIsTyping(true);
+        try {
+            if (isGeminiAvailable()) {
+                const aiResponse = await getGeminiResponse(textToSend, [...messages, userMsg], mode, isArabic);
+                setMessages(prev => [...prev, { id: Date.now() + 1, text: aiResponse, sender: 'bot', type: 'answer', source: 'ai' }]);
+                setIsTyping(false); return;
+            }
+        } catch (error) { console.warn('Gemini AI failed, falling back to local KB:', error.message); }
         setTimeout(() => {
-            const response = findAnswer(textToSend);
-
-            let botMsg = {
-                id: Date.now() + 1,
-                text: response.text,
-                sender: 'bot',
-                type: response.type,
-                query: response.query
-            };
-
-            setMessages(prev => [...prev, botMsg]);
+            const localResponse = findLocalAnswer(textToSend);
+            if (localResponse) setMessages(prev => [...prev, { id: Date.now() + 1, text: localResponse.text, sender: 'bot', type: 'answer', source: 'local' }]);
+            else if (isChild) setMessages(prev => [...prev, { id: Date.now() + 1, text: fallbackText, sender: 'bot', type: 'answer', source: 'local' }]);
+            else setMessages(prev => [...prev, { id: Date.now() + 1, text: fallbackText, sender: 'bot', type: 'search', query: textToSend, source: 'local' }]);
             setIsTyping(false);
-        }, Math.random() * 1000 + 1000);
+        }, Math.random() * 800 + 600);
     };
 
     const quickQuestions = isChild
-        ? (isArabic ? ['أنا زعلان 😢', 'أنا جعان 🍔', 'عايز ألعب 🎮', 'أنا مبسوط 😄'] : ['I am sad 😢', 'I am hungry 🍔', 'I want to play 🎮', 'I am happy 😄'])
-        : (isArabic
-            ? ['كيف أتعامل مع الصراخ؟', 'ابني لا يتكلم', 'مشاكل النوم', 'ينزعج من الأصوات', 'لا يأكل جيداً', 'التنمر في المدرسة']
-            : ['How to handle meltdowns?', 'My child is non-verbal', 'Sleep problems', 'Sensory issues', 'Picky eater', 'Bullying at school']);
+        ? (isArabic ? ['أنا زعلان 😢', 'أنا جعان 🍔', 'عايز ألعب 🎮', 'أنا مبسوط 😄', 'أنا خايف 😨', 'عايز ماما ❤️'] : ['I am sad 😢', 'I am hungry 🍔', 'I want to play 🎮', 'I am happy 😄', 'I am scared 😨', 'I want mom ❤️'])
+        : (isArabic ? ['كيف أتعامل مع الصراخ؟', 'ابني لا يتكلم', 'مشاكل النوم', 'ينزعج من الأصوات', 'لا يأكل جيداً', 'علامات التوحد', 'أنواع العلاج', 'مش فاهمين العيلة'] : ['How to handle meltdowns?', 'My child is non-verbal', 'Sleep problems', 'Sensory issues', 'Picky eater', 'Early signs', 'Therapy types', 'Explaining to family']);
 
     return (
-        <div style={{
-            background: bg, borderRadius: 20, border: `1px solid ${isDark ? '#444' : '#e0e0e0'}`,
-            display: 'flex', flexDirection: 'column', height: isChild ? 450 : 600, overflow: 'hidden', margin: '20px 0',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
-        }}>
+        <div className={`rounded-[20px] flex flex-col overflow-hidden my-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border ${isDark ? 'bg-[#1F2940] border-[#444]' : 'bg-white border-gray-200'}`}
+            style={{ height: isChild ? 450 : 600 }}>
             {/* Header */}
-            <div style={{
-                padding: '16px 20px', background: isDark ? '#16213E' : '#fafafa', borderBottom: `1px solid ${isDark ? '#333' : '#eee'}`,
-                display: 'flex', alignItems: 'center', gap: 12
-            }}>
-                <div style={{ width: isChild ? 50 : 44, height: isChild ? 50 : 44, borderRadius: '50%', background: `linear-gradient(135deg, ${accent}, #FF6584)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isChild ? 30 : 26, boxShadow: '0 2px 10px rgba(108,99,255,0.3)' }}>🤖</div>
-                <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: 0, fontSize: isChild ? 18 : 16, fontWeight: 700, color: text }}>{isArabic ? (isChild ? 'صديقي الروبوت' : 'المساعد الذكي للتوحد') : (isChild ? 'Robot Friend' : 'Autism AI Assistant')}</h3>
-                    <div style={{ fontSize: 12, color: '#4CAF50', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4CAF50', animation: 'pulse 2s infinite' }}></span>
-                        {isArabic ? 'متصل الآن' : 'Online'}
+            <div className={`py-4 px-5 flex items-center gap-3 border-b ${isDark ? 'bg-[#16213E] border-[#333]' : 'bg-[#fafafa] border-gray-200'}`}>
+                <div className="rounded-full flex items-center justify-center shadow-[0_2px_10px_rgba(108,99,255,0.3)]"
+                    style={{ width: isChild ? 50 : 44, height: isChild ? 50 : 44, background: `linear-gradient(135deg, ${accent}, #FF6584)`, fontSize: isChild ? 30 : 26 }}>🤖</div>
+                <div className="flex-1">
+                    <h3 className={`m-0 font-bold ${isDark ? 'text-[#E0E0E0]' : 'text-[#2D3436]'}`} style={{ fontSize: isChild ? 18 : 16 }}>{isArabic ? (isChild ? 'صديقي الروبوت' : 'المساعد الذكي للتوحد') : (isChild ? 'Robot Friend' : 'Autism AI Assistant')}</h3>
+                    <div className="flex items-center gap-2">
+                        <div className="text-xs text-emerald-500 flex items-center gap-1 font-semibold">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" style={{ animation: 'pulse 2s infinite' }} />
+                            {isArabic ? 'متصل الآن' : 'Online'}
+                        </div>
+                        {aiActiveText && <span className="text-[9px] py-0.5 px-1.5 rounded-md bg-gradient-to-br from-accent to-accent2 text-white font-bold tracking-wider">✨ Gemini AI</span>}
                     </div>
                 </div>
-                <button onClick={() => setMessages([{ id: 1, text: initialText, sender: 'bot' }])} title={isArabic ? 'مسح المحادثة' : 'Clear Chat'} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#999' }}>🗑️</button>
+                <button onClick={() => setMessages([{ id: 1, text: initialText, sender: 'bot' }])} title={isArabic ? 'مسح المحادثة' : 'Clear Chat'} className="bg-transparent border-none cursor-pointer text-lg text-gray-400">🗑️</button>
             </div>
 
-            {/* Messages Area */}
-            <div style={{ flex: 1, padding: 20, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Messages */}
+            <div className="flex-1 p-5 overflow-y-auto flex flex-col gap-4">
                 {messages.map(msg => (
-                    <div key={msg.id} style={{
-                        alignSelf: msg.sender === 'user' ? (isArabic ? 'flex-start' : 'flex-end') : (isArabic ? 'flex-end' : 'flex-start'),
-                        maxWidth: '85%', display: 'flex', gap: 10,
-                        flexDirection: isArabic ? 'row' : (msg.sender === 'user' ? 'row-reverse' : 'row')
-                    }}>
-                        {msg.sender === 'bot' && (
-                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${accent}20`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🤖</div>
-                        )}
-                        <div style={{
-                            padding: isChild ? '16px 20px' : '14px 18px', borderRadius: 20,
-                            background: msg.sender === 'user' ? userBg : botBg,
-                            color: msg.sender === 'user' ? '#fff' : text,
-                            borderTopLeftRadius: msg.sender === 'bot' && !isArabic ? 4 : 20,
-                            borderTopRightRadius: msg.sender === 'bot' && isArabic ? 4 : (msg.sender === 'user' && !isArabic ? 4 : 20),
-                            borderBottomLeftRadius: msg.sender === 'user' && isArabic ? 4 : 20,
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-                            whiteSpace: 'pre-wrap', lineHeight: 1.6, fontSize: isChild ? 16 : 15, fontWeight: isChild ? 500 : 400
-                        }}>
+                    <div key={msg.id} className="flex gap-2.5 max-w-[85%]"
+                        style={{ alignSelf: msg.sender === 'user' ? (isArabic ? 'flex-start' : 'flex-end') : (isArabic ? 'flex-end' : 'flex-start'), flexDirection: isArabic ? 'row' : (msg.sender === 'user' ? 'row-reverse' : 'row') }}>
+                        {msg.sender === 'bot' && <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-lg" style={{ background: `${accent}20` }}>🤖</div>}
+                        <div className="shadow-[0_2px_5px_rgba(0,0,0,0.05)] whitespace-pre-wrap leading-relaxed relative"
+                            style={{
+                                padding: isChild ? '16px 20px' : '14px 18px', borderRadius: 20,
+                                background: msg.sender === 'user' ? accent : (isDark ? '#2a3654' : '#F0F2F5'),
+                                color: msg.sender === 'user' ? '#fff' : (isDark ? '#E0E0E0' : '#2D3436'),
+                                borderTopLeftRadius: msg.sender === 'bot' && !isArabic ? 4 : 20,
+                                borderTopRightRadius: msg.sender === 'bot' && isArabic ? 4 : (msg.sender === 'user' && !isArabic ? 4 : 20),
+                                borderBottomLeftRadius: msg.sender === 'user' && isArabic ? 4 : 20,
+                                fontSize: isChild ? 16 : 15, fontWeight: isChild ? 500 : 400,
+                            }}>
                             {msg.text}
-
-                            {/* Google Search Fallback Button (ONLY IN PARENT MODE) */}
+                            {msg.sender === 'bot' && msg.source === 'ai' && (<div className={`mt-2 text-[10px] flex items-center gap-1 ${isDark ? 'text-[#777]' : 'text-[#aaa]'}`}><span className="text-[10px]">✨</span>{isArabic ? 'مدعوم بالذكاء الاصطناعي' : 'Powered by AI'}</div>)}
                             {msg.type === 'search' && !isChild && (
-                                <a
-                                    href={`https://www.google.com/search?q=${encodeURIComponent(msg.query + ' autism')}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                        display: 'block', marginTop: 12, padding: '10px 16px', borderRadius: 12,
-                                        background: isDark ? '#16213E' : '#fff', border: `1px solid ${isDark ? '#3a4a6a' : '#ddd'}`,
-                                        color: accent, textDecoration: 'none', fontWeight: 700, fontSize: 14, textAlign: 'center',
-                                        transition: 'background 0.2s'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1F2940' : '#f0f0f0'}
-                                    onMouseLeave={e => e.currentTarget.style.background = isDark ? '#16213E' : '#fff'}
-                                >
+                                <a href={`https://www.google.com/search?q=${encodeURIComponent(msg.query + ' autism')}`} target="_blank" rel="noopener noreferrer"
+                                    className={`block mt-3 py-2.5 px-4 rounded-xl text-accent no-underline font-bold text-sm text-center border transition-colors duration-200 ${isDark ? 'bg-[#16213E] border-[#3a4a6a] hover:bg-[#1F2940]' : 'bg-white border-gray-200 hover:bg-gray-100'}`}>
                                     🔍 {isArabic ? `بحث جوجل عن "${msg.query}"` : `Search Google for "${msg.query}"`}
                                 </a>
                             )}
                         </div>
                     </div>
                 ))}
-
                 {isTyping && (
-                    <div style={{ alignSelf: isArabic ? 'flex-end' : 'flex-start', display: 'flex', gap: 10, flexDirection: isArabic ? 'row' : 'row' }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🤖</div>
-                        <div style={{ background: botBg, padding: '14px 18px', borderRadius: 20, display: 'flex', gap: 6, alignItems: 'center' }}>
-                            <span style={{ width: 6, height: 6, background: '#999', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both' }}></span>
-                            <span style={{ width: 6, height: 6, background: '#999', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both 0.16s' }}></span>
-                            <span style={{ width: 6, height: 6, background: '#999', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both 0.32s' }}></span>
+                    <div className="flex gap-2.5" style={{ alignSelf: isArabic ? 'flex-end' : 'flex-start' }}>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: `${accent}20` }}>🤖</div>
+                        <div className="rounded-[20px] py-3.5 px-[18px] flex gap-1.5 items-center" style={{ background: isDark ? '#2a3654' : '#F0F2F5' }}>
+                            {[0, 0.16, 0.32].map((d, i) => <span key={i} className="w-2 h-2 rounded-full opacity-70" style={{ background: accent, animation: `bounce 1.4s infinite ease-in-out both ${d}s` }} />)}
+                            <span className="text-[11px] text-gray-400 ms-2">{isGeminiAvailable() ? (isArabic ? '🧠 بيفكر...' : '🧠 Thinking...') : (isArabic ? 'بيكتب...' : 'Typing...')}</span>
                         </div>
                     </div>
                 )}
@@ -209,57 +123,28 @@ export default function AutismSupportBot({ mode = 'parent' }) {
             </div>
 
             {/* Quick Suggestions */}
-            <div style={{ padding: '0 20px 12px', display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
+            <div className="px-5 pb-3 flex gap-2 overflow-x-auto [scrollbar-width:none]">
                 {quickQuestions.map(q => (
-                    <button key={q} onClick={() => handleSend(q)} style={{
-                        padding: isChild ? '12px 20px' : '8px 16px', borderRadius: 24, border: `1px solid ${accent}40`,
-                        background: isDark ? 'rgba(108,99,255,0.15)' : '#fff', color: accent,
-                        fontSize: isChild ? 15 : 13, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', fontWeight: isChild ? 700 : 500
-                    }}
-                        onMouseEnter={e => e.currentTarget.style.background = `${accent}20`}
-                        onMouseLeave={e => e.currentTarget.style.background = isDark ? 'rgba(108,99,255,0.15)' : '#fff'}
-                    >{q}</button>
+                    <button key={q} onClick={() => handleSend(q)}
+                        className={`rounded-3xl border cursor-pointer whitespace-nowrap transition-all duration-200 ${isDark ? 'bg-accent/15 border-accent/40' : 'bg-white border-accent/40'}`}
+                        style={{ padding: isChild ? '12px 20px' : '8px 16px', color: accent, fontSize: isChild ? 15 : 13, fontWeight: isChild ? 700 : 500 }}>
+                        {q}
+                    </button>
                 ))}
             </div>
 
-            {/* Input Area */}
-            <div style={{ padding: 16, borderTop: `1px solid ${isDark ? '#333' : '#eee'}`, display: 'flex', gap: 10 }}>
-                <input
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSend()}
-                    placeholder={isArabic ? 'اكتب...' : 'Type...'}
-                    style={{
-                        flex: 1, padding: isChild ? '16px 20px' : '14px 20px', borderRadius: 28, border: `1px solid ${isDark ? '#444' : '#ddd'}`,
-                        background: isDark ? '#2a3654' : '#f9f9f9', color: text, outline: 'none', fontSize: 16
-                    }}
-                />
-                <button
-                    onClick={() => handleSend()}
-                    disabled={!input.trim() || isTyping}
-                    style={{
-                        width: isChild ? 56 : 52, height: isChild ? 56 : 52, borderRadius: '50%', background: accent, color: '#fff',
-                        border: 'none', cursor: input.trim() ? 'pointer' : 'default', opacity: input.trim() ? 1 : 0.6,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-                        boxShadow: '0 4px 12px rgba(108,99,255,0.4)', transition: 'transform 0.2s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                    {isArabic ? '➤' : '➤'}
-                </button>
+            {/* Input */}
+            <div className={`p-4 flex gap-2.5 border-t ${isDark ? 'border-[#333]' : 'border-gray-200'}`}>
+                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !isTyping && handleSend()} disabled={isTyping}
+                    placeholder={isArabic ? (isGeminiAvailable() ? '✨ اسألني أي حاجة...' : 'اكتب...') : (isGeminiAvailable() ? '✨ Ask me anything...' : 'Type...')}
+                    className={`flex-1 rounded-[28px] border outline-none text-base ${isDark ? 'bg-[#2a3654] border-[#444] text-[#E0E0E0]' : 'bg-[#f9f9f9] border-gray-200 text-[#2D3436]'} ${isTyping ? 'opacity-60' : ''}`}
+                    style={{ padding: isChild ? '16px 20px' : '14px 20px' }} />
+                <button onClick={() => handleSend()} disabled={!input.trim() || isTyping}
+                    className={`rounded-full text-white border-none flex items-center justify-center text-[22px] shadow-[0_4px_12px_rgba(108,99,255,0.4)] transition-transform duration-200 hover:scale-105 ${!input.trim() || isTyping ? 'opacity-60 cursor-default' : 'cursor-pointer'}`}
+                    style={{ background: accent, width: isChild ? 56 : 52, height: isChild ? 56 : 52 }}>➤</button>
             </div>
-            <style>{`
-                @keyframes bounce { 
-                    0%, 80%, 100% { transform: scale(0); }
-                    40% { transform: scale(1); }
-                }
-                @keyframes pulse {
-                    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
-                    70% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-                }
-            `}</style>
+
+            <style>{`@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } } @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }`}</style>
         </div>
     );
 }

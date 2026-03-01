@@ -1,7 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { DataProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
+import LandingPage from './pages/LandingPage';
 import ChoicePage from './pages/ChoicePage';
 import ChildHomePage from './pages/ChildHomePage';
 import ChildLoginPage from './pages/ChildLoginPage';
@@ -16,15 +17,17 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DoctorAuthPage from './pages/DoctorAuthPage';
 import DoctorPage from './pages/DoctorPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/learnova-app/">
       <AppProvider>
         <AuthProvider>
           <DataProvider>
             <Routes>
-              <Route path="/" element={<ChoicePage />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/choice" element={<ChoicePage />} />
               <Route path="/child-login" element={<ChildLoginPage />} />
               <Route path="/child-signup" element={<ChildSignupPage />} />
               <Route path="/child-home" element={<ChildHomePage />} />
@@ -38,7 +41,7 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/doctor-auth" element={<DoctorAuthPage />} />
               <Route path="/doctor-dashboard" element={<DoctorPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </DataProvider>
         </AuthProvider>

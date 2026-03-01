@@ -8,39 +8,28 @@ export default function SignupPage() {
     const { isDark, isArabic } = useApp();
     const { registerParent, getChildById } = useAuth();
 
-    const [step, setStep] = useState(0); // 0=child code, 1=name, 2=email, 3=password, 4=phone, 5=review
+    const [step, setStep] = useState(0);
     const [form, setForm] = useState({ childId: '', name: '', email: '', password: '', phone: '' });
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [linkedChild, setLinkedChild] = useState(null);
 
-    const bg = isDark ? '#1A1A2E' : '#F7F9FC';
-    const cardBg = isDark ? '#1F2940' : '#fff';
-    const text = isDark ? '#E0E0E0' : '#2D3436';
-    const accent = '#6C63FF';
-    const inputStyle = {
-        width: '100%', padding: '14px 16px', borderRadius: 16, fontSize: 15,
-        border: `1.5px solid ${isDark ? '#3a4a6a' : '#ddd'}`, background: isDark ? '#2a3654' : '#fff',
-        color: text, outline: 'none',
-    };
-
+    const accent = '#4ECDC4';
     const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
+    const inputCls = `w-full py-3.5 px-4 rounded-xl text-sm border outline-none font-[inherit] box-border ${isDark ? 'bg-bg-dark text-text-dark border-border-dark focus:border-accent3' : 'bg-[#F9FAFB] text-text border-border focus:border-accent3'}`;
 
     const passwordStrength = () => {
         const p = form.password;
         if (!p) return { level: 0, label: '', color: '#999' };
         let score = 0;
-        if (p.length >= 6) score++;
-        if (p.length >= 8) score++;
-        if (/[A-Z]/.test(p)) score++;
-        if (/[0-9]/.test(p)) score++;
-        if (/[^A-Za-z0-9]/.test(p)) score++;
+        if (p.length >= 6) score++; if (p.length >= 8) score++;
+        if (/[A-Z]/.test(p)) score++; if (/[0-9]/.test(p)) score++; if (/[^A-Za-z0-9]/.test(p)) score++;
         const levels = [
-            { label: isArabic ? 'ضعيفة جداً' : 'Very Weak', color: '#FF6584' },
-            { label: isArabic ? 'ضعيفة' : 'Weak', color: '#FF6584' },
-            { label: isArabic ? 'متوسطة' : 'Fair', color: '#F9E4A7' },
-            { label: isArabic ? 'جيدة' : 'Good', color: '#4ECDC4' },
-            { label: isArabic ? 'قوية' : 'Strong', color: '#8BC99A' },
+            { label: isArabic ? 'ضعيفة جداً' : 'Very Weak', color: '#EF4444' },
+            { label: isArabic ? 'ضعيفة' : 'Weak', color: '#EF4444' },
+            { label: isArabic ? 'متوسطة' : 'Fair', color: '#F59E0B' },
+            { label: isArabic ? 'جيدة' : 'Good', color: '#10B981' },
+            { label: isArabic ? 'قوية' : 'Strong', color: '#10B981' },
         ];
         return { level: score, ...levels[Math.min(score, 4)] };
     };
@@ -51,206 +40,165 @@ export default function SignupPage() {
                 if (!form.childId.trim()) return isArabic ? 'أدخل كود الطفل' : 'Enter child code';
                 const child = getChildById(form.childId.trim());
                 if (!child) return isArabic ? 'هذا الكود غير موجود! تأكد من الكود أو اطلبه من الطفل' : 'This code does not exist! Verify the code or ask the child';
-                setLinkedChild(child);
-                return null;
-            case 1:
-                if (!form.name.trim()) return isArabic ? 'الاسم مطلوب' : 'Name is required';
-                return null;
-            case 2:
-                if (!form.email.trim() || !form.email.includes('@')) return isArabic ? 'إيميل غير صحيح' : 'Invalid email';
-                return null;
-            case 3:
-                if (form.password.length < 6) return isArabic ? 'كلمة المرور 6 أحرف على الأقل' : 'Password must be at least 6 characters';
-                return null;
-            case 4:
-                return null; // phone optional
+                setLinkedChild(child); return null;
+            case 1: if (!form.name.trim()) return isArabic ? 'الاسم مطلوب' : 'Name is required'; return null;
+            case 2: if (!form.email.trim() || !form.email.includes('@')) return isArabic ? 'إيميل غير صحيح' : 'Invalid email'; return null;
+            case 3: if (form.password.length < 6) return isArabic ? 'كلمة المرور 6 أحرف على الأقل' : 'Password must be at least 6 characters'; return null;
             default: return null;
         }
     };
 
-    const nextStep = () => {
-        const err = validateStep();
-        if (err) { setError(err); return; }
-        setError('');
-        if (step < 5) setStep(step + 1);
-    };
-
-    const prevStep = () => {
-        setError('');
-        if (step > 0) setStep(step - 1);
-    };
+    const nextStep = () => { const err = validateStep(); if (err) { setError(err); return; } setError(''); if (step < 5) setStep(step + 1); };
+    const prevStep = () => { setError(''); if (step > 0) setStep(step - 1); };
 
     const handleSubmit = () => {
         const result = registerParent({ ...form, childId: form.childId.trim() });
-        if (result.success) {
-            navigate('/dashboard');
-        } else {
-            if (result.error === 'email_exists') setError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already exists');
-            else if (result.error === 'child_not_found') setError(isArabic ? 'كود الطفل غير موجود' : 'Child code not found');
-        }
+        if (result.success) navigate('/dashboard');
+        else { if (result.error === 'email_exists') setError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already exists'); else if (result.error === 'child_not_found') setError(isArabic ? 'كود الطفل غير موجود' : 'Child code not found'); }
     };
 
-    const stepLabels = isArabic
-        ? ['كود الطفل', 'الاسم', 'البريد', 'كلمة المرور', 'الهاتف', 'مراجعة']
-        : ['Child Code', 'Name', 'Email', 'Password', 'Phone', 'Review'];
-
+    const stepLabels = isArabic ? ['كود الطفل', 'الاسم', 'البريد', 'كلمة المرور', 'الهاتف', 'مراجعة'] : ['Child Code', 'Name', 'Email', 'Password', 'Phone', 'Review'];
+    const stepIcons = ['🔗', '👤', '📧', '🔒', '📱', '✅'];
     const strength = passwordStrength();
 
     const renderStep = () => {
+        const header = (emoji, title, sub) => (
+            <div className="text-center mb-6">
+                <div className="text-[56px] mb-2">{emoji}</div>
+                <h2 className={`text-[22px] font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{title}</h2>
+                {sub && <p className={`text-[13px] m-0 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{sub}</p>}
+            </div>
+        );
         switch (step) {
-            case 0: // Child Code
-                return (
-                    <div>
-                        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <div style={{ fontSize: 56 }}>🔗</div>
-                            <h2 style={{ color: text, fontSize: 22, fontWeight: 700, margin: '12px 0 4px' }}>{isArabic ? 'ربط حسابك بالطفل' : 'Link to Your Child'}</h2>
-                            <p style={{ color: '#999', fontSize: 13 }}>{isArabic ? 'أدخل كود الطفل الذي تريد متابعته' : 'Enter the child code you want to monitor'}</p>
+            case 0: return (<div>
+                {header('🔗', isArabic ? 'ربط حسابك بالطفل' : 'Link to Your Child', isArabic ? 'أدخل كود الطفل الذي تريد متابعته' : 'Enter the child code you want to monitor')}
+                <label className={`text-[13px] font-semibold mb-1.5 block ${isDark ? 'text-text-dark' : 'text-text'}`}>🆔 {isArabic ? 'كود الطفل' : 'Child Code'}</label>
+                <input value={form.childId} onChange={e => set('childId', e.target.value.toUpperCase())} placeholder="LN-XXXXXX" maxLength={9}
+                    className={`${inputCls} text-center !text-[22px] !font-bold tracking-[3px] font-mono`} />
+                <div className={`text-center mt-1.5 text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'الكود موجود في حساب الطفل' : "The code is in the child's profile"}</div>
+                {linkedChild && (
+                    <div className={`mt-4 p-3.5 rounded-[14px] flex items-center gap-3 border ${isDark ? 'bg-emerald-500/[0.08] border-emerald-500/20' : 'bg-green-50 border-green-200'}`}>
+                        <span className="text-[28px]">{linkedChild.avatar}</span>
+                        <div className="flex-1">
+                            <div className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{linkedChild.name}</div>
+                            <div className="text-xs text-emerald-500">{linkedChild.age} {isArabic ? 'سنوات' : 'years'} • {linkedChild.gender}</div>
                         </div>
-                        <label style={{ fontSize: 13, fontWeight: 600, color: text, marginBottom: 6, display: 'block' }}>🆔 {isArabic ? 'كود الطفل' : 'Child Code'}</label>
-                        <input
-                            value={form.childId}
-                            onChange={e => set('childId', e.target.value.toUpperCase())}
-                            placeholder="LN-XXXXXX"
-                            maxLength={9}
-                            style={{ ...inputStyle, textAlign: 'center', fontSize: 22, fontWeight: 700, letterSpacing: 3, fontFamily: 'monospace' }}
-                        />
-                        <div style={{ textAlign: 'center', marginTop: 6 }}>
-                            <span style={{ fontSize: 11, color: '#B8A9E8' }}>{isArabic ? 'الكود موجود في حساب الطفل' : 'The code is in the child\'s profile'}</span>
-                        </div>
-                        {linkedChild && (
-                            <div style={{ marginTop: 16, padding: 14, background: 'rgba(139,201,154,0.1)', borderRadius: 16, border: '1px solid rgba(139,201,154,0.3)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <span style={{ fontSize: 28 }}>{linkedChild.avatar}</span>
-                                <div>
-                                    <div style={{ fontWeight: 700, color: text }}>{linkedChild.name}</div>
-                                    <div style={{ fontSize: 12, color: '#8BC99A' }}>{linkedChild.age} {isArabic ? 'سنوات' : 'years'} • {linkedChild.gender}</div>
-                                </div>
-                                <span style={{ marginInlineStart: 'auto', color: '#8BC99A', fontSize: 20 }}>✓</span>
+                        <span className="text-emerald-500 text-xl">✓</span>
+                    </div>
+                )}
+            </div>);
+            case 1: return (<div>{header('👤', isArabic ? 'ما اسمك؟' : "What's your name?")}
+                <input value={form.name} onChange={e => set('name', e.target.value)} placeholder={isArabic ? 'الاسم الكامل' : 'Full Name'} className={inputCls} autoFocus />
+            </div>);
+            case 2: return (<div>{header('📧', isArabic ? 'بريدك الإلكتروني' : 'Your Email')}
+                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="your@email.com" className={inputCls} autoFocus />
+            </div>);
+            case 3: return (<div>{header('🔒', isArabic ? 'كلمة المرور' : 'Create Password')}
+                <div className="relative">
+                    <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'} className={inputCls} autoFocus />
+                    <button onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-lg p-0 end-3.5">{showPassword ? '🙈' : '👁️'}</button>
+                </div>
+                {form.password && (<div className="mt-2.5">
+                    <div className="flex gap-1 mb-1">{[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="flex-1 h-1 rounded-sm transition-colors duration-300" style={{ background: strength.level >= i ? strength.color : (isDark ? '#21262D' : '#E5E7EB') }} />
+                    ))}</div>
+                    <span className="text-xs font-semibold" style={{ color: strength.color }}>{strength.label}</span>
+                </div>)}
+            </div>);
+            case 4: return (<div>{header('📱', isArabic ? 'رقم الهاتف' : 'Phone Number', isArabic ? '(اختياري)' : '(Optional)')}
+                <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="01xxxxxxxxx" className={inputCls} autoFocus />
+            </div>);
+            case 5: return (<div>{header('✅', isArabic ? 'مراجعة البيانات' : 'Review Details')}
+                <div className={`rounded-2xl p-4 border ${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}>
+                    {[
+                        { label: isArabic ? 'كود الطفل' : 'Child Code', value: form.childId, emoji: '🆔' },
+                        { label: isArabic ? 'الطفل المرتبط' : 'Linked Child', value: linkedChild?.name || '—', emoji: linkedChild?.avatar || '👶' },
+                        { label: isArabic ? 'اسمك' : 'Your Name', value: form.name, emoji: '👤' },
+                        { label: isArabic ? 'البريد' : 'Email', value: form.email, emoji: '📧' },
+                        { label: isArabic ? 'الهاتف' : 'Phone', value: form.phone || (isArabic ? 'لم يُحدد' : 'Not set'), emoji: '📱' },
+                    ].map(item => (
+                        <div key={item.label} className={`flex items-center gap-3 py-3 border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
+                            <div className={`w-9 h-9 rounded-[10px] flex items-center justify-center text-lg shrink-0 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>{item.emoji}</div>
+                            <div className="flex-1">
+                                <div className={`text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{item.label}</div>
+                                <div className={`text-sm font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>{item.value}</div>
                             </div>
-                        )}
-                    </div>
-                );
-            case 1: // Name
-                return (
-                    <div>
-                        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <div style={{ fontSize: 56 }}>👤</div>
-                            <h2 style={{ color: text, fontSize: 22, fontWeight: 700 }}>{isArabic ? 'ما اسمك؟' : "What's your name?"}</h2>
                         </div>
-                        <input value={form.name} onChange={e => set('name', e.target.value)} placeholder={isArabic ? 'الاسم الكامل' : 'Full Name'} style={inputStyle} autoFocus />
-                    </div>
-                );
-            case 2: // Email
-                return (
-                    <div>
-                        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <div style={{ fontSize: 56 }}>📧</div>
-                            <h2 style={{ color: text, fontSize: 22, fontWeight: 700 }}>{isArabic ? 'بريدك الإلكتروني' : 'Your Email'}</h2>
-                        </div>
-                        <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="your@email.com" style={inputStyle} autoFocus />
-                    </div>
-                );
-            case 3: // Password
-                return (
-                    <div>
-                        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <div style={{ fontSize: 56 }}>🔒</div>
-                            <h2 style={{ color: text, fontSize: 22, fontWeight: 700 }}>{isArabic ? 'كلمة المرور' : 'Create Password'}</h2>
-                        </div>
-                        <div style={{ position: 'relative' }}>
-                            <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'} style={inputStyle} autoFocus />
-                            <button onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: isArabic ? 'auto' : 14, left: isArabic ? 14 : 'auto', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>{showPassword ? '🙈' : '👁️'}</button>
-                        </div>
-                        {form.password && (
-                            <div style={{ marginTop: 8 }}>
-                                <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                                    {[1, 2, 3, 4, 5].map(i => (
-                                        <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: strength.level >= i ? strength.color : isDark ? '#333' : '#eee' }} />
-                                    ))}
-                                </div>
-                                <span style={{ fontSize: 12, color: strength.color, fontWeight: 600 }}>{strength.label}</span>
-                            </div>
-                        )}
-                    </div>
-                );
-            case 4: // Phone
-                return (
-                    <div>
-                        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <div style={{ fontSize: 56 }}>📱</div>
-                            <h2 style={{ color: text, fontSize: 22, fontWeight: 700 }}>{isArabic ? 'رقم الهاتف' : 'Phone Number'}</h2>
-                            <p style={{ color: '#999', fontSize: 13 }}>{isArabic ? '(اختياري)' : '(Optional)'}</p>
-                        </div>
-                        <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder={isArabic ? '01xxxxxxxxx' : '01xxxxxxxxx'} style={inputStyle} autoFocus />
-                    </div>
-                );
-            case 5: // Review
-                return (
-                    <div>
-                        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <div style={{ fontSize: 56 }}>✅</div>
-                            <h2 style={{ color: text, fontSize: 22, fontWeight: 700 }}>{isArabic ? 'مراجعة البيانات' : 'Review Details'}</h2>
-                        </div>
-                        <div style={{ background: isDark ? '#16213E' : '#f5f3ff', borderRadius: 16, padding: 16 }}>
-                            {[
-                                { label: isArabic ? 'كود الطفل' : 'Child Code', value: form.childId, emoji: '🆔' },
-                                { label: isArabic ? 'الطفل المرتبط' : 'Linked Child', value: linkedChild?.name || '—', emoji: linkedChild?.avatar || '👶' },
-                                { label: isArabic ? 'اسمك' : 'Your Name', value: form.name, emoji: '👤' },
-                                { label: isArabic ? 'البريد' : 'Email', value: form.email, emoji: '📧' },
-                                { label: isArabic ? 'الهاتف' : 'Phone', value: form.phone || (isArabic ? 'لم يُحدد' : 'Not set'), emoji: '📱' },
-                            ].map(item => (
-                                <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${isDark ? '#333' : '#e8e8f0'}` }}>
-                                    <span style={{ fontSize: 20 }}>{item.emoji}</span>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: 11, color: '#999' }}>{item.label}</div>
-                                        <div style={{ fontSize: 15, fontWeight: 600, color: text }}>{item.value}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
+                    ))}
+                </div>
+            </div>);
         }
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', direction: isArabic ? 'rtl' : 'ltr', padding: 16 }}>
-            <div style={{ background: cardBg, borderRadius: 32, padding: '32px 28px', boxShadow: '0 8px 40px rgba(108,99,255,0.12)', maxWidth: 440, width: '100%', animation: 'fadeSlideUp 0.4s ease-out' }}>
-                {/* Progress Bar */}
-                <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
-                    {stepLabels.map((_, i) => (
-                        <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? accent : isDark ? '#333' : '#eee', transition: 'background 0.3s' }} />
+        <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+            {/* Left: Branding */}
+            <div className="flex-[0_0_45%] hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent3 to-[#44B09E] to-[#3A9D8F] p-10 relative overflow-hidden">
+                <div className="absolute top-[10%] left-[10%] text-5xl opacity-15" style={{ animation: 'float 6s ease-in-out infinite' }}>👨‍👩‍👧</div>
+                <div className="absolute bottom-[15%] right-[10%] text-[40px] opacity-[0.12]" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>📊</div>
+                <div className="absolute top-[60%] left-[5%] text-[35px] opacity-10" style={{ animation: 'float 8s ease-in-out infinite 2s' }}>💚</div>
+                <div className="text-[80px] mb-5 z-[1]">👨‍👩‍👧</div>
+                <h2 className="text-white text-3xl font-extrabold text-center z-[1] mb-2.5">{isArabic ? 'إنشاء حساب ولي الأمر' : 'Create Parent Account'}</h2>
+                <p className="text-white/85 text-[15px] text-center z-[1] max-w-[320px] leading-relaxed">{isArabic ? 'اربط حسابك بطفلك وابدأ متابعة تقدمه اليومي' : 'Link your account to your child and start tracking daily progress'}</p>
+                <div className="mt-10 z-[1] flex flex-col gap-2">
+                    {stepLabels.map((label, i) => (
+                        <div key={i} className="flex items-center gap-2.5 transition-opacity duration-300" style={{ opacity: i <= step ? 1 : 0.4 }}>
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold backdrop-blur-sm"
+                                style={{ background: i < step ? 'rgba(255,255,255,0.3)' : i === step ? '#fff' : 'rgba(255,255,255,0.1)', color: i === step ? accent : '#fff' }}>
+                                {i < step ? '✓' : stepIcons[i]}
+                            </div>
+                            <span className={`text-white text-[13px] ${i === step ? 'font-bold' : ''}`}>{label}</span>
+                        </div>
                     ))}
                 </div>
-                <div style={{ textAlign: 'center', marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, color: accent, fontWeight: 600 }}>{step + 1}/{stepLabels.length} — {stepLabels[step]}</span>
-                </div>
+            </div>
 
-                {/* Step Content */}
-                {renderStep()}
+            {/* Right: Form */}
+            <div className="flex-1 flex items-center justify-center py-10 px-6">
+                <div className="w-full max-w-[440px]" style={{ animation: 'fadeInUp 0.3s ease-out' }}>
+                    <div className="flex gap-1 mb-5">
+                        {stepLabels.map((_, i) => (
+                            <div key={i} className="flex-1 h-1 rounded-sm transition-colors duration-300"
+                                style={{ background: i <= step ? accent : (isDark ? '#21262D' : '#E5E7EB') }} />
+                        ))}
+                    </div>
+                    <div className="text-center mb-5"><span className="text-xs text-accent3 font-semibold">{step + 1}/{stepLabels.length} — {stepLabels[step]}</span></div>
 
-                {/* Error */}
-                {error && <div style={{ background: 'rgba(255,101,132,0.1)', borderRadius: 12, padding: '10px 14px', marginTop: 12 }}><span style={{ color: '#FF6584', fontSize: 13, fontWeight: 600 }}>⚠️ {error}</span></div>}
+                    {renderStep()}
 
-                {/* Nav Buttons */}
-                <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-                    {step > 0 && (
-                        <button onClick={prevStep} style={{ flex: 1, padding: 14, borderRadius: 16, border: `1.5px solid ${isDark ? '#444' : '#ddd'}`, background: 'transparent', color: text, cursor: 'pointer', fontWeight: 600, fontSize: 15 }}>← {isArabic ? 'رجوع' : 'Back'}</button>
+                    {error && (
+                        <div className={`rounded-[10px] py-2.5 px-3.5 mt-3.5 border ${isDark ? 'bg-red-500/10 border-red-500/20' : 'bg-red-50 border-red-200'}`}>
+                            <span className="text-red-500 text-[13px] font-semibold">⚠️ {error}</span>
+                        </div>
                     )}
-                    {step < 5 ? (
-                        <button onClick={nextStep} style={{ flex: 1, padding: 14, borderRadius: 16, border: 'none', background: accent, color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 15 }}>{isArabic ? 'التالي →' : 'Next →'}</button>
-                    ) : (
-                        <button onClick={handleSubmit} style={{ flex: 1, padding: 14, borderRadius: 16, border: 'none', background: 'linear-gradient(135deg, #4ECDC4, #8BC99A)', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 15 }}>🎉 {isArabic ? 'إنشاء الحساب' : 'Create Account'}</button>
-                    )}
-                </div>
 
-                {/* Login Link */}
-                <div style={{ textAlign: 'center', marginTop: 16 }}>
-                    <span style={{ color: '#999', fontSize: 13 }}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
-                    <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: accent, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>{isArabic ? 'سجل دخول' : 'Log In'}</button>
-                </div>
+                    <div className="flex gap-2.5 mt-6">
+                        {step > 0 && (
+                            <button onClick={prevStep} className={`flex-1 py-3.5 rounded-xl bg-transparent cursor-pointer font-semibold text-[15px] transition-all duration-200 font-[inherit] border ${isDark ? 'border-border-dark text-text-dark' : 'border-border text-text'}`}>
+                                ← {isArabic ? 'رجوع' : 'Back'}
+                            </button>
+                        )}
+                        {step < 5 ? (
+                            <button onClick={nextStep} className="flex-1 py-3.5 rounded-xl border-none bg-gradient-to-br from-accent3 to-[#44B09E] text-white cursor-pointer font-bold text-[15px] shadow-[0_4px_12px_rgba(78,205,196,0.25)] transition-all duration-300 hover:-translate-y-0.5">
+                                {isArabic ? 'التالي →' : 'Next →'}
+                            </button>
+                        ) : (
+                            <button onClick={handleSubmit} className="flex-1 py-3.5 rounded-xl border-none bg-gradient-to-br from-emerald-500 to-emerald-600 text-white cursor-pointer font-bold text-[15px] shadow-[0_4px_12px_rgba(16,185,129,0.4)] transition-all duration-300 hover:-translate-y-0.5">
+                                🎉 {isArabic ? 'إنشاء الحساب' : 'Create Account'}
+                            </button>
+                        )}
+                    </div>
 
-                {/* Back to Home */}
-                <button onClick={() => navigate('/')} style={{ width: '100%', padding: 12, marginTop: 10, borderRadius: 14, background: 'transparent', border: `1px solid ${isDark ? '#444' : '#ddd'}`, color: text, cursor: 'pointer', fontSize: 14 }}>← {isArabic ? 'الرئيسية' : 'Home'}</button>
+                    <div className="text-center mt-5">
+                        <span className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
+                        <button onClick={() => navigate('/login')} className="bg-transparent border-none text-accent3 cursor-pointer font-bold text-[13px] font-[inherit]">{isArabic ? 'سجل دخول' : 'Log In'}</button>
+                    </div>
+
+                    <button onClick={() => navigate('/choice')}
+                        className={`w-full py-3 mt-3 rounded-xl bg-transparent cursor-pointer text-[13px] font-medium font-[inherit] border ${isDark ? 'border-border-dark text-subtext-dark' : 'border-border text-subtext'}`}>
+                        ← {isArabic ? 'رجوع' : 'Back'}
+                    </button>
+                </div>
             </div>
         </div>
     );

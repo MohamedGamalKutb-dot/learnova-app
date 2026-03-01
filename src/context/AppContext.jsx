@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const AppContext = createContext(null);
 
@@ -11,6 +11,16 @@ export function AppProvider({ children }) {
         const saved = localStorage.getItem('learnova_arabic');
         return saved ? JSON.parse(saved) : false;
     });
+
+    // Sync dark class on <html> for Tailwind dark: variant
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', isDark);
+    }, [isDark]);
+
+    // Sync dir attribute on <html> for RTL
+    useEffect(() => {
+        document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+    }, [isArabic]);
 
     const toggleTheme = useCallback(() => {
         setIsDark(prev => {

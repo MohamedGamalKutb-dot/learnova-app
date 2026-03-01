@@ -12,44 +12,34 @@ export default function ProfilePage() {
     const [editingField, setEditingField] = useState(null);
     const [editValue, setEditValue] = useState('');
 
-    const bg = isDark ? '#1A1A2E' : '#F7F9FC';
-    const cardBg = isDark ? '#1F2940' : '#fff';
-    const text = isDark ? '#E0E0E0' : '#2D3436';
     const accent = '#6C63FF';
 
-    // If not logged in
     if (!currentChild) {
         return (
-            <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', direction: isArabic ? 'rtl' : 'ltr' }}>
-                <div style={{ textAlign: 'center', padding: 32 }}>
-                    <div style={{ fontSize: 64, marginBottom: 16 }}>🔒</div>
-                    <h2 style={{ color: text, fontSize: 22, fontWeight: 700 }}>{isArabic ? 'يجب تسجيل الدخول أولاً' : 'Please log in first'}</h2>
-                    <button onClick={() => navigate('/child-login')} style={{ marginTop: 16, padding: '14px 32px', borderRadius: 16, background: accent, color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 16 }}>{isArabic ? 'تسجيل الدخول' : 'Log In'}</button>
+            <div className={`min-h-screen flex items-center justify-center font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+                <div className={`text-center p-10 rounded-3xl border max-w-[380px] ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                    <div className="text-[56px] mb-4">🔒</div>
+                    <h2 className={`text-[22px] font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'يجب تسجيل الدخول أولاً' : 'Please log in first'}</h2>
+                    <button onClick={() => navigate('/child-login')}
+                        className="mt-4 py-3.5 px-8 rounded-xl bg-gradient-to-br from-accent to-[#8B5CF6] text-white border-none cursor-pointer font-bold text-[15px] shadow-[0_4px_16px_rgba(108,99,255,0.25)]">
+                        {isArabic ? 'تسجيل الدخول' : 'Log In'}
+                    </button>
                 </div>
             </div>
         );
     }
 
     const child = currentChild;
-
-    const startEdit = (field, currentValue) => {
-        setEditingField(field);
-        setEditValue(currentValue || '');
-    };
-
+    const startEdit = (field, currentValue) => { setEditingField(field); setEditValue(currentValue || ''); };
     const saveEdit = () => {
-        if (editingField && editValue !== undefined) {
-            updateChildProfile({ [editingField]: editingField === 'age' ? parseInt(editValue) : editValue });
-        }
-        setEditingField(null);
-        setEditValue('');
+        if (editingField && editValue !== undefined) updateChildProfile({ [editingField]: editingField === 'age' ? parseInt(editValue) : editValue });
+        setEditingField(null); setEditValue('');
     };
-
     const togglePref = (pref) => {
         const prefs = child.sensoryPreferences || [];
-        const updated = prefs.includes(pref) ? prefs.filter(p => p !== pref) : [...prefs, pref];
-        updateChildProfile({ sensoryPreferences: updated });
+        updateChildProfile({ sensoryPreferences: prefs.includes(pref) ? prefs.filter(p => p !== pref) : [...prefs, pref] });
     };
+    const handleLogout = () => { logoutChild(); navigate('/'); };
 
     const sensoryOptions = [
         { key: 'light_sensitive', label: isArabic ? 'حساسية للضوء' : 'Light Sensitive', emoji: '💡' },
@@ -60,174 +50,151 @@ export default function ProfilePage() {
         { key: 'calm_environment', label: isArabic ? 'يحب الهدوء' : 'Prefers Calm', emoji: '🧘' },
     ];
 
-    const handleLogout = () => {
-        logoutChild();
-        navigate('/');
-    };
-
     return (
-        <div style={{ minHeight: '100vh', background: bg, direction: isArabic ? 'rtl' : 'ltr', paddingBottom: 40 }}>
-            {/* AppBar */}
-            <div style={{ background: isDark ? '#16213E' : 'linear-gradient(135deg, #B8A9E8, #6C63FF)', color: '#fff', padding: '16px 20px', borderRadius: '0 0 20px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer' }}>←</button>
-                <h1 style={{ flex: 1, textAlign: 'center', fontSize: 18, fontWeight: 700, margin: 0 }}>{isArabic ? 'الملف الشخصي' : 'Profile'}</h1>
-                <button onClick={handleLogout} title={isArabic ? 'تسجيل خروج' : 'Logout'} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 18, cursor: 'pointer' }}>🚪</button>
-            </div>
+        <div className={`min-h-screen font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
+            {/* Navbar */}
+            <nav className={`flex items-center gap-3 py-3 px-6 max-w-[700px] mx-auto border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
+                <button onClick={() => navigate(-1)}
+                    className={`w-9 h-9 rounded-[10px] border flex items-center justify-center text-base cursor-pointer ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'}`}>←</button>
+                <h1 className={`flex-1 text-lg font-bold m-0 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                    👤 {isArabic ? 'الملف الشخصي' : 'Profile'}
+                </h1>
+                <button onClick={handleLogout}
+                    className={`py-2 px-4 rounded-[10px] text-[13px] font-semibold text-red-500 flex items-center gap-1 cursor-pointer border ${isDark ? 'bg-border-dark border-[#30363D]' : 'bg-red-50 border-red-200'}`}>
+                    🚪 {isArabic ? 'خروج' : 'Logout'}
+                </button>
+            </nav>
 
-            <div style={{ padding: 16, maxWidth: 500, margin: '0 auto' }}>
-                {/* Avatar & Child ID */}
-                <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                    <div onClick={() => setShowAvatarPicker(true)} style={{
-                        width: 100, height: 100, borderRadius: '50%', margin: '0 auto 12px',
-                        background: `linear-gradient(135deg, ${accent}, #FF6584)`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 52, cursor: 'pointer', boxShadow: '0 6px 20px rgba(108,99,255,0.25)',
-                        transition: 'transform 0.3s',
-                    }}
-                        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                    >{child.avatar}</div>
-                    <h2 style={{ color: text, fontSize: 24, fontWeight: 700, margin: 0 }}>{child.name}</h2>
-
-                    {/* Child ID Badge */}
-                    <div style={{
-                        display: 'inline-block', marginTop: 8, padding: '6px 18px', borderRadius: 14,
-                        background: `linear-gradient(135deg, ${accent}30, #FF658420)`,
-                        border: `1px solid ${accent}40`,
-                    }}>
-                        <span style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 700, color: accent, letterSpacing: 2 }}>{child.childId}</span>
+            <div className="max-w-[700px] mx-auto py-6 px-6 pb-10">
+                {/* Avatar & Header */}
+                <div className={`rounded-[20px] p-8 text-center mb-5 border relative ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.04)]'}`}>
+                    <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-br from-accent to-[#8B5CF6] to-pink-500 rounded-t-[20px] opacity-90" />
+                    <div onClick={() => setShowAvatarPicker(true)}
+                        className={`w-[90px] h-[90px] rounded-[20px] mx-auto mt-5 mb-3.5 flex items-center justify-center text-5xl cursor-pointer relative z-[1] border-[3px] transition-transform duration-300 hover:scale-105 ${isDark ? 'bg-card-dark border-card-dark' : 'bg-card border-card'}`}
+                        style={{ boxShadow: `0 4px 16px ${accent}25` }}>{child.avatar}</div>
+                    <h2 className={`text-[22px] font-extrabold m-0 ${isDark ? 'text-text-dark' : 'text-text'}`}>{child.name}</h2>
+                    <div className={`inline-flex items-center gap-1.5 mt-2.5 py-1.5 px-4 rounded-lg border ${isDark ? 'bg-border-dark border-[#30363D]' : 'bg-[#F0F0FF] border-[#E0E0FF]'}`}>
+                        <span className="font-mono text-[15px] font-bold text-accent tracking-wider">{child.childId}</span>
                     </div>
-                    <p style={{ color: '#999', fontSize: 12, marginTop: 4 }}>{isArabic ? 'كود الطفل الخاص' : 'Your unique child code'}</p>
+                    <p className={`text-xs mt-1.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'كود الطفل الخاص' : 'Your unique child code'}</p>
                 </div>
 
-                {/* Avatar Picker Modal */}
+                {/* Avatar Picker */}
                 {showAvatarPicker && (
-                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }} onClick={() => setShowAvatarPicker(false)}>
-                        <div onClick={e => e.stopPropagation()} style={{ background: cardBg, borderRadius: 24, padding: 24, width: '85%', maxWidth: 360 }}>
-                            <h3 style={{ color: text, textAlign: 'center', marginBottom: 16 }}>{isArabic ? 'اختر صورتك' : 'Choose Avatar'}</h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-6" onClick={() => setShowAvatarPicker(false)}>
+                        <div onClick={e => e.stopPropagation()}
+                            className={`rounded-[20px] p-7 w-full max-w-[360px] border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}
+                            style={{ animation: 'fadeInUp 0.3s ease-out' }}>
+                            <h3 className={`text-center mb-5 text-lg font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? '✨ اختر صورتك' : '✨ Choose Avatar'}</h3>
+                            <div className="grid grid-cols-4 gap-2.5">
                                 {['👦', '👧', '🧒', '👶', '🐱', '🐻', '🦊', '🐰', '🦁', '🐸', '🦄', '🐼'].map(em => (
-                                    <button key={em} onClick={() => { updateChildProfile({ avatar: em }); setShowAvatarPicker(false); }} style={{
-                                        width: 60, height: 60, borderRadius: '50%', fontSize: 30, cursor: 'pointer',
-                                        border: `${child.avatar === em ? 3 : 1}px solid ${child.avatar === em ? accent : isDark ? '#444' : '#ddd'}`,
-                                        background: child.avatar === em ? `${accent}20` : 'transparent',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    }}>{em}</button>
+                                    <button key={em} onClick={() => { updateChildProfile({ avatar: em }); setShowAvatarPicker(false); }}
+                                        className={`w-full aspect-square rounded-[14px] text-[28px] cursor-pointer flex items-center justify-center transition-all duration-200 border-2 ${child.avatar === em ? 'border-accent bg-accent/[0.08]' : `bg-transparent ${isDark ? 'border-border-dark' : 'border-border'}`
+                                            }`}>{em}</button>
                                 ))}
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Personal Info Card */}
-                <div style={{ background: cardBg, borderRadius: 22, padding: 20, marginBottom: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                    <h3 style={{ color: text, fontSize: 16, fontWeight: 700, marginBottom: 14 }}>📋 {isArabic ? 'المعلومات الشخصية' : 'Personal Information'}</h3>
-
+                {/* Personal Info */}
+                <div className={`rounded-[20px] p-6 mb-4 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                    <h3 className={`text-[15px] font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        📋 {isArabic ? 'المعلومات الشخصية' : 'Personal Information'}
+                    </h3>
                     {[
                         { key: 'name', label: isArabic ? 'الاسم' : 'Name', value: child.name, emoji: '📛' },
                         { key: 'age', label: isArabic ? 'العمر' : 'Age', value: `${child.age} ${isArabic ? 'سنوات' : 'years'}`, emoji: '🎂' },
                         { key: 'email', label: isArabic ? 'البريد' : 'Email', value: child.email, emoji: '📧' },
                         { key: 'gender', label: isArabic ? 'الجنس' : 'Gender', value: child.gender === 'Male' ? (isArabic ? 'ذكر' : 'Male') : (isArabic ? 'أنثى' : 'Female'), emoji: child.gender === 'Male' ? '👦' : '👧', editable: false },
                     ].map(field => (
-                        <div key={field.key} style={{
-                            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0',
-                            borderBottom: `1px solid ${isDark ? '#333' : '#f0f0f0'}`,
-                        }}>
-                            <span style={{ fontSize: 22 }}>{field.emoji}</span>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: 12, color: '#999' }}>{field.label}</div>
+                        <div key={field.key} className={`flex items-center gap-3 py-3.5 border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
+                            <div className={`w-10 h-10 rounded-[10px] flex items-center justify-center text-xl shrink-0 ${isDark ? 'bg-border-dark' : 'bg-[#F9FAFB]'}`}>{field.emoji}</div>
+                            <div className="flex-1">
+                                <div className={`text-xs mb-0.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{field.label}</div>
                                 {editingField === field.key ? (
-                                    <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                                        <input value={editValue} onChange={e => setEditValue(e.target.value)} type={field.key === 'age' ? 'number' : 'text'} style={{
-                                            flex: 1, padding: '8px 12px', borderRadius: 10, border: `1px solid ${accent}`,
-                                            background: isDark ? '#2a3654' : '#fff', color: text, fontSize: 14, outline: 'none',
-                                        }} autoFocus />
-                                        <button onClick={saveEdit} style={{ padding: '8px 14px', borderRadius: 10, background: accent, color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }}>✓</button>
-                                        <button onClick={() => setEditingField(null)} style={{ padding: '8px 14px', borderRadius: 10, background: '#FF658420', color: '#FF6584', border: 'none', cursor: 'pointer', fontWeight: 600 }}>✕</button>
+                                    <div className="flex gap-1.5">
+                                        <input value={editValue} onChange={e => setEditValue(e.target.value)} type={field.key === 'age' ? 'number' : 'text'}
+                                            className={`flex-1 py-2 px-3 rounded-lg border border-accent outline-none text-sm font-[inherit] ${isDark ? 'bg-bg-dark text-text-dark' : 'bg-[#F9FAFB] text-text'}`} autoFocus />
+                                        <button onClick={saveEdit} className="py-2 px-3 rounded-lg bg-accent text-white border-none cursor-pointer font-bold text-[13px]">✓</button>
+                                        <button onClick={() => setEditingField(null)}
+                                            className={`py-2 px-3 rounded-lg text-red-500 border cursor-pointer font-bold text-[13px] ${isDark ? 'bg-border-dark border-[#30363D]' : 'bg-red-50 border-red-200'}`}>✕</button>
                                     </div>
                                 ) : (
-                                    <div style={{ fontSize: 15, fontWeight: 600, color: text }}>{field.value}</div>
+                                    <div className={`text-[15px] font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>{field.value}</div>
                                 )}
                             </div>
                             {field.editable !== false && editingField !== field.key && (
-                                <button onClick={() => startEdit(field.key, field.key === 'age' ? child.age : child[field.key])} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#999' }}>✏️</button>
+                                <button onClick={() => startEdit(field.key, field.key === 'age' ? child.age : child[field.key])}
+                                    className={`w-8 h-8 rounded-lg border flex items-center justify-center text-sm cursor-pointer ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>✏️</button>
                             )}
                         </div>
                     ))}
                 </div>
 
                 {/* Diagnosis Level */}
-                <div style={{ background: cardBg, borderRadius: 22, padding: 20, marginBottom: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                        <h3 style={{ color: text, fontSize: 16, fontWeight: 700, margin: 0 }}>🧠 {isArabic ? 'مستوى التشخيص' : 'Diagnosis Level'}</h3>
-                        <span style={{ fontSize: 10, background: '#FF658420', color: '#FF6584', padding: '4px 8px', borderRadius: 8, fontWeight: 700 }}>
+                <div className={`rounded-[20px] p-6 mb-4 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className={`text-[15px] font-bold m-0 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>🧠 {isArabic ? 'مستوى التشخيص' : 'Diagnosis Level'}</h3>
+                        <span className={`text-[11px] font-bold py-1 px-2.5 rounded-md text-red-500 border ${isDark ? 'bg-border-dark border-[#30363D]' : 'bg-red-50 border-red-200'}`}>
                             {isArabic ? 'يحدده الطبيب' : 'Managed by Doctor'}
                         </span>
                     </div>
-
-                    <div style={{ display: 'flex', gap: 8, opacity: 0.8, pointerEvents: 'none', filter: 'grayscale(0.2)' }}>
+                    <div className="grid grid-cols-3 gap-2 opacity-80 pointer-events-none">
                         {[
-                            { val: 'Level 1', label: isArabic ? 'المستوى 1' : 'Level 1', sublabel: isArabic ? 'يحتاج دعم' : 'Needs Support', color: '#8BC99A' },
-                            { val: 'Level 2', label: isArabic ? 'المستوى 2' : 'Level 2', sublabel: isArabic ? 'دعم أكبر' : 'More Support', color: '#F9E4A7' },
-                            { val: 'Level 3', label: isArabic ? 'المستوى 3' : 'Level 3', sublabel: isArabic ? 'دعم كبير' : 'Most Support', color: '#F8B4B4' },
+                            { val: 'Level 1', label: isArabic ? 'المستوى 1' : 'Level 1', sublabel: isArabic ? 'يحتاج دعم' : 'Needs Support', color: '#10B981' },
+                            { val: 'Level 2', label: isArabic ? 'المستوى 2' : 'Level 2', sublabel: isArabic ? 'دعم أكبر' : 'More Support', color: '#F59E0B' },
+                            { val: 'Level 3', label: isArabic ? 'المستوى 3' : 'Level 3', sublabel: isArabic ? 'دعم كبير' : 'Most Support', color: '#EF4444' },
                         ].map(lv => (
-                            <button key={lv.val} disabled style={{
-                                flex: 1, padding: 12, borderRadius: 16, cursor: 'not-allowed', textAlign: 'center',
-                                background: child.diagnosisLevel === lv.val ? `${lv.color}26` : 'transparent',
-                                border: `${child.diagnosisLevel === lv.val ? 2 : 1}px solid ${child.diagnosisLevel === lv.val ? lv.color : isDark ? '#444' : '#ddd'}`,
-                                transition: 'all 0.25s',
-                            }}>
-                                <div style={{ fontSize: 14, fontWeight: 700, color: child.diagnosisLevel === lv.val ? lv.color : text }}>{lv.label}</div>
-                                <div style={{ fontSize: 10, color: '#999', marginTop: 2 }}>{lv.sublabel}</div>
-                            </button>
+                            <div key={lv.val} className="p-3.5 rounded-[14px] text-center border"
+                                style={{
+                                    background: child.diagnosisLevel === lv.val ? `${lv.color}12` : 'transparent',
+                                    borderWidth: child.diagnosisLevel === lv.val ? 2 : 1,
+                                    borderColor: child.diagnosisLevel === lv.val ? lv.color : (isDark ? '#21262D' : '#E5E7EB'),
+                                }}>
+                                <div className="text-sm font-bold" style={{ color: child.diagnosisLevel === lv.val ? lv.color : (isDark ? '#E6EDF3' : '#1F2937') }}>{lv.label}</div>
+                                <div className={`text-[11px] mt-0.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{lv.sublabel}</div>
+                            </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Sensory Preferences */}
-                <div style={{ background: cardBg, borderRadius: 22, padding: 20, marginBottom: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                    <h3 style={{ color: text, fontSize: 16, fontWeight: 700, marginBottom: 14 }}>🎨 {isArabic ? 'التفضيلات الحسية' : 'Sensory Preferences'}</h3>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <div className={`rounded-[20px] p-6 mb-4 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                    <h3 className={`text-[15px] font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        🎨 {isArabic ? 'التفضيلات الحسية' : 'Sensory Preferences'}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
                         {sensoryOptions.map(opt => {
                             const active = (child.sensoryPreferences || []).includes(opt.key);
                             return (
-                                <button key={opt.key} onClick={() => togglePref(opt.key)} style={{
-                                    padding: '10px 16px', borderRadius: 16, cursor: 'pointer', fontSize: 13,
-                                    display: 'flex', alignItems: 'center', gap: 8,
-                                    background: active ? `${accent}20` : 'transparent',
-                                    border: `${active ? 2 : 1}px solid ${active ? accent : isDark ? '#444' : '#ddd'}`,
-                                    color: active ? accent : text, fontWeight: active ? 700 : 400,
-                                    transition: 'all 0.25s',
-                                }}>
-                                    <span>{opt.emoji}</span> {opt.label}
-                                </button>
+                                <button key={opt.key} onClick={() => togglePref(opt.key)}
+                                    className={`py-2.5 px-4 rounded-[10px] cursor-pointer text-[13px] flex items-center gap-2 border transition-all duration-200 ${active ? 'bg-accent/[0.07] border-accent text-accent font-bold' : `bg-transparent font-medium ${isDark ? 'border-border-dark text-text-dark' : 'border-border text-text'}`
+                                        }`}><span>{opt.emoji}</span> {opt.label}</button>
                             );
                         })}
                     </div>
                 </div>
 
                 {/* Notes */}
-                <div style={{ background: cardBg, borderRadius: 22, padding: 20, marginBottom: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                    <h3 style={{ color: text, fontSize: 16, fontWeight: 700, marginBottom: 14 }}>📝 {isArabic ? 'ملاحظات' : 'Notes'}</h3>
-                    <textarea
-                        value={child.notes || ''}
-                        onChange={e => updateChildProfile({ notes: e.target.value })}
+                <div className={`rounded-[20px] p-6 mb-4 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                    <h3 className={`text-[15px] font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        📝 {isArabic ? 'ملاحظات' : 'Notes'}
+                    </h3>
+                    <textarea value={child.notes || ''} onChange={e => updateChildProfile({ notes: e.target.value })}
                         placeholder={isArabic ? 'أضف ملاحظات عن الطفل...' : 'Add notes about the child...'}
-                        style={{
-                            width: '100%', padding: '12px 16px', borderRadius: 14, border: `1px solid ${isDark ? '#3a4a6a' : '#ddd'}`,
-                            background: isDark ? '#2a3654' : '#fff', color: text, fontSize: 14, minHeight: 80, resize: 'vertical', outline: 'none',
-                        }}
-                    />
+                        className={`w-full py-3.5 px-4 rounded-xl border text-sm min-h-[80px] resize-y outline-none font-[inherit] box-border ${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`} />
                 </div>
 
-                {/* Account Info */}
-                <div style={{ background: isDark ? '#16213E' : '#f5f3ff', borderRadius: 16, padding: 16, textAlign: 'center' }}>
-                    <p style={{ fontSize: 12, color: '#999' }}>{isArabic ? 'تاريخ التسجيل' : 'Registered'}: {new Date(child.createdAt).toLocaleDateString()}</p>
-                    <button onClick={handleLogout} style={{
-                        marginTop: 8, padding: '10px 24px', borderRadius: 12,
-                        background: 'rgba(255,101,132,0.1)', border: '1px solid rgba(255,101,132,0.3)',
-                        color: '#FF6584', cursor: 'pointer', fontWeight: 600, fontSize: 14,
-                    }}>🚪 {isArabic ? 'تسجيل خروج' : 'Log Out'}</button>
+                {/* Account */}
+                <div className={`rounded-2xl p-5 text-center border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
+                    <p className={`text-[13px] mb-2.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                        {isArabic ? 'تاريخ التسجيل' : 'Registered'}: {new Date(child.createdAt).toLocaleDateString()}
+                    </p>
+                    <button onClick={handleLogout}
+                        className={`py-3 px-7 rounded-xl text-red-500 cursor-pointer font-bold text-sm border ${isDark ? 'bg-border-dark border-[#30363D]' : 'bg-red-50 border-red-200'}`}>
+                        🚪 {isArabic ? 'تسجيل خروج' : 'Log Out'}
+                    </button>
                 </div>
             </div>
         </div>
