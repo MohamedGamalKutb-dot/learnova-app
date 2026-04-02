@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { Button, Input, Chip } from '@heroui/react';
 
 export default function DoctorAuthPage() {
     const navigate = useNavigate();
@@ -15,10 +16,7 @@ export default function DoctorAuthPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const accent = '#6C63FF';
     const handleChange = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }); setError(''); };
-    const inputCls = `w-full py-3.5 px-4 rounded-xl text-sm border-[1.5px] outline-none font-[Inter,'Segoe_UI',sans-serif] transition-all duration-300 box-border focus:border-accent ${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`;
-    const labelCls = `text-xs font-semibold mb-1.5 block ${isDark ? 'text-subtext-dark' : 'text-subtext'}`;
 
     const getPasswordStrength = () => {
         const p = formData.password; if (!p) return 0; let s = 0;
@@ -51,6 +49,8 @@ export default function DoctorAuthPage() {
         { emoji: '📈', text: isArabic ? 'تقارير مفصلة' : 'Detailed Reports' },
     ];
 
+    const inputWrapperCls = `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
+
     return (
         <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
             {/* LEFT */}
@@ -60,7 +60,6 @@ export default function DoctorAuthPage() {
                 <div className="absolute top-[15%] left-[12%] text-[44px] opacity-15" style={{ animation: 'float 6s ease-in-out infinite' }}>🩺</div>
                 <div className="absolute bottom-[20%] right-[15%] text-4xl opacity-[0.12]" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>💊</div>
                 <div className="absolute top-[60%] left-[8%] text-[30px] opacity-10" style={{ animation: 'float 8s ease-in-out infinite 2s' }}>🏥</div>
-
                 <div className="relative z-[1] text-center">
                     <div className="text-[72px] mb-5">🩺</div>
                     <h2 className="text-white text-[28px] font-extrabold mb-2.5">{isArabic ? 'بوابة الطبيب' : 'Doctor Portal'}</h2>
@@ -80,10 +79,8 @@ export default function DoctorAuthPage() {
             {/* RIGHT */}
             <div className="flex-1 flex items-center justify-center py-10 px-6 overflow-y-auto">
                 <div className="w-full max-w-[440px]">
-                    <button onClick={() => navigate('/choice')}
-                        className={`flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-[13px] mb-6 p-0 font-[inherit] transition-colors duration-200 hover:text-accent ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                        <span className="text-base">←</span> {isArabic ? 'العودة' : 'Back'}
-                    </button>
+                    <Button variant="light" size="sm" className={`mb-6 font-medium hover:text-accent ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}
+                        onPress={() => navigate('/choice')}>← {isArabic ? 'العودة' : 'Back'}</Button>
 
                     <h1 className={`mb-1.5 text-[28px] font-extrabold ${isDark ? 'text-text-dark' : 'text-text'}`}>
                         {isLogin ? (isArabic ? 'تسجيل الدخول' : 'Welcome Back') : (isArabic ? 'إنشاء حساب جديد' : 'Create Account')}
@@ -102,89 +99,75 @@ export default function DoctorAuthPage() {
                     <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
                         {!isLogin && (<>
                             <div className="flex gap-2.5">
-                                <div className="flex-1">
-                                    <label className={labelCls}>{isArabic ? 'الاسم الكامل' : 'Full Name'} *</label>
-                                    <input name="name" value={formData.name} onChange={handleChange} placeholder={isArabic ? 'د. أحمد محمد' : 'Dr. John Doe'} className={inputCls} required />
-                                </div>
-                                <div className="w-[90px]">
-                                    <label className={labelCls}>{isArabic ? 'العمر' : 'Age'}</label>
-                                    <input name="age" type="number" value={formData.age} onChange={handleChange} className={inputCls} />
-                                </div>
+                                <Input label={`${isArabic ? 'الاسم الكامل' : 'Full Name'} *`} name="name" variant="bordered" radius="lg"
+                                    value={formData.name} onChange={handleChange}
+                                    placeholder={isArabic ? 'د. أحمد محمد' : 'Dr. John Doe'} className="flex-1" isRequired
+                                    classNames={{ inputWrapper: inputWrapperCls }} />
+                                <Input label={isArabic ? 'العمر' : 'Age'} name="age" type="number" variant="bordered" radius="lg"
+                                    value={formData.age} onChange={handleChange} className="w-[90px]"
+                                    classNames={{ inputWrapper: inputWrapperCls }} />
                             </div>
                             <div>
-                                <label className={labelCls}>{isArabic ? 'الجنس' : 'Gender'}</label>
+                                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'الجنس' : 'Gender'}</label>
                                 <div className="flex gap-2.5">
                                     {[{ val: 'Male', label: isArabic ? 'ذكر' : 'Male', emoji: '👨‍⚕️' }, { val: 'Female', label: isArabic ? 'أنثى' : 'Female', emoji: '👩‍⚕️' }].map(g => (
-                                        <button type="button" key={g.val} onClick={() => setFormData({ ...formData, gender: g.val })}
-                                            className={`flex-1 py-3 rounded-xl cursor-pointer font-semibold text-[13px] font-[inherit] flex items-center justify-center gap-1.5 border-[1.5px] transition-all duration-200 ${formData.gender === g.val ? 'bg-accent/[0.06] border-accent text-accent' : `${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`
-                                                }`}><span>{g.emoji}</span> {g.label}</button>
+                                        <Button key={g.val} type="button" variant={formData.gender === g.val ? 'solid' : 'bordered'} radius="lg"
+                                            className={`flex-1 font-semibold text-[13px] ${formData.gender === g.val ? 'bg-accent/[0.06] border-accent text-accent border-[1.5px]' : `${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`}`}
+                                            onPress={() => setFormData({ ...formData, gender: g.val })}><span>{g.emoji}</span> {g.label}</Button>
                                     ))}
                                 </div>
                             </div>
-                            <div>
-                                <label className={labelCls}>{isArabic ? 'رقم الهاتف' : 'Phone Number'} *</label>
-                                <input name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="01x xxxx xxxx" className={inputCls} required />
-                            </div>
+                            <Input label={`${isArabic ? 'رقم الهاتف' : 'Phone Number'} *`} name="phone" type="tel" variant="bordered" radius="lg"
+                                value={formData.phone} onChange={handleChange} placeholder="01x xxxx xxxx" isRequired
+                                classNames={{ inputWrapper: inputWrapperCls }} />
                         </>)}
 
-                        <div>
-                            <label className={labelCls}>{isArabic ? 'البريد الإلكتروني' : 'Email Address'} *</label>
-                            <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="doctor@clinic.com" className={inputCls} required />
-                        </div>
+                        <Input label={`${isArabic ? 'البريد الإلكتروني' : 'Email Address'} *`} name="email" type="email" variant="bordered" radius="lg"
+                            value={formData.email} onChange={handleChange} placeholder="doctor@clinic.com" isRequired
+                            classNames={{ inputWrapper: inputWrapperCls }} />
 
-                        <div>
-                            <label className={labelCls}>{isArabic ? 'كلمة المرور' : 'Password'} *</label>
-                            <div className="relative">
-                                <input name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleChange} placeholder="••••••••" className={`${inputCls} !pe-11`} required />
-                                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                                    className={`absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-base end-3 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{showPassword ? '🙈' : '👁️'}</button>
-                            </div>
-                            {!isLogin && formData.password && (
-                                <div className="flex gap-1 mt-2">{[...Array(5)].map((_, i) => (
-                                    <div key={i} className="flex-1 h-1 rounded-sm transition-all duration-300"
-                                        style={{ background: i < getPasswordStrength() ? strengthColors[getPasswordStrength() - 1] : (isDark ? '#21262D' : '#E5E7EB') }} />
-                                ))}</div>
-                            )}
-                        </div>
-
-                        {!isLogin && (
-                            <div>
-                                <label className={labelCls}>{isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'} *</label>
-                                <div className="relative">
-                                    <input name="confirmPassword" type={showConfirm ? 'text' : 'password'} value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••"
-                                        className={`${inputCls} !pe-11`} required
-                                        style={{ borderColor: formData.confirmPassword && formData.confirmPassword !== formData.password ? '#EF4444' : undefined }} />
-                                    <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                                        className={`absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-base end-3 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{showConfirm ? '🙈' : '👁️'}</button>
-                                </div>
-                                {formData.confirmPassword && formData.confirmPassword !== formData.password && (
-                                    <p className="text-[11px] text-red-500 mt-1">{isArabic ? 'كلمات المرور غير متطابقة' : 'Passwords do not match'}</p>
-                                )}
-                            </div>
+                        <Input label={`${isArabic ? 'كلمة المرور' : 'Password'} *`} name="password" type={showPassword ? 'text' : 'password'} variant="bordered" radius="lg"
+                            value={formData.password} onChange={handleChange} placeholder="••••••••" isRequired
+                            classNames={{ inputWrapper: inputWrapperCls }}
+                            endContent={<button type="button" onClick={() => setShowPassword(!showPassword)} className="bg-transparent border-none cursor-pointer text-lg">{showPassword ? '🙈' : '👁️'}</button>} />
+                        {!isLogin && formData.password && (
+                            <div className="flex gap-1 mt-[-8px]">{[...Array(5)].map((_, i) => (
+                                <div key={i} className="flex-1 h-1 rounded-sm transition-all duration-300"
+                                    style={{ background: i < getPasswordStrength() ? strengthColors[getPasswordStrength() - 1] : (isDark ? '#21262D' : '#E5E7EB') }} />
+                            ))}</div>
                         )}
 
-                        <button type="submit" disabled={loading}
-                            className={`w-full py-4 rounded-xl border-none cursor-pointer bg-gradient-to-br from-accent to-[#4834D4] text-white font-bold text-base mt-2 shadow-[0_4px_16px_rgba(108,99,255,0.25)] transition-all duration-300 font-[Inter,'Segoe_UI',sans-serif] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(108,99,255,0.35)] ${loading ? 'opacity-70 cursor-wait' : ''}`}>
+                        {!isLogin && (
+                            <Input label={`${isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'} *`} name="confirmPassword" type={showConfirm ? 'text' : 'password'} variant="bordered" radius="lg"
+                                value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" isRequired
+                                classNames={{ inputWrapper: inputWrapperCls }}
+                                endContent={<button type="button" onClick={() => setShowConfirm(!showConfirm)} className="bg-transparent border-none cursor-pointer text-lg">{showConfirm ? '🙈' : '👁️'}</button>}
+                                isInvalid={formData.confirmPassword && formData.confirmPassword !== formData.password}
+                                errorMessage={formData.confirmPassword && formData.confirmPassword !== formData.password ? (isArabic ? 'كلمات المرور غير متطابقة' : 'Passwords do not match') : ''} />
+                        )}
+
+                        <Button type="submit" fullWidth radius="lg" isLoading={loading}
+                            className="bg-gradient-to-br from-accent to-[#4834D4] text-white font-bold text-base mt-2 shadow-[0_4px_16px_rgba(108,99,255,0.25)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(108,99,255,0.35)]">
                             {loading ? (isArabic ? '⏳ جاري التحميل...' : '⏳ Loading...') : isLogin ? (isArabic ? '🩺 تسجيل الدخول' : '🩺 Sign In') : (isArabic ? '🩺 إنشاء الحساب' : '🩺 Create Account')}
-                        </button>
+                        </Button>
                     </form>
 
                     <div className="text-center mt-6">
                         <p className={`text-[13px] m-0 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
                             {isLogin ? (isArabic ? 'ليس لديك حساب؟' : "Don't have an account?") : (isArabic ? 'لديك حساب بالفعل؟' : "Already have an account?")}
-                            <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); setFormData({ ...formData, confirmPassword: '' }); }}
-                                className="bg-transparent border-none text-accent font-bold cursor-pointer ms-1.5 text-[13px] font-[inherit] hover:opacity-80 transition-opacity duration-200">
+                            <Button variant="light" size="sm" className="text-accent font-bold text-[13px] ms-1.5 p-0 min-w-0 h-auto"
+                                onPress={() => { setIsLogin(!isLogin); setError(''); setFormData({ ...formData, confirmPassword: '' }); }}>
                                 {isLogin ? (isArabic ? 'سجل الآن' : 'Sign Up') : (isArabic ? 'سجل الدخول' : 'Sign In')}
-                            </button>
+                            </Button>
                         </p>
                     </div>
 
-                    <div className={`mt-5 py-3 px-4 rounded-xl flex items-center gap-2.5 border ${isDark ? 'bg-accent/[0.06] border-accent/[0.12]' : 'bg-accent/[0.04] border-accent/[0.08]'}`}>
-                        <span className="text-lg">💡</span>
+                    <Chip variant="bordered" className={`mt-5 w-full justify-start ${isDark ? 'bg-accent/[0.06] border-accent/[0.12]' : 'bg-accent/[0.04] border-accent/[0.08]'}`}
+                        startContent={<span className="text-lg">💡</span>}>
                         <span className={`text-xs leading-normal ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
                             {isArabic ? 'يمكنك البحث عن المرضى باستخدام كود الطفل أو رقم هاتف ولي الأمر' : 'Search for patients using Child Code or Parent Phone number'}
                         </span>
-                    </div>
+                    </Chip>
                 </div>
             </div>
         </div>

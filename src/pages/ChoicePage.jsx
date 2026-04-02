@@ -2,12 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import {
+    Button, Card, CardBody, CardFooter, Chip, Divider, Input,
+    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
+    Navbar, NavbarBrand, NavbarContent, NavbarItem,
+    useDisclosure
+} from '@heroui/react';
 
 export default function ChoicePage() {
     const navigate = useNavigate();
     const { isDark, isArabic, toggleTheme, toggleLanguage } = useApp();
     const { registerChild, loginChild, registerParent, loginParent, registerDoctor, loginDoctor, getChildById } = useAuth();
-    const [hoveredCard, setHoveredCard] = useState(null);
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isGoogleOpen, onOpen: onGoogleOpen, onClose: onGoogleClose } = useDisclosure();
 
     const [activeModal, setActiveModal] = useState(null);
     const [modalMode, setModalMode] = useState('signup');
@@ -23,6 +31,82 @@ export default function ChoicePage() {
     const [googleLoading, setGoogleLoading] = useState(false);
     const [googleChildId, setGoogleChildId] = useState('');
 
+    const darkBg = isDark ? 'bg-lbg-dark' : 'bg-lbg';
+    const darkSurf = isDark ? 'bg-lsurf-dark' : 'bg-lsurf';
+    const darkTxt = isDark ? 'text-ltxt-dark' : 'text-ltxt';
+    const darkTxt2 = isDark ? 'text-ltxt2-dark' : 'text-ltxt2';
+    const darkBdr = isDark ? 'border-lbdr-dark' : 'border-lbdr';
+    const tagBg = isDark ? 'bg-lbg2-dark border-lbdr-dark' : 'bg-p50 border-p200';
+
+    const T = {
+        langBtn: isArabic ? 'English' : 'عربي',
+        backBtn: isArabic ? 'العودة للرئيسية →' : '← Back to Home',
+        eyebrow: isArabic ? '👋 مرحباً بك في LearnNeur' : '👋 Welcome to LearnNeur',
+        pageTitle1: isArabic ? 'اختر ' : 'Choose your ',
+        pageTitleGrad: isArabic ? 'طريقة الدخول' : 'login method',
+        pageDesc: isArabic ? 'اضغط على الدور المناسب وسجّل بالإيميل فوراً' : 'Click on the right role and sign in with your email instantly',
+        noteText: isArabic ? 'ليس لديك حساب؟' : "Don't have an account?",
+        noteLink: isArabic ? ' أنشئ حساباً مجاناً' : ' Create one for free',
+    };
+
+    const cards = [
+        {
+            id: 'child', icon: '🧒',
+            title: isArabic ? 'طفل' : 'Child',
+            desc: isArabic ? 'مغامرة التعلم الممتعة تنتظرك! العب الألعاب، اكسب النجوم، وتطور كل يوم.' : 'Your fun learning adventure awaits! Play games, earn stars, and grow every day.',
+            features: [
+                { emoji: '🎮', text: isArabic ? 'ألعاب تعليمية تفاعلية' : 'Interactive learning games' },
+                { emoji: '⭐', text: isArabic ? 'اكسب مكافآت وشارات' : 'Earn rewards & badges' },
+                { emoji: '📅', text: isArabic ? 'جدولي البصري اليومي' : 'My visual daily schedule' },
+            ],
+            btn: isArabic ? 'دخول كطفل ←' : 'Enter as Child →',
+            borderCls: 'border-p200 hover:border-p400',
+            hoverShadow: 'hover:shadow-[0_28px_64px_rgba(37,99,235,.16)]',
+            stripeCls: 'from-p500 to-a500',
+            bubbleCls: 'bg-gradient-to-br from-p100 to-p200 shadow-[0_8px_24px_rgba(37,99,235,.15)]',
+            dotCls: 'bg-p100 text-p600',
+            btnGrad: 'bg-gradient-to-br from-p500 to-a500 shadow-[0_6px_20px_rgba(37,99,235,.28)] hover:shadow-[0_10px_28px_rgba(37,99,235,.40)]',
+            loginPath: '/child-login',
+        },
+        {
+            id: 'parent', icon: '👨‍👩‍👦', popular: true,
+            title: isArabic ? 'ولي الأمر' : 'Parent / Guardian',
+            desc: isArabic ? 'ابقَ على تواصل مع تقدم طفلك وتقاريره وفريق المتخصصين في مكان واحد.' : "Stay connected with your child's progress, reports, and specialist team in one place.",
+            features: [
+                { emoji: '📊', text: isArabic ? 'لوحة تتبع التقدم' : 'Progress tracking dashboard' },
+                { emoji: '💬', text: isArabic ? 'مراسلة المختص' : 'Message the specialist' },
+                { emoji: '📋', text: isArabic ? 'عرض التقارير وتنزيلها' : 'View & download reports' },
+            ],
+            btn: isArabic ? 'دخول كولي أمر ←' : 'Enter as Parent →',
+            borderCls: 'border-emerald-200 hover:border-emerald-400',
+            hoverShadow: 'hover:shadow-[0_28px_64px_rgba(16,185,129,.14)]',
+            stripeCls: 'from-emerald-500 to-p500',
+            bubbleCls: 'bg-gradient-to-br from-emerald-100 to-emerald-200 shadow-[0_8px_24px_rgba(16,185,129,.15)]',
+            dotCls: 'bg-emerald-100 text-emerald-600',
+            btnGrad: 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-[0_6px_20px_rgba(16,185,129,.28)] hover:shadow-[0_10px_28px_rgba(16,185,129,.38)]',
+            loginPath: '/login',
+            badgeText: isArabic ? 'الأكثر استخداماً' : 'Most Used',
+        },
+        {
+            id: 'doctor', icon: '👨‍⚕️',
+            title: isArabic ? 'الطبيب / المختص' : 'Doctor / Specialist',
+            desc: isArabic ? 'إدارة حالاتك، إصدار التقارير السريرية، ومتابعة التقدم العلاجي.' : 'Manage your cases, generate clinical reports, and monitor therapeutic progress.',
+            features: [
+                { emoji: '🩺', text: isArabic ? 'نظام إدارة الحالات' : 'Case management system' },
+                { emoji: '📈', text: isArabic ? 'تحليلات التقدم السريري' : 'Clinical progress analytics' },
+                { emoji: '📝', text: isArabic ? 'إنشاء تقارير العلاج' : 'Generate therapy reports' },
+            ],
+            btn: isArabic ? 'دخول كطبيب ←' : 'Enter as Doctor →',
+            borderCls: 'border-violet-200 hover:border-violet-400',
+            hoverShadow: 'hover:shadow-[0_28px_64px_rgba(139,92,246,.14)]',
+            stripeCls: 'from-violet-500 to-p500',
+            bubbleCls: 'bg-gradient-to-br from-violet-100 to-violet-200 shadow-[0_8px_24px_rgba(139,92,246,.15)]',
+            dotCls: 'bg-violet-100 text-violet-600',
+            btnGrad: 'bg-gradient-to-br from-violet-500 to-violet-600 shadow-[0_6px_20px_rgba(139,92,246,.28)] hover:shadow-[0_10px_28px_rgba(139,92,246,.38)]',
+            loginPath: '/doctor-auth',
+        },
+    ];
+
     const GoogleIcon = () => (
         <svg width="20" height="20" viewBox="0 0 48 48">
             <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
@@ -32,11 +116,8 @@ export default function ChoicePage() {
         </svg>
     );
 
-    const inputCls = `w-full py-[13px] px-4 rounded-xl text-sm border-[1.5px] outline-none transition-all duration-300 box-border font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`;
-    const labelCls = `text-xs font-semibold mb-1.5 block ${isDark ? 'text-subtext-dark' : 'text-subtext'}`;
-
-    const resetModal = () => { setActiveModal(null); setModalMode('signup'); setQuickForm({ email: '', password: '', name: '', childId: '', phone: '' }); setQuickError(''); setQuickLoading(false); setQuickSuccess(null); setGoogleStep(0); setGoogleEmail(''); setGooglePassword(''); setGoogleError(''); setGoogleLoading(false); setGoogleChildId(''); };
-    const openModal = (roleId) => { setQuickForm({ email: '', password: '', name: '', childId: '', phone: '' }); setQuickError(''); setQuickSuccess(null); setModalMode('signup'); setActiveModal(roleId); };
+    const resetModal = () => { setActiveModal(null); setModalMode('signup'); setQuickForm({ email: '', password: '', name: '', childId: '', phone: '' }); setQuickError(''); setQuickLoading(false); setQuickSuccess(null); setGoogleStep(0); setGoogleEmail(''); setGooglePassword(''); setGoogleError(''); setGoogleLoading(false); setGoogleChildId(''); onClose(); onGoogleClose(); };
+    const openModal = (roleId) => { setQuickForm({ email: '', password: '', name: '', childId: '', phone: '' }); setQuickError(''); setQuickSuccess(null); setModalMode('signup'); setActiveModal(roleId); onOpen(); };
 
     const handleQuickSubmit = () => {
         setQuickError(''); setQuickLoading(true);
@@ -45,9 +126,9 @@ export default function ChoicePage() {
         if (!password || password.length < 6) { setQuickError(isArabic ? 'كلمة المرور 6 أحرف على الأقل' : 'Password must be at least 6 characters'); setQuickLoading(false); return; }
         if (modalMode === 'login') {
             let result;
-            if (activeModal === 'child') { result = loginChild(email.trim(), password); if (result.success) { navigate('/child-home'); return; } }
-            else if (activeModal === 'parent') { result = loginParent(email.trim(), password); if (result.success) { navigate('/dashboard'); return; } }
-            else if (activeModal === 'doctor') { result = loginDoctor(email.trim(), password); if (result.success) { navigate('/doctor-dashboard'); return; } }
+            if (activeModal === 'child') { result = loginChild(email.trim(), password); if (result.success) { resetModal(); navigate('/child-home'); return; } }
+            else if (activeModal === 'parent') { result = loginParent(email.trim(), password); if (result.success) { resetModal(); navigate('/dashboard'); return; } }
+            else if (activeModal === 'doctor') { result = loginDoctor(email.trim(), password); if (result.success) { resetModal(); navigate('/doctor-dashboard'); return; } }
             if (result) { if (result.error === 'not_found') setQuickError(isArabic ? 'الإيميل غير مسجل' : 'Email not found'); else if (result.error === 'wrong_password') setQuickError(isArabic ? 'كلمة المرور غير صحيحة' : 'Incorrect password'); }
             setQuickLoading(false); return;
         }
@@ -61,114 +142,14 @@ export default function ChoicePage() {
             const child = getChildById(childId.trim());
             if (!child) { setQuickError(isArabic ? 'كود الطفل غير موجود' : 'Child code not found'); setQuickLoading(false); return; }
             const result = registerParent({ name: name.trim(), email: email.trim(), password, phone: phone.trim(), childId: childId.trim() });
-            if (result.success) { navigate('/dashboard'); return; }
+            if (result.success) { resetModal(); navigate('/dashboard'); return; }
             else if (result.error === 'email_exists') setQuickError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already registered');
         } else if (activeModal === 'doctor') {
             const result = registerDoctor({ name: name.trim(), email: email.trim(), password, phone: phone.trim(), age: '', gender: 'Male' });
-            if (result.success) { navigate('/doctor-dashboard'); return; }
+            if (result.success) { resetModal(); navigate('/doctor-dashboard'); return; }
             else if (result.error === 'email_exists') setQuickError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already registered');
         }
         setQuickLoading(false);
-    };
-
-    const roles = [
-        { id: 'child', icon: '🎮', title: isArabic ? 'الطفل' : 'Child', subtitle: isArabic ? 'منطقة التعلم واللعب' : 'Learning & Play Zone', description: isArabic ? 'مساحة آمنة وممتعة مليانة ألعاب تعليمية، تواصل بالصور، تعرف على المشاعر، وصديق روبوت ذكي!' : 'A safe and fun space full of educational games, picture communication, emotion learning, and a smart robot friend!', features: isArabic ? ['🗣️ تواصل بالصور PECS', '😊 ألعاب المشاعر', '📅 روتيني اليومي', '🤖 صاحبي الروبوت'] : ['🗣️ PECS Communication', '😊 Emotion Games', '📅 My Daily Routine', '🤖 Robot Buddy'], gradient: 'linear-gradient(135deg, #FF6584, #FF8E9E)', shadowColor: 'rgba(255,101,132,0.35)', borderColor: '#FF6584', btnText: isArabic ? 'سجل بالإيميل' : 'Sign Up with Email', loginPath: '/child-login' },
-        { id: 'parent', icon: '👨‍👩‍👧', title: isArabic ? 'ولي الأمر' : 'Parent', subtitle: isArabic ? 'لوحة المتابعة والتحكم' : 'Dashboard & Tracking', description: isArabic ? 'تابع تقدم طفلك لحظة بلحظة، احصل على نصائح من الذكاء الاصطناعي، وتواصل مع أطباء متخصصين.' : "Track your child's progress in real-time, get AI-powered advice, and connect with specialized doctors.", features: isArabic ? ['📊 لوحة تحكم ذكية', '🤖 مساعد AI للتوحد', '🗺️ خريطة المراكز', '📝 تقارير يومية'] : ['📊 Smart Dashboard', '🤖 AI Autism Assistant', '🗺️ Centers Map', '📝 Daily Reports'], gradient: 'linear-gradient(135deg, #4ECDC4, #44B09E)', shadowColor: 'rgba(78,205,196,0.35)', borderColor: '#4ECDC4', btnText: isArabic ? 'سجل بالإيميل' : 'Sign Up with Email', loginPath: '/login' },
-        { id: 'doctor', icon: '🩺', title: isArabic ? 'الطبيب' : 'Doctor', subtitle: isArabic ? 'إدارة الحالات والتقارير' : 'Case Management & Reports', description: isArabic ? 'أدر حالات مرضاك بكفاءة، اكتب تقارير مفصلة، وتواصل مع أولياء الأمور بسهولة.' : "Efficiently manage your patients' cases, write detailed reports, and easily communicate with parents.", features: isArabic ? ['👥 إدارة المرضى', '📋 تقارير طبية', '💬 تواصل مع الأهل', '📈 متابعة التقدم'] : ['👥 Patient Management', '📋 Medical Reports', '💬 Parent Communication', '📈 Progress Tracking'], gradient: 'linear-gradient(135deg, #6C63FF, #8B5CF6)', shadowColor: 'rgba(108,99,255,0.35)', borderColor: '#6C63FF', btnText: isArabic ? 'سجل بالإيميل' : 'Sign Up with Email', loginPath: '/doctor-auth' },
-    ];
-
-    const getModalConfig = () => {
-        switch (activeModal) {
-            case 'child': return { title: isArabic ? '🎮 تسجيل الطفل' : '🎮 Child Sign Up', loginTitle: isArabic ? '🎮 دخول الطفل' : '🎮 Child Log In', gradient: 'linear-gradient(135deg, #FF6584, #FF8E9E)', accent: '#FF6584', shadowColor: 'rgba(255,101,132,0.35)', namePlaceholder: isArabic ? 'اسم الطفل' : "Child's name", showChildId: false, showPhone: false };
-            case 'parent': return { title: isArabic ? '👨‍👩‍👧 تسجيل ولي الأمر' : '👨‍👩‍👧 Parent Sign Up', loginTitle: isArabic ? '👨‍👩‍👧 دخول ولي الأمر' : '👨‍👩‍👧 Parent Log In', gradient: 'linear-gradient(135deg, #4ECDC4, #44B09E)', accent: '#4ECDC4', shadowColor: 'rgba(78,205,196,0.35)', namePlaceholder: isArabic ? 'اسم ولي الأمر' : 'Parent name', showChildId: true, showPhone: true };
-            case 'doctor': return { title: isArabic ? '🩺 تسجيل الطبيب' : '🩺 Doctor Sign Up', loginTitle: isArabic ? '🩺 دخول الطبيب' : '🩺 Doctor Log In', gradient: 'linear-gradient(135deg, #6C63FF, #8B5CF6)', accent: '#6C63FF', shadowColor: 'rgba(108,99,255,0.35)', namePlaceholder: isArabic ? 'اسم الطبيب' : 'Doctor name', showChildId: false, showPhone: true };
-            default: return null;
-        }
-    };
-
-    const renderModal = () => {
-        if (!activeModal) return null;
-        const config = getModalConfig();
-        if (!config) return null;
-
-        if (quickSuccess) {
-            return (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-lg" style={{ animation: 'modalFadeIn 0.3s ease-out' }} onClick={resetModal}>
-                    <div className={`rounded-[28px] py-9 px-8 max-w-[420px] w-[90%] text-center border shadow-[0_25px_60px_rgba(0,0,0,0.3)] ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}
-                        style={{ animation: 'modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }} onClick={e => e.stopPropagation()}>
-                        <div className="text-[64px] mb-3">🎉</div>
-                        <h2 className={`text-2xl font-extrabold mb-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تم التسجيل بنجاح!' : 'Registration Successful!'}</h2>
-                        <p className={`text-sm mb-5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'ده كود الطفل الخاص بيك. احتفظ بيه!' : 'This is your unique child code. Keep it safe!'}</p>
-                        <div className="py-4 px-7 rounded-2xl inline-block mb-5" style={{ background: config.gradient }}>
-                            <div className="text-[10px] text-white/70 mb-1 font-bold uppercase tracking-wider">{isArabic ? 'كود الطفل' : 'CHILD CODE'}</div>
-                            <div className="text-[32px] font-black text-white tracking-[4px] font-mono">{quickSuccess.childId}</div>
-                        </div>
-                        <div className={`rounded-xl p-3 mb-4 border text-start ${isDark ? 'bg-[#1C2333] border-[#2D333B]' : 'bg-amber-50 border-amber-200'}`}>
-                            <p className={`text-xs font-semibold m-0 ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>⚠️ {isArabic ? 'مهم: شارك الكود مع ولي أمرك!' : 'Important: Share this code with your parent!'}</p>
-                        </div>
-                        <button onClick={() => navigator.clipboard?.writeText(quickSuccess.childId)} className={`w-full py-[13px] rounded-xl bg-transparent font-semibold text-sm mb-2.5 transition-all duration-200 font-[inherit] border ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}>📋 {isArabic ? 'نسخ الكود' : 'Copy Code'}</button>
-                        <button onClick={() => { resetModal(); navigate('/child-home'); }} className="w-full py-3.5 rounded-xl border-none cursor-pointer text-white font-bold text-base font-[inherit]" style={{ background: config.gradient, boxShadow: `0 4px 16px ${config.shadowColor}` }}>🚀 {isArabic ? 'ابدأ التعلم!' : 'Start Learning!'}</button>
-                    </div>
-                </div>
-            );
-        }
-
-        return (
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-lg" style={{ animation: 'modalFadeIn 0.3s ease-out' }} onClick={resetModal}>
-                <div className={`rounded-[28px] overflow-hidden max-w-[440px] w-[90%] border shadow-[0_25px_60px_rgba(0,0,0,0.3)] ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`} style={{ animation: 'modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }} onClick={e => e.stopPropagation()}>
-                    {/* Modal Header */}
-                    <div className="py-7 px-7 text-center relative" style={{ background: config.gradient }}>
-                        <button onClick={resetModal} className="absolute top-3.5 end-3.5 bg-white/20 border-none text-white w-8 h-8 rounded-[10px] cursor-pointer text-base flex items-center justify-center backdrop-blur-lg">✕</button>
-                        <h2 className="text-white text-[22px] font-extrabold m-0">{modalMode === 'login' ? config.loginTitle : config.title}</h2>
-                        <p className="text-white/80 text-[13px] mt-1.5 mb-0">{modalMode === 'login' ? (isArabic ? 'سجل دخولك بالإيميل وكلمة المرور' : 'Log in with your email and password') : (isArabic ? 'سجل بسرعة بالإيميل بتاعك' : 'Quick sign up with your email')}</p>
-                    </div>
-                    {/* Modal Body */}
-                    <div className="py-6 px-7">
-                        <div className={`flex gap-1 mb-5 p-1 rounded-[14px] ${isDark ? 'bg-bg-dark' : 'bg-gray-100'}`}>
-                            {['signup', 'login'].map(m => (
-                                <button key={m} onClick={() => { setModalMode(m); setQuickError(''); }}
-                                    className={`flex-1 py-2.5 rounded-[11px] border-none cursor-pointer font-bold text-[13px] transition-all duration-300 font-[inherit] ${modalMode === m ? 'text-white' : `${isDark ? 'text-subtext-dark' : 'text-subtext'} bg-transparent`}`}
-                                    style={modalMode === m ? { background: config.accent } : undefined}>
-                                    {m === 'signup' ? (isArabic ? 'حساب جديد' : 'Sign Up') : (isArabic ? 'تسجيل دخول' : 'Log In')}
-                                </button>
-                            ))}
-                        </div>
-
-                        {modalMode === 'signup' && (<div className="mb-3"><label className={labelCls}>👤 {isArabic ? 'الاسم' : 'Name'} *</label><input value={quickForm.name} onChange={e => setQuickForm(p => ({ ...p, name: e.target.value }))} placeholder={config.namePlaceholder} className={inputCls} /></div>)}
-                        <div className="mb-3"><label className={labelCls}>📧 {isArabic ? 'البريد الإلكتروني' : 'Email'} *</label><input type="email" value={quickForm.email} onChange={e => setQuickForm(p => ({ ...p, email: e.target.value }))} placeholder="your@email.com" className={inputCls} /></div>
-                        <div className="mb-3"><label className={labelCls}>🔒 {isArabic ? 'كلمة المرور' : 'Password'} *</label><input type="password" value={quickForm.password} onChange={e => setQuickForm(p => ({ ...p, password: e.target.value }))} placeholder={isArabic ? '6 أحرف على الأقل' : 'At least 6 characters'} className={inputCls} onKeyDown={e => e.key === 'Enter' && handleQuickSubmit()} /></div>
-                        {modalMode === 'signup' && config.showChildId && (<div className="mb-3"><label className={labelCls}>🆔 {isArabic ? 'كود الطفل' : 'Child Code'} *</label><input value={quickForm.childId} onChange={e => setQuickForm(p => ({ ...p, childId: e.target.value.toUpperCase() }))} placeholder="LN-XXXXXX" maxLength={9} className={`${inputCls} font-mono tracking-[2px] !font-bold`} /></div>)}
-                        {modalMode === 'signup' && config.showPhone && (<div className="mb-3"><label className={labelCls}>📱 {isArabic ? 'رقم الهاتف' : 'Phone'} ({isArabic ? 'اختياري' : 'Optional'})</label><input type="tel" value={quickForm.phone} onChange={e => setQuickForm(p => ({ ...p, phone: e.target.value }))} placeholder="01xxxxxxxxx" className={inputCls} /></div>)}
-
-                        {quickError && (<div className={`rounded-[10px] py-2.5 px-3.5 mb-3 border border-red-500/20 ${isDark ? 'bg-red-500/10' : 'bg-red-50'}`} style={{ animation: 'modalSlideUp 0.2s ease-out' }}><span className="text-red-500 text-[13px] font-semibold">⚠️ {quickError}</span></div>)}
-
-                        <button onClick={handleQuickSubmit} disabled={quickLoading}
-                            className={`w-full py-3.5 rounded-[14px] border-none cursor-pointer text-white font-bold text-[15px] mt-1 font-[Inter,'Segoe_UI',sans-serif] transition-all duration-300 hover:-translate-y-0.5 ${quickLoading ? 'opacity-70 cursor-wait' : ''}`}
-                            style={{ background: config.gradient, boxShadow: `0 6px 20px ${config.shadowColor}` }}>
-                            {quickLoading ? (isArabic ? '⏳ جاري...' : '⏳ Loading...') : modalMode === 'login' ? (isArabic ? '🚀 تسجيل الدخول' : '🚀 Log In') : (isArabic ? '✨ إنشاء حساب' : '✨ Create Account')}
-                        </button>
-
-                        <div className="flex items-center gap-3 my-4">
-                            <div className={`flex-1 h-px ${isDark ? 'bg-border-dark' : 'bg-border'}`} />
-                            <span className={`text-xs font-medium ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'أو' : 'OR'}</span>
-                            <div className={`flex-1 h-px ${isDark ? 'bg-border-dark' : 'bg-border'}`} />
-                        </div>
-
-                        <button onClick={() => { setGoogleStep(1); setGoogleError(''); setGoogleEmail(''); setGooglePassword(''); setGoogleChildId(''); }}
-                            className={`w-full py-[13px] rounded-[14px] cursor-pointer font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-300 font-[Inter,'Segoe_UI',sans-serif] border-[1.5px] hover:border-accent ${isDark ? 'bg-border-dark text-text-dark border-border-dark' : 'bg-white text-text border-border shadow-[0_1px_3px_rgba(0,0,0,0.08)]'}`}>
-                            <GoogleIcon />{modalMode === 'login' ? (isArabic ? 'تسجيل الدخول بجوجل' : 'Sign in with Google') : (isArabic ? 'التسجيل بجوجل' : 'Sign up with Google')}
-                        </button>
-
-                        <div className="text-center mt-4">
-                            <button onClick={() => { resetModal(); const role = roles.find(r => r.id === activeModal); if (role) navigate(role.loginPath); }}
-                                className={`bg-transparent border-none cursor-pointer text-xs font-[inherit] underline transition-colors duration-200 hover:text-accent ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                                {isArabic ? '← التسجيل بالطريقة الكاملة' : '← Full registration form'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
     };
 
     const handleGoogleSubmit = () => {
@@ -188,7 +169,7 @@ export default function ChoicePage() {
                 if (result) { if (result.error === 'not_found') setGoogleError(isArabic ? 'الإيميل غير مسجل' : 'Email not found'); else if (result.error === 'wrong_password') setGoogleError(isArabic ? 'كلمة المرور غير صحيحة' : 'Incorrect password'); }
                 setGoogleLoading(false); return;
             }
-            if (activeModal === 'child') { const result = registerChild({ name: nameFromEmail, age: 8, email: googleEmail.trim(), password: googlePassword, gender: 'Male', avatar: '👦' }); if (result.success) { setQuickSuccess({ childId: result.childId }); setGoogleStep(0); } else if (result.error === 'email_exists') setGoogleError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already registered'); }
+            if (activeModal === 'child') { const result = registerChild({ name: nameFromEmail, age: 8, email: googleEmail.trim(), password: googlePassword, gender: 'Male', avatar: '👦' }); if (result.success) { setQuickSuccess({ childId: result.childId }); setGoogleStep(0); onGoogleClose(); } else if (result.error === 'email_exists') setGoogleError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already registered'); }
             else if (activeModal === 'parent') {
                 if (!googleChildId.trim()) { setGoogleError(isArabic ? 'أدخل كود الطفل (LN-XXXXXX)' : 'Enter child code (LN-XXXXXX)'); setGoogleLoading(false); return; }
                 const child = getChildById(googleChildId.trim()); if (!child) { setGoogleError(isArabic ? 'كود الطفل غير موجود' : 'Child code not found'); setGoogleLoading(false); return; }
@@ -199,146 +180,261 @@ export default function ChoicePage() {
         }
     };
 
-    const renderGoogleModal = () => {
-        if (googleStep === 0 || !activeModal) return null;
-        const config = getModalConfig(); if (!config) return null;
-        const gInputCls = `${inputCls} !border-[${isDark ? '#3D444D' : '#D1D5DB'}] focus:!border-[#4285F4]`;
-
-        return (
-            <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 backdrop-blur-[10px]" style={{ animation: 'modalFadeIn 0.25s ease-out' }} onClick={() => setGoogleStep(0)}>
-                <div className={`rounded-3xl max-w-[400px] w-[90%] overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.4)] ${isDark ? 'bg-[#1E1E2E]' : 'bg-white'}`} style={{ animation: 'modalSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)' }} onClick={e => e.stopPropagation()}>
-                    <div className={`py-8 px-8 text-center border-b ${isDark ? 'border-[#2D333B]' : 'border-border'}`}>
-                        <div className={`w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.08)] ${isDark ? 'bg-[#2D333B]' : 'bg-gray-100'}`}><GoogleIcon /></div>
-                        <h2 className={`m-0 mb-1.5 text-xl font-extrabold ${isDark ? 'text-text-dark' : 'text-text'}`}>{googleStep === 1 ? (isArabic ? 'تسجيل الدخول بجوجل' : 'Sign in with Google') : (isArabic ? 'إنشاء كلمة مرور' : 'Set Your Password')}</h2>
-                        <p className={`m-0 text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{googleStep === 1 ? (isArabic ? 'أدخل إيميل جوجل بتاعك' : 'Enter your Google email to continue') : (isArabic ? `مرحباً بك ${googleEmail}` : `Welcome ${googleEmail}`)}</p>
-                    </div>
-                    <div className="py-6 px-8">
-                        {googleStep === 1 && (<><label className={labelCls}>{isArabic ? 'إيميل جوجل' : 'Google Email'}</label><input type="email" value={googleEmail} onChange={e => setGoogleEmail(e.target.value)} placeholder="example@gmail.com" autoFocus className={gInputCls} onKeyDown={e => e.key === 'Enter' && handleGoogleSubmit()} /></>)}
-                        {googleStep === 2 && (<>
-                            <div className={`flex items-center gap-2.5 py-2.5 px-3.5 rounded-xl mb-4 border ${isDark ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-200'}`}>
-                                <GoogleIcon />
-                                <div className="flex-1"><div className={`text-[13px] font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{googleEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</div><div className={`text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{googleEmail}</div></div>
-                                <span className="text-blue-500 text-base">✓</span>
-                            </div>
-                            <label className={labelCls}>🔒 {isArabic ? 'كلمة المرور للحساب' : 'Account Password'}</label>
-                            <input type="password" value={googlePassword} onChange={e => setGooglePassword(e.target.value)} placeholder={isArabic ? '6 أحرف على الأقل' : 'At least 6 characters'} autoFocus className={gInputCls} onKeyDown={e => e.key === 'Enter' && handleGoogleSubmit()} />
-                            {modalMode === 'signup' && activeModal === 'parent' && (<div className="mt-3"><label className={labelCls}>🆔 {isArabic ? 'كود الطفل' : 'Child Code'} *</label><input value={googleChildId} onChange={e => setGoogleChildId(e.target.value.toUpperCase())} placeholder="LN-XXXXXX" maxLength={9} className={`${gInputCls} font-mono tracking-[2px] !font-bold`} /></div>)}
-                        </>)}
-                        {googleError && (<div className={`rounded-[10px] py-2.5 px-3.5 mt-3 border border-red-500/20 ${isDark ? 'bg-red-500/10' : 'bg-red-50'}`} style={{ animation: 'modalSlideUp 0.2s ease-out' }}><span className="text-red-500 text-[13px] font-semibold">⚠️ {googleError}</span></div>)}
-                        <div className="flex gap-2.5 mt-5">
-                            <button onClick={() => { if (googleStep === 2) { setGoogleStep(1); setGoogleError(''); } else setGoogleStep(0); }}
-                                className={`flex-1 py-3 rounded-xl bg-transparent cursor-pointer font-semibold text-sm font-[inherit] transition-all duration-200 border hover:bg-gray-100 dark:hover:bg-border-dark ${isDark ? 'border-[#3D444D] text-text-dark' : 'border-gray-300 text-text'}`}>
-                                {isArabic ? 'رجوع' : 'Back'}
-                            </button>
-                            <button onClick={handleGoogleSubmit} disabled={googleLoading}
-                                className={`flex-[1.5] py-3 rounded-xl border-none cursor-pointer text-white font-bold text-sm font-[inherit] transition-all duration-300 bg-[#4285F4] shadow-[0_4px_14px_rgba(66,133,244,0.4)] flex items-center justify-center gap-2 hover:bg-[#3367D6] hover:-translate-y-px ${googleLoading ? 'opacity-70 cursor-wait' : ''}`}>
-                                {googleLoading ? (isArabic ? '✅ جاري التحقق...' : '✅ Verifying...') : googleStep === 1 ? (isArabic ? 'التالي →' : 'Next →') : modalMode === 'login' ? (isArabic ? 'تسجيل الدخول' : 'Sign In') : (isArabic ? 'إنشاء الحساب' : 'Create Account')}
-                            </button>
-                        </div>
-                        <p className={`text-center text-[11px] mt-4 mb-0 ${isDark ? 'text-[#4D5563]' : 'text-gray-400'}`}>{isArabic ? 'سيتم استخدام إيميل جوجل لإنشاء حسابك تلقائياً' : 'Your Google email will be used to auto-create your account'}</p>
-                    </div>
-                </div>
-            </div>
-        );
+    const getModalConfig = () => {
+        switch (activeModal) {
+            case 'child': return { title: isArabic ? '🎮 تسجيل الطفل' : '🎮 Child Sign Up', loginTitle: isArabic ? '🎮 دخول الطفل' : '🎮 Child Log In', gradient: 'bg-gradient-to-br from-p500 to-a500', accent: '#3B82F6', shadowColor: 'rgba(37,99,235,0.35)', namePlaceholder: isArabic ? 'اسم الطفل' : "Child's name", showChildId: false, showPhone: false };
+            case 'parent': return { title: isArabic ? '👨‍👩‍👧 تسجيل ولي الأمر' : '👨‍👩‍👧 Parent Sign Up', loginTitle: isArabic ? '👨‍👩‍👧 دخول ولي الأمر' : '👨‍👩‍👧 Parent Log In', gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600', accent: '#10B981', shadowColor: 'rgba(16,185,129,0.35)', namePlaceholder: isArabic ? 'اسم ولي الأمر' : 'Parent name', showChildId: true, showPhone: true };
+            case 'doctor': return { title: isArabic ? '🩺 تسجيل الطبيب' : '🩺 Doctor Sign Up', loginTitle: isArabic ? '🩺 دخول الطبيب' : '🩺 Doctor Log In', gradient: 'bg-gradient-to-br from-violet-500 to-violet-600', accent: '#8B5CF6', shadowColor: 'rgba(139,92,246,0.35)', namePlaceholder: isArabic ? 'اسم الطبيب' : 'Doctor name', showChildId: false, showPhone: true };
+            default: return null;
+        }
     };
 
-    const gradientText = "bg-gradient-to-br from-accent to-accent2 bg-clip-text [-webkit-text-fill-color:transparent]";
-    const btnCls = `w-10 h-10 rounded-xl border flex items-center justify-center cursor-pointer transition-all duration-200 ${isDark ? 'bg-card-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
+    const config = getModalConfig();
 
     return (
-        <div className={`min-h-screen font-[Inter,'Segoe_UI',sans-serif] flex flex-col items-center px-5 ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}
-            style={{ background: isDark ? `radial-gradient(ellipse at 20% 50%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(255,101,132,0.06) 0%, transparent 50%)` : `radial-gradient(ellipse at 20% 50%, rgba(108,99,255,0.05) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(255,101,132,0.04) 0%, transparent 50%)` }}>
-            {/* Navbar */}
-            <nav className="w-full max-w-[1100px] flex justify-between items-center py-5">
-                <div onClick={() => navigate('/')} className="flex items-center gap-2.5 cursor-pointer">
-                    <span className="text-[26px]">🧩</span>
-                    <span className={`text-xl font-extrabold ${gradientText}`}>LearnNeur</span>
-                </div>
-                <div className="flex gap-2">
-                    <button onClick={toggleTheme} className={`${btnCls} text-lg`}>{isDark ? '☀️' : '🌙'}</button>
-                    <button onClick={toggleLanguage} className={`${btnCls} text-sm font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'EN' : 'ع'}</button>
-                </div>
-            </nav>
+        <div className={`font-jakarta min-h-screen flex flex-col ${darkBg} ${darkTxt} transition-colors duration-300`} dir={isArabic ? 'rtl' : 'ltr'}>
 
-            {/* Header */}
-            <div className="text-center mt-10 mb-12">
-                <div className={`inline-block py-1.5 px-4 rounded-[20px] mb-4 text-[13px] font-semibold text-accent border ${isDark ? 'bg-accent/10 border-accent/20' : 'bg-accent/[0.06] border-accent/[0.15]'}`}>
-                    {isArabic ? '👋 مرحباً بك في LearnNeur' : '👋 Welcome to LearnNeur'}
-                </div>
-                <h1 className={`text-[clamp(28px,4vw,42px)] font-black leading-snug mb-3 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'اختر طريقة الدخول' : 'Choose Your Role'}</h1>
-                <p className={`text-base max-w-[500px] mx-auto ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'اضغط على الدور المناسب وسجّل بالإيميل فوراً' : 'Click your role and sign up instantly with your email'}</p>
-            </div>
+            {/* ===== NAVBAR (HeroUI) ===== */}
+            <Navbar
+                maxWidth="full"
+                isBordered
+                classNames={{
+                    base: `sticky top-0 z-[99] backdrop-blur-[16px] ${isDark ? 'bg-[rgba(8,14,28,.90)]' : 'bg-[rgba(255,255,255,.85)]'}`,
+                    wrapper: 'px-5 md:px-12',
+                }}
+            >
+                <NavbarBrand className="gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
+                    <div className="w-[38px] h-[38px] rounded-[11px] bg-gradient-to-br from-p600 to-a500 flex items-center justify-center text-lg shadow-[0_4px_12px_rgba(37,99,235,.25)]">🧠</div>
+                    <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-p600 to-a500 bg-clip-text [-webkit-text-fill-color:transparent]">LearnNeur</span>
+                </NavbarBrand>
+                <NavbarContent justify="end" className="gap-2">
+                    <NavbarItem>
+                        <Button size="sm" variant="bordered" className={`font-jakarta text-[13px] font-semibold ${isDark ? 'bg-lbg2-dark text-ltxt2-dark border-lbdr-dark' : 'bg-lbg2 text-ltxt2 border-lbdr'}`} onPress={toggleLanguage}>{T.langBtn}</Button>
+                    </NavbarItem>
+                    <NavbarItem>
+                        <Button isIconOnly size="sm" variant="bordered" className={`text-[15px] ${isDark ? 'bg-lbg2-dark text-ltxt2-dark border-lbdr-dark' : 'bg-lbg2 text-ltxt2 border-lbdr'}`} onPress={toggleTheme}>{isDark ? '☀️' : '🌙'}</Button>
+                    </NavbarItem>
+                    <NavbarItem className="hidden sm:flex">
+                        <Button size="sm" variant="bordered" className={`font-jakarta text-[13px] font-semibold ${isDark ? 'bg-lbg2-dark text-ltxt2-dark border-lbdr-dark' : 'bg-lbg2 text-ltxt2 border-lbdr'} hover:text-p600 hover:border-p300 hover:bg-p50`} onPress={() => navigate('/')}>{T.backBtn}</Button>
+                    </NavbarItem>
+                </NavbarContent>
+            </Navbar>
 
-            {/* Cards */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6 w-full max-w-[1100px] mb-[60px]">
-                {roles.map((role) => {
-                    const isHovered = hoveredCard === role.id;
-                    return (
-                        <div key={role.id} onMouseEnter={() => setHoveredCard(role.id)} onMouseLeave={() => setHoveredCard(null)} onClick={() => openModal(role.id)}
-                            className={`rounded-3xl overflow-hidden cursor-pointer relative transition-all duration-400 ${isDark ? 'bg-card-dark' : 'bg-card'}`}
-                            style={{
-                                border: `1px solid ${isHovered ? `${role.borderColor}50` : (isDark ? '#21262D' : '#E5E7EB')}`,
-                                boxShadow: isHovered ? `0 20px 60px ${role.shadowColor}` : (isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.04)'),
-                                transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
-                            }}>
-                            <div className="h-1 w-full transition-opacity duration-300" style={{ background: role.gradient, opacity: isHovered ? 1 : 0.5 }} />
-                            <div className="py-7 px-7 pb-6">
-                                <div className="flex items-center gap-3.5 mb-5">
-                                    <div className="w-[60px] h-[60px] rounded-[18px] flex items-center justify-center text-[30px] transition-transform duration-400"
-                                        style={{ background: role.gradient, boxShadow: `0 8px 24px ${role.shadowColor}`, transform: isHovered ? 'scale(1.1) rotate(-3deg)' : 'scale(1)' }}>{role.icon}</div>
-                                    <div>
-                                        <h2 className={`m-0 text-[22px] font-extrabold ${isDark ? 'text-text-dark' : 'text-text'}`}>{role.title}</h2>
-                                        <p className="m-0 text-[13px] font-semibold" style={{ color: role.borderColor }}>{role.subtitle}</p>
-                                    </div>
-                                </div>
-                                <p className={`text-sm leading-relaxed mb-5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{role.description}</p>
-                                <div className="grid grid-cols-2 gap-2 mb-6">
-                                    {role.features.map((f, i) => (
-                                        <div key={i} className={`py-2 px-3 rounded-[10px] text-xs font-medium border ${isDark ? 'text-text-dark' : 'text-text'}`}
-                                            style={{ background: isDark ? `${role.borderColor}10` : `${role.borderColor}08`, border: `1px solid ${isDark ? `${role.borderColor}15` : `${role.borderColor}12`}` }}>{f}</div>
+            {/* ===== MAIN ===== */}
+            <main className="flex-1 flex flex-col items-center justify-center py-10 md:py-[60px] px-4 md:px-6 relative overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_50%_at_50%_20%,rgba(59,130,246,.07)_0%,transparent_70%),radial-gradient(ellipse_40%_40%_at_15%_80%,rgba(6,182,212,.05)_0%,transparent_60%),radial-gradient(ellipse_35%_35%_at_85%_75%,rgba(139,92,246,.05)_0%,transparent_60%)]" />
+                <div className="absolute inset-0 pointer-events-none dot-grid opacity-40" />
+
+                {/* Header */}
+                <div className="relative text-center mb-10 md:mb-14 max-w-[520px]">
+                    <Chip variant="bordered" className={`${tagBg} text-p600 font-bold tracking-[.4px] mb-5 border`}>{T.eyebrow}</Chip>
+                    <h1 className={`text-[clamp(28px,4vw,44px)] font-extrabold tracking-tight leading-[1.15] mb-3.5 ${darkTxt}`}>
+                        {T.pageTitle1}<span className="bg-gradient-to-br from-p600 to-a500 bg-clip-text [-webkit-text-fill-color:transparent]">{T.pageTitleGrad}</span>
+                    </h1>
+                    <p className={`${darkTxt2} text-base leading-[1.75]`}>{T.pageDesc}</p>
+                </div>
+
+                {/* Cards (HeroUI Card) */}
+                <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-[920px]">
+                    {cards.map((card, idx) => (
+                        <Card
+                            key={card.id}
+                            isPressable
+                            onPress={() => openModal(card.id)}
+                            className={`${darkSurf} border-2 ${card.borderCls} rounded-3xl pt-11 px-5 sm:px-8 pb-9 text-center cursor-pointer transition-all duration-[350ms] ease-[cubic-bezier(.22,.68,0,1.2)] relative overflow-hidden flex flex-col items-center hover:-translate-y-2.5 ${card.hoverShadow} group`}
+                            style={{ animation: `cardIn .6s ease ${0.05 + idx * 0.1}s forwards`, opacity: 0 }}
+                        >
+                            <div className={`absolute top-0 inset-x-0 h-[5px] rounded-t-[22px] bg-gradient-to-r ${card.stripeCls}`} />
+                            {card.popular && (
+                                <Chip size="sm" className={`absolute -top-3.5 ${isArabic ? 'left-5' : 'right-5'} bg-gradient-to-br from-p600 to-a500 text-white text-[11px] font-bold shadow-[0_4px_12px_rgba(37,99,235,.3)] tracking-[.5px] uppercase`}>{card.badgeText}</Chip>
+                            )}
+                            <CardBody className="p-0 flex flex-col items-center">
+                                <div className={`w-[88px] h-[88px] rounded-[28px] flex items-center justify-center text-[40px] mb-6 relative z-[1] transition-transform duration-[350ms] ease-[cubic-bezier(.22,.68,0,1.2)] group-hover:scale-[1.12] ${card.bubbleCls}`}>{card.icon}</div>
+                                <div className={`text-[22px] font-extrabold mb-2.5 relative z-[1] ${darkTxt}`}>{card.title}</div>
+                                <div className={`${darkTxt2} text-sm leading-[1.7] mb-8 relative z-[1]`}>{card.desc}</div>
+                                <ul className={`list-none w-full mb-8 flex flex-col gap-2 relative z-[1] ${isArabic ? 'text-right' : 'text-left'}`}>
+                                    {card.features.map((f, i) => (
+                                        <li key={i} className={`flex items-center gap-[9px] text-[13px] ${darkTxt2} font-medium ${isArabic ? 'flex-row-reverse' : ''}`}>
+                                            <span className={`w-5 h-5 rounded-md flex-shrink-0 flex items-center justify-center text-[11px] ${card.dotCls}`}>{f.emoji}</span>
+                                            <span>{f.text}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardBody>
+                            <CardFooter className="p-0 w-full">
+                                <Button fullWidth radius="lg" className={`py-[13px] font-jakarta text-[15px] font-bold text-white ${card.btnGrad}`}>{card.btn}</Button>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Bottom Note */}
+                <div className={`relative mt-10 text-center text-[13px] ${isDark ? 'text-ltxt3-dark' : 'text-ltxt3'}`}>
+                    <span>{T.noteText}</span>
+                    <Button variant="light" size="sm" className="text-p600 font-semibold p-0 min-w-0 h-auto" onPress={() => openModal('child')}>{T.noteLink}</Button>
+                </div>
+            </main>
+
+            {/* ===== MODAL (HeroUI Modal) ===== */}
+            <Modal isOpen={isOpen && !!activeModal} onClose={resetModal} size="md" backdrop="blur" placement="center"
+                classNames={{ base: `${darkSurf} ${darkBdr} border rounded-[28px]`, backdrop: 'bg-black/60', closeButton: 'hidden' }}>
+                <ModalContent>
+                    {config && !quickSuccess && (
+                        <>
+                            <ModalHeader className={`${config.gradient} text-white text-center flex flex-col items-center py-7 px-7`}>
+                                <Button isIconOnly size="sm" className="absolute top-3.5 end-3.5 bg-white/20 text-white backdrop-blur-lg min-w-8 h-8" onPress={resetModal}>✕</Button>
+                                <h2 className="text-[22px] font-extrabold">{modalMode === 'login' ? config.loginTitle : config.title}</h2>
+                                <p className="text-white/80 text-[13px] mt-1.5 font-normal">{modalMode === 'login' ? (isArabic ? 'سجل دخولك بالإيميل وكلمة المرور' : 'Log in with your email and password') : (isArabic ? 'سجل بسرعة بالإيميل بتاعك' : 'Quick sign up with your email')}</p>
+                            </ModalHeader>
+                            <ModalBody className="py-6 px-7">
+                                {/* Toggle Tabs */}
+                                <div className={`flex gap-1 mb-5 p-1 rounded-[14px] ${isDark ? 'bg-lbg-dark' : 'bg-gray-100'}`}>
+                                    {['signup', 'login'].map(m => (
+                                        <Button key={m} fullWidth size="sm" radius="lg"
+                                            className={`font-bold text-[13px] font-jakarta ${modalMode === m ? 'text-white' : `${darkTxt2} bg-transparent`}`}
+                                            style={modalMode === m ? { background: config.accent } : undefined}
+                                            onPress={() => { setModalMode(m); setQuickError(''); }}>
+                                            {m === 'signup' ? (isArabic ? 'حساب جديد' : 'Sign Up') : (isArabic ? 'تسجيل دخول' : 'Log In')}
+                                        </Button>
                                     ))}
                                 </div>
-                                <button className={`w-full py-3.5 px-6 rounded-[14px] cursor-pointer font-bold text-[15px] transition-all duration-300 flex items-center justify-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}
-                                    style={{
-                                        background: isHovered ? role.gradient : (isDark ? '#21262D' : '#F3F4F6'),
-                                        color: isHovered ? '#fff' : undefined,
-                                        border: isHovered ? 'none' : `1px solid ${isDark ? '#30363D' : '#E5E7EB'}`,
-                                        boxShadow: isHovered ? `0 6px 20px ${role.shadowColor}` : 'none',
-                                    }}>
-                                    📧 {role.btnText}
-                                    <span className="text-lg transition-transform duration-300" style={{ transform: isHovered ? 'translateX(4px)' : 'translateX(0)' }}>→</span>
-                                </button>
+
+                                {/* Form Fields (HeroUI Input) */}
+                                {modalMode === 'signup' && (
+                                    <Input label={`👤 ${isArabic ? 'الاسم' : 'Name'} *`} variant="bordered" size="sm" radius="lg"
+                                        value={quickForm.name} onChange={e => setQuickForm(p => ({ ...p, name: e.target.value }))}
+                                        placeholder={config.namePlaceholder} className="mb-3 font-jakarta"
+                                        classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }} />
+                                )}
+                                <Input label={`📧 ${isArabic ? 'البريد الإلكتروني' : 'Email'} *`} type="email" variant="bordered" size="sm" radius="lg"
+                                    value={quickForm.email} onChange={e => setQuickForm(p => ({ ...p, email: e.target.value }))}
+                                    placeholder="your@email.com" className="mb-3 font-jakarta"
+                                    classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }} />
+                                <Input label={`🔒 ${isArabic ? 'كلمة المرور' : 'Password'} *`} type="password" variant="bordered" size="sm" radius="lg"
+                                    value={quickForm.password} onChange={e => setQuickForm(p => ({ ...p, password: e.target.value }))}
+                                    placeholder={isArabic ? '6 أحرف على الأقل' : 'At least 6 characters'} className="mb-3 font-jakarta"
+                                    classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }}
+                                    onKeyDown={e => e.key === 'Enter' && handleQuickSubmit()} />
+                                {modalMode === 'signup' && config.showChildId && (
+                                    <Input label={`🆔 ${isArabic ? 'كود الطفل' : 'Child Code'} *`} variant="bordered" size="sm" radius="lg"
+                                        value={quickForm.childId} onChange={e => setQuickForm(p => ({ ...p, childId: e.target.value.toUpperCase() }))}
+                                        placeholder="LN-XXXXXX" maxLength={9} className="mb-3 font-mono tracking-[2px] font-jakarta"
+                                        classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }} />
+                                )}
+                                {modalMode === 'signup' && config.showPhone && (
+                                    <Input label={`📱 ${isArabic ? 'رقم الهاتف' : 'Phone'} (${isArabic ? 'اختياري' : 'Optional'})`} type="tel" variant="bordered" size="sm" radius="lg"
+                                        value={quickForm.phone} onChange={e => setQuickForm(p => ({ ...p, phone: e.target.value }))}
+                                        placeholder="01xxxxxxxxx" className="mb-3 font-jakarta"
+                                        classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }} />
+                                )}
+
+                                {quickError && (<div className={`rounded-[10px] py-2.5 px-3.5 mb-3 border border-red-500/20 ${isDark ? 'bg-red-500/10' : 'bg-red-50'}`}><span className="text-red-500 text-[13px] font-semibold">⚠️ {quickError}</span></div>)}
+
+                                <Button fullWidth radius="lg" isLoading={quickLoading} onPress={handleQuickSubmit}
+                                    className={`${config.gradient} text-white font-bold text-[15px] font-jakarta mt-1 py-3.5`}
+                                    style={{ boxShadow: `0 6px 20px ${config.shadowColor}` }}>
+                                    {quickLoading ? '' : modalMode === 'login' ? (isArabic ? '🚀 تسجيل الدخول' : '🚀 Log In') : (isArabic ? '✨ إنشاء حساب' : '✨ Create Account')}
+                                </Button>
+
+                                <div className="flex items-center gap-3 my-4">
+                                    <Divider className="flex-1" />
+                                    <span className={`text-xs font-medium ${darkTxt2}`}>{isArabic ? 'أو' : 'OR'}</span>
+                                    <Divider className="flex-1" />
+                                </div>
+
+                                <Button fullWidth variant="bordered" radius="lg"
+                                    className={`font-semibold text-sm font-jakarta ${isDark ? 'bg-lbdr-dark text-ltxt-dark border-lbdr-dark' : 'bg-white text-ltxt border-lbdr'}`}
+                                    startContent={<GoogleIcon />}
+                                    onPress={() => { setGoogleStep(1); setGoogleError(''); setGoogleEmail(''); setGooglePassword(''); setGoogleChildId(''); onGoogleOpen(); }}>
+                                    {modalMode === 'login' ? (isArabic ? 'تسجيل الدخول بجوجل' : 'Sign in with Google') : (isArabic ? 'التسجيل بجوجل' : 'Sign up with Google')}
+                                </Button>
+
+                                <div className="text-center mt-4">
+                                    <Button variant="light" size="sm" className={`text-xs font-jakarta underline ${darkTxt2} hover:text-p600`}
+                                        onPress={() => { const card = cards.find(c => c.id === activeModal); resetModal(); if (card) navigate(card.loginPath); }}>
+                                        {isArabic ? '← التسجيل بالطريقة الكاملة' : '← Full registration form'}
+                                    </Button>
+                                </div>
+                            </ModalBody>
+                        </>
+                    )}
+                    {config && quickSuccess && (
+                        <ModalBody className="py-9 px-8 text-center">
+                            <div className="text-[64px] mb-3">🎉</div>
+                            <h2 className={`text-2xl font-extrabold mb-2 ${darkTxt}`}>{isArabic ? 'تم التسجيل بنجاح!' : 'Registration Successful!'}</h2>
+                            <p className={`text-sm mb-5 ${darkTxt2}`}>{isArabic ? 'ده كود الطفل الخاص بيك. احتفظ بيه!' : 'This is your unique child code. Keep it safe!'}</p>
+                            <div className={`py-4 px-7 rounded-2xl inline-block mb-5 ${config.gradient}`}>
+                                <div className="text-[10px] text-white/70 mb-1 font-bold uppercase tracking-wider">{isArabic ? 'كود الطفل' : 'CHILD CODE'}</div>
+                                <div className="text-[32px] font-black text-white tracking-[4px] font-mono">{quickSuccess.childId}</div>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
+                            <div className={`rounded-xl p-3 mb-4 border text-start ${isDark ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-200'}`}>
+                                <p className={`text-xs font-semibold m-0 ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>⚠️ {isArabic ? 'مهم: شارك الكود مع ولي أمرك!' : 'Important: Share this code with your parent!'}</p>
+                            </div>
+                            <Button fullWidth variant="bordered" radius="lg" className={`mb-2.5 font-jakarta ${darkTxt} ${darkBdr}`} onPress={() => navigator.clipboard?.writeText(quickSuccess.childId)}>📋 {isArabic ? 'نسخ الكود' : 'Copy Code'}</Button>
+                            <Button fullWidth radius="lg" className={`${config.gradient} text-white font-bold font-jakarta`} style={{ boxShadow: `0 4px 16px ${config.shadowColor}` }}
+                                onPress={() => { resetModal(); navigate('/child-home'); }}>🚀 {isArabic ? 'ابدأ التعلم!' : 'Start Learning!'}</Button>
+                        </ModalBody>
+                    )}
+                </ModalContent>
+            </Modal>
 
-            {/* Help */}
-            <div className={`max-w-[1100px] w-full mb-10 py-6 px-7 rounded-[20px] flex items-center gap-4 flex-wrap justify-between border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-[#F8F5FF] border-border'}`}>
-                <div className="flex items-center gap-3">
-                    <span className="text-[32px]">🤔</span>
-                    <div>
-                        <div className={`font-bold text-[15px] ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'مش متأكد تبدأ منين؟' : 'Not sure where to start?'}</div>
-                        <div className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'اضغط على أي كارد وسجل بالإيميل على طول! لو ولي أمر هتحتاج كود الطفل' : 'Click any card and sign up with your email instantly! Parents will need the child code'}</div>
-                    </div>
-                </div>
-                <button onClick={() => navigate('/')} className={`py-2.5 px-5 rounded-xl bg-transparent border cursor-pointer font-semibold text-[13px] transition-all duration-200 whitespace-nowrap hover:border-accent hover:text-accent ${isDark ? 'border-[#30363D] text-subtext-dark' : 'border-gray-300 text-subtext'}`}>
-                    ← {isArabic ? 'الرجوع للرئيسية' : 'Back to Home'}
-                </button>
-            </div>
-
-            {/* Footer */}
-            <div className="py-5 pb-[30px] text-center">
-                <p className={`text-xs ${isDark ? 'text-[#30363D]' : 'text-gray-300'}`}>© 2026 LearnNeur • {isArabic ? 'منصة دعم أطفال التوحد' : 'Autism Support Platform'}</p>
-            </div>
-
-            {renderModal()}
-            {renderGoogleModal()}
+            {/* ===== GOOGLE MODAL (HeroUI Modal) ===== */}
+            <Modal isOpen={isGoogleOpen && googleStep > 0} onClose={() => { setGoogleStep(0); onGoogleClose(); }} size="sm" backdrop="blur" placement="center"
+                classNames={{ base: `${darkSurf} rounded-3xl`, backdrop: 'bg-black/70', closeButton: 'hidden' }}>
+                <ModalContent>
+                    {config && (
+                        <>
+                            <ModalHeader className={`py-8 px-8 text-center flex flex-col items-center border-b ${darkBdr}`}>
+                                <div className={`w-14 h-14 rounded-2xl mb-4 flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.08)] ${isDark ? 'bg-lbdr-dark' : 'bg-gray-100'}`}><GoogleIcon /></div>
+                                <h2 className={`text-xl font-extrabold ${darkTxt}`}>{googleStep === 1 ? (isArabic ? 'تسجيل الدخول بجوجل' : 'Sign in with Google') : (isArabic ? 'إنشاء كلمة مرور' : 'Set Your Password')}</h2>
+                                <p className={`text-[13px] font-normal mt-1.5 ${darkTxt2}`}>{googleStep === 1 ? (isArabic ? 'أدخل إيميل جوجل بتاعك' : 'Enter your Google email to continue') : (isArabic ? `مرحباً بك ${googleEmail}` : `Welcome ${googleEmail}`)}</p>
+                            </ModalHeader>
+                            <ModalBody className="py-6 px-8">
+                                {googleStep === 1 && (
+                                    <Input label={isArabic ? 'إيميل جوجل' : 'Google Email'} type="email" variant="bordered" size="sm" radius="lg" autoFocus
+                                        value={googleEmail} onChange={e => setGoogleEmail(e.target.value)}
+                                        placeholder="example@gmail.com" className="font-jakarta"
+                                        classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }}
+                                        onKeyDown={e => e.key === 'Enter' && handleGoogleSubmit()} />
+                                )}
+                                {googleStep === 2 && (<>
+                                    <div className={`flex items-center gap-2.5 py-2.5 px-3.5 rounded-xl mb-4 border ${isDark ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-200'}`}>
+                                        <GoogleIcon />
+                                        <div className="flex-1"><div className={`text-[13px] font-bold ${darkTxt}`}>{googleEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</div><div className={`text-[11px] ${darkTxt2}`}>{googleEmail}</div></div>
+                                        <span className="text-blue-500 text-base">✓</span>
+                                    </div>
+                                    <Input label={`🔒 ${isArabic ? 'كلمة المرور للحساب' : 'Account Password'}`} type="password" variant="bordered" size="sm" radius="lg" autoFocus
+                                        value={googlePassword} onChange={e => setGooglePassword(e.target.value)}
+                                        placeholder={isArabic ? '6 أحرف على الأقل' : 'At least 6 characters'} className="font-jakarta"
+                                        classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }}
+                                        onKeyDown={e => e.key === 'Enter' && handleGoogleSubmit()} />
+                                    {modalMode === 'signup' && activeModal === 'parent' && (
+                                        <Input label={`🆔 ${isArabic ? 'كود الطفل' : 'Child Code'} *`} variant="bordered" size="sm" radius="lg"
+                                            value={googleChildId} onChange={e => setGoogleChildId(e.target.value.toUpperCase())}
+                                            placeholder="LN-XXXXXX" maxLength={9} className="mt-3 font-mono tracking-[2px] font-jakarta"
+                                            classNames={{ inputWrapper: `${isDark ? 'bg-lbg-dark border-lbdr-dark' : 'bg-[#F9FAFB] border-lbdr'}` }} />
+                                    )}
+                                </>)}
+                                {googleError && (<div className={`rounded-[10px] py-2.5 px-3.5 mt-3 border border-red-500/20 ${isDark ? 'bg-red-500/10' : 'bg-red-50'}`}><span className="text-red-500 text-[13px] font-semibold">⚠️ {googleError}</span></div>)}
+                            </ModalBody>
+                            <ModalFooter className="px-8 pb-6 pt-0 flex gap-2.5">
+                                <Button variant="bordered" radius="lg" className={`flex-1 font-semibold font-jakarta ${isDark ? 'border-lbdr-dark text-ltxt-dark' : 'border-gray-300 text-ltxt'}`}
+                                    onPress={() => { if (googleStep === 2) { setGoogleStep(1); setGoogleError(''); } else { setGoogleStep(0); onGoogleClose(); } }}>
+                                    {isArabic ? 'رجوع' : 'Back'}
+                                </Button>
+                                <Button radius="lg" isLoading={googleLoading} className="flex-[1.5] bg-[#4285F4] text-white font-bold font-jakarta shadow-[0_4px_14px_rgba(66,133,244,0.4)]"
+                                    onPress={handleGoogleSubmit}>
+                                    {googleLoading ? '' : googleStep === 1 ? (isArabic ? 'التالي →' : 'Next →') : modalMode === 'login' ? (isArabic ? 'تسجيل الدخول' : 'Sign In') : (isArabic ? 'إنشاء الحساب' : 'Create Account')}
+                                </Button>
+                            </ModalFooter>
+                            <p className={`text-center text-[11px] pb-6 ${isDark ? 'text-ltxt3-dark' : 'text-ltxt3'}`}>{isArabic ? 'سيتم استخدام إيميل جوجل لإنشاء حسابك تلقائياً' : 'Your Google email will be used to auto-create your account'}</p>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
 
             <style>{`
-                @keyframes modalFadeIn { from { opacity:0; } to { opacity:1; } }
-                @keyframes modalSlideUp { from { opacity:0; transform:translateY(30px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+                @keyframes cardIn { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
             `}</style>
         </div>
     );

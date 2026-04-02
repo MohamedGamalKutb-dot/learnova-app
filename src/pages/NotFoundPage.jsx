@@ -1,173 +1,185 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { Button, Card, CardBody, Chip } from '@heroui/react';
 
 export default function NotFoundPage() {
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
-    const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
-    const [glitchActive, setGlitchActive] = useState(false);
-    const [floatingEmojis] = useState(['🧩', '🎮', '📚', '🩺', '👨‍👩‍👧', '⭐', '🎈', '🚀', '💡', '🔍']);
-    const [countdown, setCountdown] = useState(15);
+    const particlesRef = useRef(null);
 
+    /* ── spawn particles inside card ── */
     useEffect(() => {
-        const handleMouseMove = (e) => {
-            setMousePos({ x: (e.clientX / window.innerWidth) * 100, y: (e.clientY / window.innerHeight) * 100 });
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
+        const container = particlesRef.current;
+        if (!container) return;
+        const colors = ['#BFDBFE', '#A5F3FC', '#DDD6FE', '#FDE68A', '#A7F3D0', '#FBCFE8'];
+        for (let i = 0; i < 18; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = 4 + Math.random() * 8;
+            p.style.cssText = `
+                position:absolute; border-radius:50%;
+                width:${size}px; height:${size}px;
+                background:${colors[Math.floor(Math.random() * colors.length)]};
+                left:${Math.random() * 100}%;
+                animation: particleFloat ${4 + Math.random() * 6}s linear infinite;
+                animation-delay:${Math.random() * 6}s;
+                opacity:0;
+            `;
+            container.appendChild(p);
+        }
+        return () => { container.innerHTML = ''; };
     }, []);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setGlitchActive(true);
-            setTimeout(() => setGlitchActive(false), 200);
-        }, 3000);
-        return () => clearInterval(interval);
-    }, []);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCountdown(prev => {
-                if (prev <= 1) { clearInterval(timer); navigate('/'); return 0; }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [navigate]);
-
-    const quickLinks = [
-        { icon: '🏠', label: isArabic ? 'الصفحة الرئيسية' : 'Home Page', path: '/' },
-        { icon: '🎮', label: isArabic ? 'منطقة الطفل' : 'Child Zone', path: '/choice' },
-        { icon: '👨‍👩‍👧', label: isArabic ? 'ولي الأمر' : 'Parent Portal', path: '/login' },
-        { icon: '🩺', label: isArabic ? 'بوابة الطبيب' : 'Doctor Portal', path: '/doctor-auth' },
+    const sugLinks = [
+        { emoji: '🏠', label: isArabic ? 'الرئيسية' : 'Home', path: '/', bg: '#DBEAFE' },
+        { emoji: '🚪', label: isArabic ? 'تسجيل الدخول' : 'Log In', path: '/choice', bg: '#EDE9FE' },
+        { emoji: '🧒', label: isArabic ? 'صفحة الطفل' : "Child's Page", path: '/child-home', bg: '#D1FAE5' },
+        { emoji: '📞', label: isArabic ? 'تواصل معنا' : 'Contact Us', path: '/', bg: '#FEF3C7' },
     ];
 
     return (
-        <div
-            className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden font-[Inter,'Segoe_UI',sans-serif]"
-            style={{
-                background: isDark
-                    ? `radial-gradient(ellipse at ${mousePos.x}% ${mousePos.y}%, rgba(108,99,255,0.12) 0%, transparent 50%), radial-gradient(ellipse at ${100 - mousePos.x}% ${100 - mousePos.y}%, rgba(255,101,132,0.08) 0%, transparent 50%), #0D1117`
-                    : `radial-gradient(ellipse at ${mousePos.x}% ${mousePos.y}%, rgba(108,99,255,0.07) 0%, transparent 50%), radial-gradient(ellipse at ${100 - mousePos.x}% ${100 - mousePos.y}%, rgba(255,101,132,0.05) 0%, transparent 50%), #FAFBFF`,
-            }}
-        >
-            {/* Floating Background Emojis */}
-            {floatingEmojis.map((emoji, i) => (
-                <div key={i} className="absolute pointer-events-none transition-transform duration-300 ease-out"
-                    style={{
-                        top: `${10 + (i * 8) % 80}%`, left: `${5 + (i * 11) % 90}%`,
-                        fontSize: 20 + (i % 3) * 10, opacity: isDark ? 0.06 : 0.08,
-                        animation: `floatEmoji ${6 + i % 4}s ease-in-out infinite ${i * 0.5}s`,
-                        transform: `translateX(${(mousePos.x - 50) * (0.05 + i * 0.01)}px) translateY(${(mousePos.y - 50) * (0.05 + i * 0.01)}px)`,
-                    }}>{emoji}</div>
-            ))}
+        <div className="min-h-screen flex flex-col overflow-hidden font-[Cairo,'Plus_Jakarta_Sans',sans-serif] transition-colors duration-300"
+            style={{ background: isDark ? '#080E1C' : '#F4F6FF', color: isDark ? '#F1F5F9' : '#0F172A' }}>
 
-            {/* Decorative Circles */}
-            <div className="absolute -top-[10%] -right-[5%] w-[400px] h-[400px] rounded-full pointer-events-none"
-                style={{ background: `radial-gradient(circle, ${isDark ? 'rgba(108,99,255,0.06)' : 'rgba(108,99,255,0.04)'}, transparent 70%)` }} />
-            <div className="absolute -bottom-[15%] -left-[8%] w-[500px] h-[500px] rounded-full pointer-events-none"
-                style={{ background: `radial-gradient(circle, ${isDark ? 'rgba(255,101,132,0.05)' : 'rgba(255,101,132,0.03)'}, transparent 70%)` }} />
+            {/* ── Background Layers ── */}
+            <div className="fixed inset-0 pointer-events-none z-0"
+                style={{
+                    background: `
+                        radial-gradient(ellipse 70% 55% at 50% 0%, rgba(37,99,235,0.07) 0%, transparent 65%),
+                        radial-gradient(ellipse 45% 40% at 10% 90%, rgba(6,182,212,0.05) 0%, transparent 55%),
+                        radial-gradient(ellipse 40% 35% at 90% 80%, rgba(139,92,246,0.05) 0%, transparent 55%)
+                    `,
+                }} />
+            <div className="fixed inset-0 pointer-events-none z-0 opacity-45"
+                style={{
+                    backgroundImage: `radial-gradient(circle, ${isDark ? '#1E293B' : '#E2E8F0'} 1px, transparent 1px)`,
+                    backgroundSize: '34px 34px',
+                }} />
 
-            {/* Main Content */}
-            <div className="relative z-[1] text-center max-w-[600px] px-6 py-10" style={{ animation: 'pageSlideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+            {/* ── Top Nav ── */}
+            <nav className={`relative z-10 flex items-center justify-between py-3.5 px-6 sm:px-10 backdrop-blur-[18px] border-b transition-colors duration-300 ${isDark ? 'bg-[rgba(8,14,28,0.90)] border-[#1E293B]' : 'bg-[rgba(255,255,255,0.80)] border-[#E2E8F0]'}`}>
+                <a onClick={() => navigate('/')} className="flex items-center gap-2.5 cursor-pointer no-underline">
+                    <span className="text-[19px] font-black tracking-tight bg-clip-text [-webkit-text-fill-color:transparent]"
+                        style={{ background: 'linear-gradient(90deg, #2563EB, #8B5CF6)', WebkitBackgroundClip: 'text' }}>LearnNeur</span>
+                    <div className="w-9 h-9 rounded-[11px] flex items-center justify-center text-lg shadow-[0_4px_12px_rgba(37,99,235,0.25)]"
+                        style={{ background: 'linear-gradient(135deg, #2563EB, #06B6D4)' }}>🧩</div>
+                </a>
+            </nav>
 
-                {/* 404 Number */}
-                <div className="relative mb-2">
-                    <h1 className="text-[clamp(120px,20vw,200px)] font-black m-0 leading-none bg-clip-text [-webkit-text-fill-color:transparent] tracking-[-4px]"
-                        style={{
-                            background: glitchActive ? 'linear-gradient(135deg, #FF6584, #FF8E9E)' : 'linear-gradient(135deg, #6C63FF, #8B5CF6, #FF6584)',
-                            WebkitBackgroundClip: 'text', transition: 'all 0.1s',
-                            transform: glitchActive ? 'translateX(3px) skewX(-2deg)' : 'translateX(0)',
-                            animation: 'pulse404 4s ease-in-out infinite',
-                        }}>404</h1>
-                    <div className="absolute top-[10%] right-[5%] text-5xl opacity-30"
-                        style={{ animation: 'puzzleSpin 8s linear infinite', transform: `translate(${(mousePos.x - 50) * 0.2}px, ${(mousePos.y - 50) * 0.2}px)` }}>🧩</div>
-                    <div className="absolute bottom-[10%] left-[8%] text-4xl opacity-25"
-                        style={{ animation: 'puzzleSpin 10s linear infinite reverse', transform: `translate(${(mousePos.x - 50) * -0.15}px, ${(mousePos.y - 50) * -0.15}px)` }}>🔍</div>
-                </div>
+            {/* ── Main Area ── */}
+            <main className="flex-1 relative z-[1] flex items-center justify-center px-6 py-10 overflow-hidden">
+                {/* Blobs */}
+                <div className="absolute w-[380px] h-[380px] rounded-full pointer-events-none -top-20 -right-20 blur-[60px]"
+                    style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.10), transparent 70%)', animation: 'blobMove 12s ease-in-out infinite' }} />
+                <div className="absolute w-[280px] h-[280px] rounded-full pointer-events-none -bottom-[60px] -left-[60px] blur-[60px]"
+                    style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.08), transparent 70%)', animation: 'blobMove 12s ease-in-out infinite 4s' }} />
+                <div className="absolute w-[220px] h-[220px] rounded-full pointer-events-none top-[40%] left-[5%] blur-[60px]"
+                    style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.07), transparent 70%)', animation: 'blobMove 12s ease-in-out infinite 8s' }} />
 
-                {/* Robot */}
-                <div className="text-7xl mb-4" style={{ animation: 'robotBounce 2s ease-in-out infinite' }}>🤖</div>
+                {/* ── Card ── */}
+                <Card className={`relative overflow-hidden max-w-[540px] w-full border shadow-[0_24px_80px_rgba(37,99,235,0.10)] ${isDark ? 'bg-[#111827] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'}`}
+                    style={{ animation: 'cardIn 0.7s cubic-bezier(0.22,0.68,0,1.2) both', borderRadius: 28 }}>
 
-                {/* Title */}
-                <h2 className={`text-[clamp(24px,4vw,32px)] font-extrabold mb-3 ${isDark ? 'text-text-dark' : 'text-text'}`}
-                    style={{ animation: 'fadeInUp 0.6s ease-out 0.2s both' }}>
-                    {isArabic ? 'أوبس! الصفحة مش موجودة' : 'Oops! Page Not Found'}
-                </h2>
+                    {/* Top gradient stripe */}
+                    <div className="absolute top-0 left-0 right-0 h-[5px] z-[2]"
+                        style={{ background: 'linear-gradient(90deg, #2563EB, #06B6D4, #8B5CF6)' }} />
 
-                {/* Description */}
-                <p className={`text-base leading-relaxed max-w-[460px] mx-auto mb-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}
-                    style={{ animation: 'fadeInUp 0.6s ease-out 0.3s both' }}>
-                    {isArabic
-                        ? 'يبدو إن الصفحة اللي بتدور عليها اتنقلت أو مش موجودة. ممكن تكون كتبت العنوان غلط 🤔'
-                        : "The page you're looking for might have been moved, deleted, or maybe you just mistyped the URL 🤔"}
-                </p>
+                    {/* Particles container */}
+                    <div ref={particlesRef} className="absolute inset-0 pointer-events-none overflow-hidden z-[1]" style={{ borderRadius: 27 }} />
 
-                {/* Countdown */}
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-3xl mb-7 border ${isDark ? 'bg-[rgba(108,99,255,0.08)] border-[rgba(108,99,255,0.15)]' : 'bg-[rgba(108,99,255,0.05)] border-[rgba(108,99,255,0.1)]'}`}
-                    style={{ animation: 'fadeInUp 0.6s ease-out 0.4s both' }}>
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-1000"
-                        style={{ background: `conic-gradient(#6C63FF ${(countdown / 15) * 360}deg, ${isDark ? '#21262D' : '#E5E7EB'} 0deg)` }}>
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-accent ${isDark ? 'bg-card-dark' : 'bg-[#FAFBFF]'}`}>{countdown}</div>
-                    </div>
-                    <span className={`text-[13px] font-medium ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                        {isArabic ? 'هيتم تحويلك للصفحة الرئيسية تلقائياً' : 'Redirecting to home automatically'}
-                    </span>
-                </div>
+                    <CardBody className="relative z-[3] px-7 sm:px-12 pt-14 pb-12 text-center items-center flex flex-col">
+                        {/* 404 Number */}
+                        <div className="relative inline-flex items-center justify-center mb-1">
+                            <span className="font-black leading-none tracking-[-6px] select-none bg-clip-text [-webkit-text-fill-color:transparent] text-[clamp(100px,18vw,140px)]"
+                                style={{
+                                    background: 'linear-gradient(135deg, #2563EB 0%, #06B6D4 50%, #8B5CF6 100%)',
+                                    WebkitBackgroundClip: 'text',
+                                    animation: 'numPulse 3s ease-in-out infinite',
+                                }}>404</span>
+                        </div>
 
-                {/* CTA Button */}
-                <div style={{ animation: 'fadeInUp 0.6s ease-out 0.5s both' }}>
-                    <button onClick={() => navigate('/')}
-                        className="inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl border-none cursor-pointer bg-gradient-to-br from-accent to-[#8B5CF6] text-white font-bold text-[17px] shadow-[0_8px_30px_rgba(108,99,255,0.35)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_14px_40px_rgba(108,99,255,0.45)]">
-                        <span className="text-xl">🏠</span>
-                        {isArabic ? 'ارجع للصفحة الرئيسية' : 'Back to Home'}
-                    </button>
-                </div>
+                        {/* Oops Tag */}
+                        <Chip variant="bordered" radius="full" size="sm"
+                            className={`mb-[18px] font-bold text-xs tracking-wide uppercase ${isDark ? 'bg-[#1E293B] text-blue-400 border-blue-400/30' : 'bg-blue-50 text-blue-600 border-blue-200'}`}
+                            style={{ animation: 'tagIn 0.6s 0.2s ease both' }}>
+                            {isArabic ? '🤔 صفحة غير موجودة' : '🤔 Page Not Found'}
+                        </Chip>
 
-                {/* Quick Links */}
-                <div className="mt-10" style={{ animation: 'fadeInUp 0.6s ease-out 0.6s both' }}>
-                    <p className={`text-[13px] font-semibold mb-3.5 uppercase tracking-wider ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                        {isArabic ? '🔗 روابط سريعة' : '🔗 Quick Links'}
-                    </p>
-                    <div className="grid grid-cols-2 gap-2.5 max-w-[400px] mx-auto">
-                        {quickLinks.map((link, i) => (
-                            <button key={i} onClick={() => navigate(link.path)}
-                                className={`flex items-center gap-2.5 py-3.5 px-4 rounded-[14px] cursor-pointer transition-all duration-300 border hover:-translate-y-1 hover:border-accent hover:shadow-[0_8px_24px_rgba(108,99,255,0.12)] ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}
-                                style={{ animation: `fadeInUp 0.4s ease-out ${0.7 + i * 0.08}s both` }}>
-                                <span className="text-[22px]">{link.icon}</span>
-                                <span className={`text-[13px] font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>{link.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                        {/* Heading */}
+                        <h1 className={`font-black text-[clamp(20px,3vw,28px)] leading-tight tracking-tight mb-3.5 ${isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'}`}>
+                            {isArabic ? 'آسفين! هذه الصفحة اتضيّعت' : 'Oops! This page got lost'}
+                        </h1>
 
-                {/* URL display */}
-                <div className={`mt-9 py-3 px-5 rounded-xl inline-flex items-center gap-2 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}
-                    style={{ animation: 'fadeInUp 0.6s ease-out 0.9s both' }}>
-                    <span className="text-sm">🔗</span>
-                    <code className={`text-xs font-medium font-mono ${isDark ? 'text-accent2' : 'text-red-600'}`}>{window.location.pathname}</code>
-                    <span className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>← {isArabic ? 'العنوان ده مش موجود' : "doesn't exist"}</span>
-                </div>
-            </div>
+                        {/* Description */}
+                        <p className={`text-[15px] leading-[1.75] mb-9 max-w-[380px] ${isDark ? 'text-[#94A3B8]' : 'text-[#475569]'}`}>
+                            {isArabic
+                                ? 'يبدو إن الصفحة اللي بتدوّر عليها اتنقلت أو اتمسحت أو مكانتش موجودة أصلاً. مش قلق، هنوصلك للمكان الصح!'
+                                : "The page you're looking for has been moved, deleted, or never existed. Don't worry — we'll get you back on track!"}
+                        </p>
 
-            {/* Bottom Decoration */}
-            <div className="absolute bottom-0 inset-x-0 h-[120px] pointer-events-none"
-                style={{ background: isDark ? 'linear-gradient(to top, rgba(108,99,255,0.03), transparent)' : 'linear-gradient(to top, rgba(108,99,255,0.02), transparent)' }} />
+                        {/* Buttons */}
+                        <div className="flex gap-3 justify-center flex-wrap w-full">
+                            <Button radius="lg" size="lg" onPress={() => navigate('/')}
+                                className="font-bold text-[15px] text-white shadow-[0_6px_22px_rgba(37,99,235,0.30)] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(37,99,235,0.40)] transition-all duration-200"
+                                style={{ background: 'linear-gradient(135deg, #2563EB, #1D4ED8)' }}
+                                startContent={<span>🏠</span>}>
+                                {isArabic ? 'الرئيسية' : 'Go Home'}
+                            </Button>
+                            <Button radius="lg" size="lg" variant="bordered" onPress={() => navigate(-1)}
+                                className={`font-semibold text-[15px] hover:-translate-y-0.5 transition-all duration-200 ${isDark ? 'bg-[#0F172A] text-[#F1F5F9] border-[#1E293B]' : 'bg-[#EEF2FF] text-[#0F172A] border-[#E2E8F0]'}`}
+                                startContent={<span>{isArabic ? '←' : '→'}</span>}>
+                                {isArabic ? 'ارجع للخلف' : 'Go Back'}
+                            </Button>
+                        </div>
 
-            {/* Footer */}
-            <div className="absolute bottom-5 text-center z-[1]">
-                <p className={`text-xs m-0 ${isDark ? 'text-border-dark' : 'text-gray-300'}`}>
-                    © 2026 LearnNeur • {isArabic ? 'منصة دعم أطفال التوحد' : 'Autism Support Platform'}
-                </p>
-            </div>
+                        {/* ── Suggestions ── */}
+                        <div className={`mt-10 pt-8 w-full border-t ${isDark ? 'border-[#1E293B]' : 'border-[#E2E8F0]'}`}>
+                            <p className={`text-xs font-bold tracking-[1px] uppercase mb-3.5 ${isDark ? 'text-[#475569]' : 'text-[#94A3B8]'}`}>
+                                {isArabic ? 'ربما تقصد' : 'Maybe you meant'}
+                            </p>
+                            <div className="flex gap-2.5 justify-center flex-wrap">
+                                {sugLinks.map((link, i) => (
+                                    <Button key={i} variant="bordered" radius="md" size="md" onPress={() => navigate(link.path)}
+                                        className={`font-semibold text-[13px] hover:-translate-y-0.5 transition-all duration-200 gap-2 ${isDark ? 'bg-[#1a2235] text-[#94A3B8] border-[#1E293B] hover:border-blue-500/50 hover:text-blue-400 hover:bg-blue-500/5' : 'bg-white text-[#475569] border-[#E2E8F0] hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50'}`}
+                                        startContent={
+                                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0"
+                                                style={{ background: isDark ? `${link.bg}20` : link.bg }}>{link.emoji}</div>
+                                        }>
+                                        {link.label}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                    </CardBody>
+                </Card>
+            </main>
 
+            {/* ── Keyframes ── */}
             <style>{`
-                @keyframes pageSlideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-                @keyframes pulse404 { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
-                @keyframes robotBounce { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-8px) rotate(-5deg); } 75% { transform: translateY(-4px) rotate(5deg); } }
-                @keyframes floatEmoji { 0%, 100% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-20px) rotate(5deg); } 66% { transform: translateY(-10px) rotate(-3deg); } }
-                @keyframes puzzleSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                @keyframes cardIn {
+                    from { opacity: 0; transform: translateY(32px) scale(0.96); }
+                    to   { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                @keyframes numPulse {
+                    0%, 100% { opacity: 1; }
+                    50%      { opacity: 0.75; }
+                }
+                @keyframes tagIn {
+                    from { opacity: 0; transform: scale(0.8); }
+                    to   { opacity: 1; transform: scale(1); }
+                }
+                @keyframes blobMove {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    33%      { transform: translate(20px, -20px) scale(1.05); }
+                    66%      { transform: translate(-15px, 15px) scale(0.95); }
+                }
+                @keyframes particleFloat {
+                    0%   { opacity: 0; transform: translateY(100%) scale(0); }
+                    10%  { opacity: 0.6; }
+                    90%  { opacity: 0.2; }
+                    100% { opacity: 0; transform: translateY(-120%) scale(1.2); }
+                }
             `}</style>
         </div>
     );

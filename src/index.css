@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cairo:wght@400;600;700;900&display=swap');
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@plugin "./hero.ts";
+@source "../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
 
 /* Dark mode via class on <html> */
 @custom-variant dark (&:is(.dark *));
@@ -20,6 +22,38 @@
   --color-accent2: #FF6584;
   --color-accent3: #4ECDC4;
   --color-accent4: #B8A9E8;
+
+  /* Landing page colors */
+  --color-p50: #EFF6FF;
+  --color-p100: #DBEAFE;
+  --color-p200: #BFDBFE;
+  --color-p300: #93C5FD;
+  --color-p400: #60A5FA;
+  --color-p500: #3B82F6;
+  --color-p600: #2563EB;
+  --color-p700: #1D4ED8;
+  --color-a400: #22D3EE;
+  --color-a500: #06B6D4;
+  --color-lbg: #F8FAFF;
+  --color-lbg2: #EFF6FF;
+  --color-lsurf: #FFFFFF;
+  --color-ltxt: #0F172A;
+  --color-ltxt2: #475569;
+  --color-ltxt3: #94A3B8;
+  --color-lbdr: #E2E8F0;
+
+  /* Dark landing */
+  --color-lbg-dark: #080E1C;
+  --color-lbg2-dark: #0F172A;
+  --color-lsurf-dark: #1E293B;
+  --color-ltxt-dark: #F1F5F9;
+  --color-ltxt2-dark: #94A3B8;
+  --color-ltxt3-dark: #475569;
+  --color-lbdr-dark: #1E293B;
+
+  /* Animations */
+  --animate-floatIn: floatIn 0.8s ease forwards;
+  --animate-fadeInUp: fadeInUp 0.5s ease forwards;
 }
 
 /* ===== Base Layer ===== */
@@ -70,7 +104,7 @@
   }
 }
 
-/* ===== Animations (referenced by inline style= in components) ===== */
+/* ===== Animations ===== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -115,4 +149,67 @@
   50% {
     transform: translateY(-10px);
   }
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Landing page font */
+.font-jakarta {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+[dir="rtl"] .font-jakarta,
+.font-cairo {
+  font-family: 'Cairo', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Tool card bottom bar animation */
+.toolcard-bar {
+  transform: scaleX(0);
+  transition: transform 0.3s;
+  transform-origin: left;
+}
+
+[dir="rtl"] .toolcard-bar {
+  transform-origin: right;
+}
+
+.group:hover .toolcard-bar {
+  transform: scaleX(1);
+}
+
+/* Hero card staggered animation */
+.hcard-1 {
+  animation: floatIn 0.8s ease 0s forwards;
+  opacity: 0;
+}
+
+.hcard-2 {
+  animation: floatIn 0.8s ease 0.15s forwards;
+  opacity: 0;
+}
+
+.hcard-3 {
+  animation: floatIn 0.8s ease 0.3s forwards;
+  opacity: 0;
+}
+
+/* Dot grid background */
+.dot-grid {
+  background-image: radial-gradient(circle, var(--color-lbdr) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.dark .dot-grid {
+  background-image: radial-gradient(circle, var(--color-lbdr-dark) 1px, transparent 1px);
 }

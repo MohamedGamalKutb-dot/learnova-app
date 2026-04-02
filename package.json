@@ -12,7 +12,9 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@heroui/react": "^2.8.10",
     "@tailwindcss/vite": "^4.2.1",
+    "framer-motion": "^12.36.0",
     "leaflet": "^1.9.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

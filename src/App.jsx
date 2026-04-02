@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { DataProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import GuestRoute from './components/GuestRoute';
 import LandingPage from './pages/LandingPage';
 import ChoicePage from './pages/ChoicePage';
 import ChildHomePage from './pages/ChildHomePage';
@@ -26,21 +28,88 @@ function App() {
         <AuthProvider>
           <DataProvider>
             <Routes>
+              {/* ===== صفحات عامة ===== */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/choice" element={<ChoicePage />} />
-              <Route path="/child-login" element={<ChildLoginPage />} />
-              <Route path="/child-signup" element={<ChildSignupPage />} />
-              <Route path="/child-home" element={<ChildHomePage />} />
-              <Route path="/pecs" element={<PecsPage />} />
-              <Route path="/emotions" element={<EmotionsPage />} />
-              <Route path="/routine" element={<RoutinePage />} />
-              <Route path="/calming" element={<CalmingPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/doctor-auth" element={<DoctorAuthPage />} />
-              <Route path="/doctor-dashboard" element={<DoctorPage />} />
+
+              {/* ===== صفحات تسجيل دخول الطفل (للضيوف فقط - لو مسجل دخول يروح child-home) ===== */}
+              <Route path="/child-login" element={
+                <GuestRoute role="child">
+                  <ChildLoginPage />
+                </GuestRoute>
+              } />
+              <Route path="/child-signup" element={
+                <GuestRoute role="child">
+                  <ChildSignupPage />
+                </GuestRoute>
+              } />
+
+              {/* ===== صفحات تسجيل دخول ولي الأمر (للضيوف فقط - لو مسجل دخول يروح dashboard) ===== */}
+              <Route path="/login" element={
+                <GuestRoute role="parent">
+                  <LoginPage />
+                </GuestRoute>
+              } />
+              <Route path="/signup" element={
+                <GuestRoute role="parent">
+                  <SignupPage />
+                </GuestRoute>
+              } />
+
+              {/* ===== صفحة تسجيل دخول الدكتور (للضيوف فقط - لو مسجل دخول يروح doctor-dashboard) ===== */}
+              <Route path="/doctor-auth" element={
+                <GuestRoute role="doctor">
+                  <DoctorAuthPage />
+                </GuestRoute>
+              } />
+
+              {/* ===== صفحات الطفل (محمية - لازم يكون الطفل مسجل دخول) ===== */}
+              <Route path="/child-home" element={
+                <ProtectedRoute role="child" redirectTo="/child-login">
+                  <ChildHomePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/pecs" element={
+                <ProtectedRoute role="child" redirectTo="/child-login">
+                  <PecsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/emotions" element={
+                <ProtectedRoute role="child" redirectTo="/child-login">
+                  <EmotionsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/routine" element={
+                <ProtectedRoute role="child" redirectTo="/child-login">
+                  <RoutinePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/calming" element={
+                <ProtectedRoute role="child" redirectTo="/child-login">
+                  <CalmingPage />
+                </ProtectedRoute>
+              } />
+
+              {/* ===== صفحات ولي الأمر (محمية - لازم يكون ولي الأمر مسجل دخول) ===== */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute role="parent" redirectTo="/login">
+                  <DashboardPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute role="parent" redirectTo="/login">
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
+
+              {/* ===== صفحات الدكتور (محمية - لازم يكون الدكتور مسجل دخول) ===== */}
+              <Route path="/doctor-dashboard" element={
+                <ProtectedRoute role="doctor" redirectTo="/doctor-auth">
+                  <DoctorPage />
+                </ProtectedRoute>
+              } />
+
+              {/* ===== صفحة 404 ===== */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </DataProvider>

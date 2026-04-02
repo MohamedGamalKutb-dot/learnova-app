@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { Button, Input, Card, CardBody } from '@heroui/react';
 
 export default function SignupPage() {
     const navigate = useNavigate();
@@ -16,7 +17,6 @@ export default function SignupPage() {
 
     const accent = '#4ECDC4';
     const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
-    const inputCls = `w-full py-3.5 px-4 rounded-xl text-sm border outline-none font-[inherit] box-border ${isDark ? 'bg-bg-dark text-text-dark border-border-dark focus:border-accent3' : 'bg-[#F9FAFB] text-text border-border focus:border-accent3'}`;
 
     const passwordStrength = () => {
         const p = form.password;
@@ -61,6 +61,8 @@ export default function SignupPage() {
     const stepIcons = ['🔗', '👤', '📧', '🔒', '📱', '✅'];
     const strength = passwordStrength();
 
+    const inputWrapperCls = `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
+
     const renderStep = () => {
         const header = (emoji, title, sub) => (
             <div className="text-center mb-6">
@@ -72,9 +74,10 @@ export default function SignupPage() {
         switch (step) {
             case 0: return (<div>
                 {header('🔗', isArabic ? 'ربط حسابك بالطفل' : 'Link to Your Child', isArabic ? 'أدخل كود الطفل الذي تريد متابعته' : 'Enter the child code you want to monitor')}
-                <label className={`text-[13px] font-semibold mb-1.5 block ${isDark ? 'text-text-dark' : 'text-text'}`}>🆔 {isArabic ? 'كود الطفل' : 'Child Code'}</label>
-                <input value={form.childId} onChange={e => set('childId', e.target.value.toUpperCase())} placeholder="LN-XXXXXX" maxLength={9}
-                    className={`${inputCls} text-center !text-[22px] !font-bold tracking-[3px] font-mono`} />
+                <Input label={`🆔 ${isArabic ? 'كود الطفل' : 'Child Code'}`} variant="bordered" radius="lg"
+                    value={form.childId} onChange={e => set('childId', e.target.value.toUpperCase())}
+                    placeholder="LN-XXXXXX" maxLength={9}
+                    classNames={{ input: 'text-center text-[22px] font-bold tracking-[3px] font-mono', inputWrapper: inputWrapperCls }} />
                 <div className={`text-center mt-1.5 text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'الكود موجود في حساب الطفل' : "The code is in the child's profile"}</div>
                 {linkedChild && (
                     <div className={`mt-4 p-3.5 rounded-[14px] flex items-center gap-3 border ${isDark ? 'bg-emerald-500/[0.08] border-emerald-500/20' : 'bg-green-50 border-green-200'}`}>
@@ -88,16 +91,23 @@ export default function SignupPage() {
                 )}
             </div>);
             case 1: return (<div>{header('👤', isArabic ? 'ما اسمك؟' : "What's your name?")}
-                <input value={form.name} onChange={e => set('name', e.target.value)} placeholder={isArabic ? 'الاسم الكامل' : 'Full Name'} className={inputCls} autoFocus />
+                <Input label={isArabic ? 'الاسم الكامل' : 'Full Name'} variant="bordered" radius="lg" autoFocus
+                    value={form.name} onChange={e => set('name', e.target.value)}
+                    placeholder={isArabic ? 'الاسم الكامل' : 'Full Name'}
+                    classNames={{ inputWrapper: inputWrapperCls }} />
             </div>);
             case 2: return (<div>{header('📧', isArabic ? 'بريدك الإلكتروني' : 'Your Email')}
-                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="your@email.com" className={inputCls} autoFocus />
+                <Input label="Email" type="email" variant="bordered" radius="lg" autoFocus
+                    value={form.email} onChange={e => set('email', e.target.value)}
+                    placeholder="your@email.com"
+                    classNames={{ inputWrapper: inputWrapperCls }} />
             </div>);
             case 3: return (<div>{header('🔒', isArabic ? 'كلمة المرور' : 'Create Password')}
-                <div className="relative">
-                    <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'} className={inputCls} autoFocus />
-                    <button onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-lg p-0 end-3.5">{showPassword ? '🙈' : '👁️'}</button>
-                </div>
+                <Input label={isArabic ? 'كلمة المرور' : 'Password'} type={showPassword ? 'text' : 'password'} variant="bordered" radius="lg" autoFocus
+                    value={form.password} onChange={e => set('password', e.target.value)}
+                    placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'}
+                    classNames={{ inputWrapper: inputWrapperCls }}
+                    endContent={<button onClick={() => setShowPassword(!showPassword)} className="bg-transparent border-none cursor-pointer text-lg">{showPassword ? '🙈' : '👁️'}</button>} />
                 {form.password && (<div className="mt-2.5">
                     <div className="flex gap-1 mb-1">{[1, 2, 3, 4, 5].map(i => (
                         <div key={i} className="flex-1 h-1 rounded-sm transition-colors duration-300" style={{ background: strength.level >= i ? strength.color : (isDark ? '#21262D' : '#E5E7EB') }} />
@@ -106,26 +116,31 @@ export default function SignupPage() {
                 </div>)}
             </div>);
             case 4: return (<div>{header('📱', isArabic ? 'رقم الهاتف' : 'Phone Number', isArabic ? '(اختياري)' : '(Optional)')}
-                <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="01xxxxxxxxx" className={inputCls} autoFocus />
+                <Input label={isArabic ? 'رقم الهاتف' : 'Phone'} type="tel" variant="bordered" radius="lg" autoFocus
+                    value={form.phone} onChange={e => set('phone', e.target.value)}
+                    placeholder="01xxxxxxxxx"
+                    classNames={{ inputWrapper: inputWrapperCls }} />
             </div>);
             case 5: return (<div>{header('✅', isArabic ? 'مراجعة البيانات' : 'Review Details')}
-                <div className={`rounded-2xl p-4 border ${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}>
-                    {[
-                        { label: isArabic ? 'كود الطفل' : 'Child Code', value: form.childId, emoji: '🆔' },
-                        { label: isArabic ? 'الطفل المرتبط' : 'Linked Child', value: linkedChild?.name || '—', emoji: linkedChild?.avatar || '👶' },
-                        { label: isArabic ? 'اسمك' : 'Your Name', value: form.name, emoji: '👤' },
-                        { label: isArabic ? 'البريد' : 'Email', value: form.email, emoji: '📧' },
-                        { label: isArabic ? 'الهاتف' : 'Phone', value: form.phone || (isArabic ? 'لم يُحدد' : 'Not set'), emoji: '📱' },
-                    ].map(item => (
-                        <div key={item.label} className={`flex items-center gap-3 py-3 border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
-                            <div className={`w-9 h-9 rounded-[10px] flex items-center justify-center text-lg shrink-0 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>{item.emoji}</div>
-                            <div className="flex-1">
-                                <div className={`text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{item.label}</div>
-                                <div className={`text-sm font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>{item.value}</div>
+                <Card className={`${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'} border`}>
+                    <CardBody className="p-4">
+                        {[
+                            { label: isArabic ? 'كود الطفل' : 'Child Code', value: form.childId, emoji: '🆔' },
+                            { label: isArabic ? 'الطفل المرتبط' : 'Linked Child', value: linkedChild?.name || '—', emoji: linkedChild?.avatar || '👶' },
+                            { label: isArabic ? 'اسمك' : 'Your Name', value: form.name, emoji: '👤' },
+                            { label: isArabic ? 'البريد' : 'Email', value: form.email, emoji: '📧' },
+                            { label: isArabic ? 'الهاتف' : 'Phone', value: form.phone || (isArabic ? 'لم يُحدد' : 'Not set'), emoji: '📱' },
+                        ].map(item => (
+                            <div key={item.label} className={`flex items-center gap-3 py-3 border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
+                                <div className={`w-9 h-9 rounded-[10px] flex items-center justify-center text-lg shrink-0 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>{item.emoji}</div>
+                                <div className="flex-1">
+                                    <div className={`text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{item.label}</div>
+                                    <div className={`text-sm font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>{item.value}</div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </CardBody>
+                </Card>
             </div>);
         }
     };
@@ -174,30 +189,26 @@ export default function SignupPage() {
 
                     <div className="flex gap-2.5 mt-6">
                         {step > 0 && (
-                            <button onClick={prevStep} className={`flex-1 py-3.5 rounded-xl bg-transparent cursor-pointer font-semibold text-[15px] transition-all duration-200 font-[inherit] border ${isDark ? 'border-border-dark text-text-dark' : 'border-border text-text'}`}>
-                                ← {isArabic ? 'رجوع' : 'Back'}
-                            </button>
+                            <Button variant="bordered" radius="lg" className={`flex-1 font-semibold text-[15px] ${isDark ? 'border-border-dark text-text-dark' : 'border-border text-text'}`}
+                                onPress={prevStep}>← {isArabic ? 'رجوع' : 'Back'}</Button>
                         )}
                         {step < 5 ? (
-                            <button onClick={nextStep} className="flex-1 py-3.5 rounded-xl border-none bg-gradient-to-br from-accent3 to-[#44B09E] text-white cursor-pointer font-bold text-[15px] shadow-[0_4px_12px_rgba(78,205,196,0.25)] transition-all duration-300 hover:-translate-y-0.5">
-                                {isArabic ? 'التالي →' : 'Next →'}
-                            </button>
+                            <Button radius="lg" className="flex-1 bg-gradient-to-br from-accent3 to-[#44B09E] text-white font-bold text-[15px] shadow-[0_4px_12px_rgba(78,205,196,0.25)] hover:-translate-y-0.5"
+                                onPress={nextStep}>{isArabic ? 'التالي →' : 'Next →'}</Button>
                         ) : (
-                            <button onClick={handleSubmit} className="flex-1 py-3.5 rounded-xl border-none bg-gradient-to-br from-emerald-500 to-emerald-600 text-white cursor-pointer font-bold text-[15px] shadow-[0_4px_12px_rgba(16,185,129,0.4)] transition-all duration-300 hover:-translate-y-0.5">
-                                🎉 {isArabic ? 'إنشاء الحساب' : 'Create Account'}
-                            </button>
+                            <Button radius="lg" className="flex-1 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-[15px] shadow-[0_4px_12px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
+                                onPress={handleSubmit}>🎉 {isArabic ? 'إنشاء الحساب' : 'Create Account'}</Button>
                         )}
                     </div>
 
                     <div className="text-center mt-5">
                         <span className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
-                        <button onClick={() => navigate('/login')} className="bg-transparent border-none text-accent3 cursor-pointer font-bold text-[13px] font-[inherit]">{isArabic ? 'سجل دخول' : 'Log In'}</button>
+                        <Button variant="light" size="sm" className="text-accent3 font-bold text-[13px] p-0 min-w-0 h-auto"
+                            onPress={() => navigate('/login')}>{isArabic ? 'سجل دخول' : 'Log In'}</Button>
                     </div>
 
-                    <button onClick={() => navigate('/choice')}
-                        className={`w-full py-3 mt-3 rounded-xl bg-transparent cursor-pointer text-[13px] font-medium font-[inherit] border ${isDark ? 'border-border-dark text-subtext-dark' : 'border-border text-subtext'}`}>
-                        ← {isArabic ? 'رجوع' : 'Back'}
-                    </button>
+                    <Button fullWidth variant="bordered" radius="lg" size="sm" className={`mt-3 text-[13px] font-medium ${isDark ? 'border-border-dark text-subtext-dark' : 'border-border text-subtext'}`}
+                        onPress={() => navigate('/choice')}>← {isArabic ? 'رجوع' : 'Back'}</Button>
                 </div>
             </div>
         </div>

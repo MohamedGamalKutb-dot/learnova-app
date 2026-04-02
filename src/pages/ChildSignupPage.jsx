@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { Button, Input, Card, CardBody } from '@heroui/react';
 
 export default function ChildSignupPage() {
     const navigate = useNavigate();
@@ -15,9 +16,7 @@ export default function ChildSignupPage() {
     const [createdId, setCreatedId] = useState(null);
     const [step, setStep] = useState(1);
 
-    const accent = '#6C63FF';
     const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
-    const inputCls = `w-full py-3.5 px-4 rounded-xl text-[15px] border outline-none transition-[border] duration-300 font-[inherit] box-border ${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`;
 
     const passwordStrength = () => {
         const p = form.password;
@@ -53,36 +52,30 @@ export default function ChildSignupPage() {
         else if (result.error === 'email_exists') setError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'This email is already registered');
     };
 
-    // SUCCESS SCREEN
     if (step === 2) {
         return (
             <div className={`min-h-screen flex items-center justify-center p-6 font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
-                <div className={`rounded-3xl p-12 text-center max-w-[460px] w-full border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.06)]'}`}
+                <Card className={`max-w-[460px] w-full ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.06)]'} border`}
                     style={{ animation: 'fadeInUp 0.5s ease-out' }}>
-                    <div className="text-[72px] mb-4">🎉</div>
-                    <h2 className={`text-[26px] font-extrabold mb-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تم التسجيل بنجاح!' : 'Registration Successful!'}</h2>
-                    <p className={`text-sm ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'هذا هو كودك الخاص. احتفظ به!' : 'This is your unique code. Keep it safe!'}</p>
-
-                    <div className="mx-auto my-6 py-5 px-8 rounded-2xl bg-gradient-to-br from-accent to-accent2 inline-block">
-                        <div className="text-[11px] text-white/70 mb-1.5 font-semibold uppercase tracking-wider">{isArabic ? 'كود الطفل' : 'CHILD CODE'}</div>
-                        <div className="text-4xl font-black text-white tracking-[4px] font-mono">{createdId}</div>
-                    </div>
-
-                    <div className={`rounded-xl p-3.5 my-4 border text-start ${isDark ? 'bg-[#1C2333] border-[#2D333B]' : 'bg-amber-50 border-amber-200'}`}>
-                        <p className={`text-[13px] font-semibold m-0 ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>
-                            ⚠️ {isArabic ? 'مهم: شاركه مع ولي أمرك!' : 'Important: Share this code with your parent!'}
-                        </p>
-                    </div>
-
-                    <button onClick={() => navigator.clipboard?.writeText(createdId)}
-                        className={`w-full py-3.5 rounded-xl bg-transparent cursor-pointer font-semibold text-sm mb-2.5 border transition-all duration-200 ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}>
-                        📋 {isArabic ? 'نسخ الكود' : 'Copy Code'}
-                    </button>
-                    <button onClick={() => navigate('/child-home')}
-                        className="w-full py-4 rounded-xl bg-gradient-to-br from-accent to-[#8B5CF6] text-white border-none cursor-pointer font-bold text-base shadow-[0_4px_16px_rgba(108,99,255,0.25)]">
-                        🚀 {isArabic ? 'ابدأ التعلم!' : 'Start Learning!'}
-                    </button>
-                </div>
+                    <CardBody className="p-12 text-center">
+                        <div className="text-[72px] mb-4">🎉</div>
+                        <h2 className={`text-[26px] font-extrabold mb-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تم التسجيل بنجاح!' : 'Registration Successful!'}</h2>
+                        <p className={`text-sm ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'هذا هو كودك الخاص. احتفظ به!' : 'This is your unique code. Keep it safe!'}</p>
+                        <div className="mx-auto my-6 py-5 px-8 rounded-2xl bg-gradient-to-br from-accent to-accent2 inline-block">
+                            <div className="text-[11px] text-white/70 mb-1.5 font-semibold uppercase tracking-wider">{isArabic ? 'كود الطفل' : 'CHILD CODE'}</div>
+                            <div className="text-4xl font-black text-white tracking-[4px] font-mono">{createdId}</div>
+                        </div>
+                        <div className={`rounded-xl p-3.5 my-4 border text-start ${isDark ? 'bg-[#1C2333] border-[#2D333B]' : 'bg-amber-50 border-amber-200'}`}>
+                            <p className={`text-[13px] font-semibold m-0 ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>
+                                ⚠️ {isArabic ? 'مهم: شاركه مع ولي أمرك!' : 'Important: Share this code with your parent!'}
+                            </p>
+                        </div>
+                        <Button fullWidth variant="bordered" radius="lg" className={`mb-2.5 ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}
+                            onPress={() => navigator.clipboard?.writeText(createdId)}>📋 {isArabic ? 'نسخ الكود' : 'Copy Code'}</Button>
+                        <Button fullWidth radius="lg" className="bg-gradient-to-br from-accent to-[#8B5CF6] text-white font-bold shadow-[0_4px_16px_rgba(108,99,255,0.25)]"
+                            onPress={() => navigate('/child-home')}>🚀 {isArabic ? 'ابدأ التعلم!' : 'Start Learning!'}</Button>
+                    </CardBody>
+                </Card>
             </div>
         );
     }
@@ -105,10 +98,8 @@ export default function ChildSignupPage() {
             {/* Right: Form */}
             <div className="flex-1 flex items-center justify-center py-10 px-6 overflow-y-auto">
                 <div className="max-w-[440px] w-full">
-                    <button onClick={() => navigate('/choice')}
-                        className={`bg-transparent border-none cursor-pointer text-sm font-medium mb-6 flex items-center gap-1.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                        ← {isArabic ? 'رجوع' : 'Back'}
-                    </button>
+                    <Button variant="light" size="sm" className={`mb-6 font-medium ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}
+                        onPress={() => navigate('/choice')}>← {isArabic ? 'رجوع' : 'Back'}</Button>
 
                     <h1 className={`text-[26px] font-extrabold mb-1 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? '✨ تسجيل طفل جديد' : '✨ New Child Account'}</h1>
                     <p className={`text-[13px] mb-6 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'سجل عشان تبدأ رحلة التعلم' : 'Sign up to start your learning journey'}</p>
@@ -116,43 +107,44 @@ export default function ChildSignupPage() {
                     {/* Avatars */}
                     <div className="flex gap-2 mb-5 flex-wrap">
                         {['👦', '👧', '🧒', '👶', '🐱', '🐻', '🦊', '🐰'].map(em => (
-                            <button key={em} onClick={() => setAvatar(em)}
-                                className={`w-11 h-11 rounded-xl cursor-pointer text-[22px] flex items-center justify-center transition-all duration-200 border-2 ${avatar === em ? 'border-accent bg-accent/[0.08]' : `bg-transparent ${isDark ? 'border-border-dark' : 'border-border'}`
-                                    }`}>{em}</button>
+                            <Button key={em} isIconOnly size="sm" variant={avatar === em ? 'solid' : 'bordered'}
+                                className={`w-11 h-11 text-[22px] ${avatar === em ? 'bg-accent/[0.15] border-accent border-2' : `${isDark ? 'border-border-dark' : 'border-border'}`}`}
+                                onPress={() => setAvatar(em)}>{em}</Button>
                         ))}
                     </div>
 
-                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'الاسم' : 'Name'}</label>
-                    <input value={form.name} onChange={e => set('name', e.target.value)} placeholder={isArabic ? 'اسم الطفل' : "Child's name"} className={inputCls} />
+                    <Input label={isArabic ? 'الاسم' : 'Name'} variant="bordered" radius="lg"
+                        value={form.name} onChange={e => set('name', e.target.value)}
+                        placeholder={isArabic ? 'اسم الطفل' : "Child's name"} className="mb-4"
+                        classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}` }} />
 
-                    <div className="flex gap-3 my-4">
-                        <div className="flex-1">
-                            <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'العمر' : 'Age'}</label>
-                            <input type="number" value={form.age} onChange={e => set('age', e.target.value)} min="2" max="18" placeholder={isArabic ? 'العمر' : 'Age'} className={inputCls} />
-                        </div>
+                    <div className="flex gap-3 mb-4">
+                        <Input label={isArabic ? 'العمر' : 'Age'} type="number" variant="bordered" radius="lg"
+                            value={form.age} onChange={e => set('age', e.target.value)} min="2" max="18"
+                            placeholder={isArabic ? 'العمر' : 'Age'} className="flex-1"
+                            classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}` }} />
                         <div className="flex-1">
                             <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'الجنس' : 'Gender'}</label>
                             <div className="flex gap-1.5">
                                 {[{ val: 'Male', em: '👦' }, { val: 'Female', em: '👧' }].map(g => (
-                                    <button key={g.val} onClick={() => set('gender', g.val)}
-                                        className={`flex-1 py-3 px-2 rounded-xl cursor-pointer text-lg font-bold border transition-all duration-200 ${form.gender === g.val ? 'bg-accent text-white border-accent' : `bg-transparent ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`
-                                            }`}>{g.em}</button>
+                                    <Button key={g.val} variant={form.gender === g.val ? 'solid' : 'bordered'} radius="lg"
+                                        className={`flex-1 text-lg font-bold ${form.gender === g.val ? 'bg-accent text-white border-accent' : `${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}`}
+                                        onPress={() => set('gender', g.val)}>{g.em}</Button>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'البريد الإلكتروني' : 'Email'}</label>
-                    <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="your@email.com" className={inputCls} />
-                    <div className="mb-4" />
+                    <Input label={isArabic ? 'البريد الإلكتروني' : 'Email'} type="email" variant="bordered" radius="lg"
+                        value={form.email} onChange={e => set('email', e.target.value)}
+                        placeholder="your@email.com" className="mb-4"
+                        classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}` }} />
 
-                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'كلمة المرور' : 'Password'}</label>
-                    <div className="relative">
-                        <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'} className={inputCls} />
-                        <button onClick={() => setShowPassword(!showPassword)} className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-lg end-3">
-                            {showPassword ? '🙈' : '👁️'}
-                        </button>
-                    </div>
+                    <Input label={isArabic ? 'كلمة المرور' : 'Password'} type={showPassword ? 'text' : 'password'} variant="bordered" radius="lg"
+                        value={form.password} onChange={e => set('password', e.target.value)}
+                        placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'}
+                        classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}` }}
+                        endContent={<button onClick={() => setShowPassword(!showPassword)} className="bg-transparent border-none cursor-pointer text-lg">{showPassword ? '🙈' : '👁️'}</button>} />
                     {form.password && (
                         <div className="mt-1.5">
                             <div className="flex gap-[3px] mb-1">
@@ -164,13 +156,12 @@ export default function ChildSignupPage() {
                             <span className="text-[11px] font-semibold" style={{ color: strength.color }}>{strength.label}</span>
                         </div>
                     )}
-                    <div className="mb-4" />
 
-                    <label className={`text-[13px] font-semibold mb-1 block ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'}</label>
-                    <div className="relative">
-                        <input type={showPassword ? 'text' : 'password'} value={form.confirmPassword} onChange={e => set('confirmPassword', e.target.value)} placeholder={isArabic ? 'أعد إدخال كلمة المرور' : 'Re-enter password'} className={inputCls} />
-                        {form.confirmPassword && <span className="absolute top-1/2 -translate-y-1/2 text-base end-3">{form.password === form.confirmPassword ? '✅' : '❌'}</span>}
-                    </div>
+                    <Input label={isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'} type={showPassword ? 'text' : 'password'} variant="bordered" radius="lg"
+                        value={form.confirmPassword} onChange={e => set('confirmPassword', e.target.value)}
+                        placeholder={isArabic ? 'أعد إدخال كلمة المرور' : 'Re-enter password'} className="mt-4"
+                        classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}` }}
+                        endContent={form.confirmPassword && <span className="text-base">{form.password === form.confirmPassword ? '✅' : '❌'}</span>} />
 
                     {error && (
                         <div className={`rounded-[10px] py-2.5 px-3.5 my-3 border ${isDark ? 'bg-[rgba(255,101,132,0.1)]' : 'bg-red-50'} border-red-500/20`}>
@@ -178,14 +169,13 @@ export default function ChildSignupPage() {
                         </div>
                     )}
 
-                    <button onClick={handleRegister}
-                        className="w-full py-4 rounded-xl border-none cursor-pointer bg-gradient-to-br from-accent2 to-pink-500 text-white font-bold text-base mt-5 shadow-[0_4px_16px_rgba(255,101,132,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(255,101,132,0.45)]">
-                        {isArabic ? '🎮 سجل وابدأ!' : '🎮 Register & Start!'}
-                    </button>
+                    <Button fullWidth radius="lg" className="bg-gradient-to-br from-accent2 to-pink-500 text-white font-bold text-base mt-5 shadow-[0_4px_16px_rgba(255,101,132,0.35)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(255,101,132,0.45)]"
+                        onPress={handleRegister}>{isArabic ? '🎮 سجل وابدأ!' : '🎮 Register & Start!'}</Button>
 
                     <div className="text-center mt-5">
                         <span className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
-                        <button onClick={() => navigate('/child-login')} className="bg-transparent border-none text-accent cursor-pointer font-bold text-[13px]">{isArabic ? 'سجل دخول' : 'Log In'}</button>
+                        <Button variant="light" size="sm" className="text-accent font-bold text-[13px] p-0 min-w-0 h-auto"
+                            onPress={() => navigate('/child-login')}>{isArabic ? 'سجل دخول' : 'Log In'}</Button>
                     </div>
                 </div>
             </div>
