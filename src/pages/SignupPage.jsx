@@ -14,6 +14,7 @@ export default function SignupPage() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [linkedChild, setLinkedChild] = useState(null);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     const accent = '#4ECDC4';
     const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
@@ -53,7 +54,7 @@ export default function SignupPage() {
 
     const handleSubmit = () => {
         const result = registerParent({ ...form, childId: form.childId.trim() });
-        if (result.success) navigate('/dashboard');
+        if (result.success) setIsSuccess(true);
         else { if (result.error === 'email_exists') setError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already exists'); else if (result.error === 'child_not_found') setError(isArabic ? 'كود الطفل غير موجود' : 'Child code not found'); }
     };
 
@@ -64,6 +65,24 @@ export default function SignupPage() {
     const inputWrapperCls = `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
 
     const renderStep = () => {
+        if (isSuccess) {
+            return (
+                <div className="text-center py-10" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
+                    <div className="text-[72px] mb-4">🎉</div>
+                    <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        {isArabic ? 'تم إنشاء الحساب بنجاح!' : 'Account Created Successfully!'}
+                    </h2>
+                    <p className={`text-sm mb-8 leading-relaxed ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                        {isArabic ? 'تم تسجيل حسابك بنجاح في LearnNeur. يرجى تسجيل الدخول للوصول إلى لوحة التحكم.' : 'Your account has been successfully registered. Please log in to access your dashboard.'}
+                    </p>
+                    <Button fullWidth radius="lg" className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-base py-4 shadow-[0_4px_16px_rgba(16,185,129,0.35)]"
+                        onPress={() => navigate('/login')}>
+                        🚀 {isArabic ? 'سجل دخولك الآن' : 'Log In Now'}
+                    </Button>
+                </div>
+            );
+        }
+
         const header = (emoji, title, sub) => (
             <div className="text-center mb-6">
                 <div className="text-[56px] mb-2">{emoji}</div>
@@ -187,28 +206,34 @@ export default function SignupPage() {
                         </div>
                     )}
 
-                    <div className="flex gap-2.5 mt-6">
-                        {step > 0 && (
-                            <Button variant="bordered" radius="lg" className={`flex-1 font-semibold text-[15px] ${isDark ? 'border-border-dark text-text-dark' : 'border-border text-text'}`}
-                                onPress={prevStep}>← {isArabic ? 'رجوع' : 'Back'}</Button>
-                        )}
-                        {step < 5 ? (
-                            <Button radius="lg" className="flex-1 bg-gradient-to-br from-accent3 to-[#44B09E] text-white font-bold text-[15px] shadow-[0_4px_12px_rgba(78,205,196,0.25)] hover:-translate-y-0.5"
-                                onPress={nextStep}>{isArabic ? 'التالي →' : 'Next →'}</Button>
-                        ) : (
-                            <Button radius="lg" className="flex-1 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-[15px] shadow-[0_4px_12px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
-                                onPress={handleSubmit}>🎉 {isArabic ? 'إنشاء الحساب' : 'Create Account'}</Button>
-                        )}
-                    </div>
+                    {!isSuccess && (
+                        <div className="flex gap-2.5 mt-6">
+                            {step > 0 && (
+                                <Button variant="bordered" radius="lg" className={`flex-1 font-semibold text-[15px] ${isDark ? 'border-border-dark text-text-dark' : 'border-border text-text'}`}
+                                    onPress={prevStep}>← {isArabic ? 'رجوع' : 'Back'}</Button>
+                            )}
+                            {step < 5 ? (
+                                <Button radius="lg" className="flex-1 bg-gradient-to-br from-accent3 to-[#44B09E] text-white font-bold text-[15px] shadow-[0_4px_12px_rgba(78,205,196,0.25)] hover:-translate-y-0.5"
+                                    onPress={nextStep}>{isArabic ? 'التالي →' : 'Next →'}</Button>
+                            ) : (
+                                <Button radius="lg" className="flex-1 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-[15px] shadow-[0_4px_12px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
+                                    onPress={handleSubmit}>🎉 {isArabic ? 'إنشاء الحساب' : 'Create Account'}</Button>
+                            )}
+                        </div>
+                    )}
 
-                    <div className="text-center mt-5">
-                        <span className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
-                        <Button variant="light" size="sm" className="text-accent3 font-bold text-[13px] p-0 min-w-0 h-auto"
-                            onPress={() => navigate('/login')}>{isArabic ? 'سجل دخول' : 'Log In'}</Button>
-                    </div>
+                    {!isSuccess && (
+                        <>
+                            <div className="text-center mt-5">
+                                <span className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
+                                <Button variant="light" size="sm" className="text-accent3 font-bold text-[13px] p-0 min-w-0 h-auto"
+                                    onPress={() => navigate('/login')}>{isArabic ? 'سجل دخول' : 'Log In'}</Button>
+                            </div>
 
-                    <Button fullWidth variant="bordered" radius="lg" size="sm" className={`mt-3 text-[13px] font-medium ${isDark ? 'border-border-dark text-subtext-dark' : 'border-border text-subtext'}`}
-                        onPress={() => navigate('/choice')}>← {isArabic ? 'رجوع' : 'Back'}</Button>
+                            <Button fullWidth variant="bordered" radius="lg" size="sm" className={`mt-3 text-[13px] font-medium ${isDark ? 'border-border-dark text-subtext-dark' : 'border-border text-subtext'}`}
+                                onPress={() => navigate('/choice')}>← {isArabic ? 'رجوع' : 'Back'}</Button>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

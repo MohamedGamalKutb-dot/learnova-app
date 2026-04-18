@@ -11,19 +11,24 @@ export default function LoginPage() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [childId, setChildId] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
 
     const handleLogin = () => {
         if (!email.trim() || !email.includes('@')) { setError(isArabic ? 'أدخل إيميل صحيح' : 'Enter a valid email'); return; }
         if (!password) { setError(isArabic ? 'أدخل كلمة المرور' : 'Enter your password'); return; }
+        if (!childId.trim()) { setError(isArabic ? 'أدخل كود الطفل الخاص بك' : 'Enter your child code'); return; }
+        
         setError('');
-        const result = loginParent(email.trim(), password);
+        const result = loginParent(email.trim(), password, childId.trim());
         if (result.success) {
             navigate('/dashboard');
         } else {
             if (result.error === 'not_found') setError(isArabic ? 'هذا الإيميل غير مسجل' : 'This email is not registered');
             else if (result.error === 'wrong_password') setError(isArabic ? 'كلمة المرور غير صحيحة' : 'Incorrect password');
+            else if (result.error === 'child_id_mismatch') setError(isArabic ? 'كود الطفل غير مطابق لهذا الحساب' : 'Child code does not match this account');
+            else setError(isArabic ? 'حدث خطأ في تسجيل الدخول' : 'Login failed');
         }
     };
     
@@ -74,10 +79,15 @@ export default function LoginPage() {
 
                     <Input label={`🔒 ${isArabic ? 'كلمة المرور' : 'Password'}`} type={showPassword ? 'text' : 'password'} variant="bordered" radius="lg"
                         value={password} onChange={e => setPassword(e.target.value)}
-                        placeholder={isArabic ? 'أدخل كلمة المرور' : 'Enter password'}
-                        onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                        placeholder={isArabic ? 'كلمة المرور' : 'Password'} className="mb-4"
                         classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}` }}
                         endContent={<button onClick={() => setShowPassword(!showPassword)} className="bg-transparent border-none cursor-pointer text-lg">{showPassword ? '🙈' : '👁️'}</button>} />
+
+                    <Input label={`🆔 ${isArabic ? 'كود الطفل (LN-XXXXXX)' : 'Child Code (LN-XXXXXX)'}`} variant="bordered" radius="lg"
+                        value={childId} onChange={e => setChildId(e.target.value.toUpperCase())}
+                        placeholder="LN-ABCDEF"
+                        onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                        classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}` }} />
 
                     {error && (
                         <div className={`rounded-[10px] py-2.5 px-3.5 mt-3.5 border ${isDark ? 'bg-red-500/10 border-red-500/20' : 'bg-red-50 border-red-200'}`}>
@@ -99,12 +109,6 @@ export default function LoginPage() {
                         onPress={() => navigate('/signup')}>
                         {isArabic ? '✨ إنشاء حساب جديد' : '✨ Create New Account'}
                     </Button>
-
-                    <div className={`rounded-xl p-3.5 mt-4 text-center border ${isDark ? 'bg-border-dark border-[#30363D]' : 'bg-green-50 border-green-200'}`}>
-                        <p className={`text-xs m-0 ${isDark ? 'text-subtext-dark' : 'text-green-800'}`}>
-                            💡 {isArabic ? 'للتسجيل كولي أمر، ستحتاج كود الطفل (LN-XXXXXX)' : "To sign up, you'll need your child's code (LN-XXXXXX)"}
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>

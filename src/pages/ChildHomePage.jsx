@@ -2,182 +2,175 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/DataContext';
 import AutismSupportBot from '../components/AutismSupportBot';
 import {
-    Button, Card, CardBody, Navbar, NavbarBrand, NavbarContent, NavbarItem,
-    Modal, ModalContent, ModalBody, useDisclosure
+    Button, Navbar, NavbarBrand, NavbarContent,
+    Modal, ModalContent, ModalBody, useDisclosure, Card, CardBody
 } from '@heroui/react';
 
 const modules = [
-    { key: 'pecs', emoji: '🗣️', color: '#6C63FF', gradient: ['#6C63FF', '#8B5CF6'], path: '/pecs' },
-    { key: 'routine', emoji: '📅', color: '#4ECDC4', gradient: ['#4ECDC4', '#44B09E'], path: '/routine' },
-    { key: 'emotions', emoji: '😊', color: '#F59E0B', gradient: ['#F59E0B', '#F97316'], path: '/emotions' },
-    { key: 'calming', emoji: '🧘', color: '#A78BFA', gradient: ['#A78BFA', '#7C3AED'], path: '/calming' },
-    { key: 'bot', emoji: '🤖', color: '#FF6584', gradient: ['#FF6584', '#EC4899'], path: 'modal' },
-    { key: 'profile', emoji: '👤', color: '#06B6D4', gradient: ['#06B6D4', '#0891B2'], path: '/profile' },
+    { key: 'pecs', emoji: '🗣️', color: '#A8B4FF', gradient: 'from-indigo-500/20 to-purple-500/10', glow: 'shadow-indigo-500/30', path: '/pecs' },
+    { key: 'routine', emoji: '📅', color: '#818CF8', gradient: 'from-blue-500/20 to-indigo-500/10', glow: 'shadow-blue-500/30', path: '/routine' },
+    { key: 'emotions', emoji: '😊', color: '#C084FC', gradient: 'from-purple-500/20 to-pink-500/10', glow: 'shadow-purple-500/30', path: '/emotions' },
+    { key: 'bot', emoji: '🤖', color: '#F472B6', gradient: 'from-pink-500/20 to-rose-500/10', glow: 'shadow-pink-500/30', path: 'modal' },
+    { key: 'profile', emoji: '👤', color: '#38BDF8', gradient: 'from-sky-500/20 to-blue-500/10', glow: 'shadow-sky-500/30', path: '/profile' },
 ];
 
 const labels = {
-    pecs: { en: 'PECS Communication', ar: 'التواصل بالصور' },
-    routine: { en: 'Daily Routine', ar: 'الروتين اليومي' },
-    emotions: { en: 'Emotions', ar: 'المشاعر' },
-    calming: { en: 'Calming Zone', ar: 'منطقة الهدوء' },
-    bot: { en: 'My Robot Friend', ar: 'صديقي الروبوت' },
-    profile: { en: 'My Profile', ar: 'ملفي الشخصي' },
-};
-
-const descriptions = {
-    pecs: { en: 'Talk with pictures!', ar: 'اتكلم بالصور!' },
-    routine: { en: 'Plan your day', ar: 'نظم يومك' },
-    emotions: { en: 'Learn feelings', ar: 'اتعلم المشاعر' },
-    calming: { en: 'Relax & breathe', ar: 'استرخي وهدّي' },
-    bot: { en: 'Chat with me!', ar: 'اتكلم معايا!' },
-    profile: { en: 'About me', ar: 'معلوماتي' },
+    pecs: { en: 'Communication', ar: 'لوحة التواصل' },
+    routine: { en: 'Daily Schedule', ar: 'الجدول اليومي' },
+    emotions: { en: 'Mood Explorer', ar: 'مستكشف المشاعر' },
+    bot: { en: 'AI Companion', ar: 'الرفيق الذكي' },
+    profile: { en: 'User Profile', ar: 'ملفي الشخصي' },
 };
 
 export default function ChildHomePage() {
     const navigate = useNavigate();
     const { isDark, isArabic, toggleTheme, toggleLanguage } = useApp();
     const { currentChild, logoutChild } = useAuth();
+    const { routineCompletion } = useData();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [hoveredModule, setHoveredModule] = useState(null);
 
-    const hour = new Date().getHours();
-    const getGreeting = () => { if (hour < 12) return isArabic ? 'صباح الخير' : 'Good Morning'; if (hour < 17) return isArabic ? 'مساء الخير' : 'Good Afternoon'; return isArabic ? 'مساء الخير' : 'Good Evening'; };
-    const getGreetingEmoji = () => { if (hour < 12) return '🌅'; if (hour < 17) return '☀️'; return '🌙'; };
-
     if (!currentChild) {
         return (
-            <div className={`min-h-screen flex items-center justify-center font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
-                <Card className={`max-w-[400px] ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.08)]'} border`}>
-                    <CardBody className="p-10 text-center">
-                        <div className="text-[64px] mb-4">🔒</div>
-                        <h2 className={`text-[22px] font-bold mb-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'يجب تسجيل الدخول أولاً' : 'Please log in first'}</h2>
-                        <p className={`text-sm mb-5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'سجل دخولك عشان تلعب وتتعلم!' : 'Log in to play and learn!'}</p>
-                        <Button radius="lg" className="bg-gradient-to-br from-accent to-accent2 text-white font-bold shadow-[0_6px_20px_rgba(108,99,255,0.3)]"
-                            onPress={() => navigate('/child-login')}>{isArabic ? '🚀 تسجيل الدخول' : '🚀 Log In'}</Button>
-                    </CardBody>
-                </Card>
+            <div className={`min-h-screen flex items-center justify-center p-6 ${isDark ? 'bg-[#0C0D17]' : 'bg-[#F0F4FF]'}`}>
+                <div className={`w-full max-w-[400px] p-8 rounded-[40px] border text-center space-y-6 shadow-2xl backdrop-blur-3xl transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-indigo-100'}`}>
+                    <div className="text-7xl animate-pulse">🌌</div>
+                    <h2 className={`text-2xl font-black ${isDark ? 'text-indigo-100' : 'text-indigo-900'}`}>{isArabic ? 'سجل دخولك يا بطل' : 'Welcome Back, Hero'}</h2>
+                    <Button radius="full" size="lg" className="w-full bg-indigo-500 text-white font-black text-lg shadow-xl shadow-indigo-500/20" onPress={() => navigate('/child-login')}>
+                        {isArabic ? 'دخول الطفل' : 'Log In'}
+                    </Button>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className={`min-h-screen font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
-            {/* Nav */}
-            <Navbar maxWidth="lg" className={`py-1 ${isDark ? 'bg-bg-dark' : 'bg-bg'}`} classNames={{ wrapper: 'px-6' }}>
-                <NavbarBrand className="gap-2 cursor-pointer" onClick={() => navigate('/choice')}>
-                    <span className="text-2xl">🧩</span>
-                    <span className="text-lg font-extrabold bg-gradient-to-br from-accent to-accent2 bg-clip-text [-webkit-text-fill-color:transparent]">LearnNeur</span>
-                </NavbarBrand>
-                <NavbarContent justify="end" className="gap-2">
-                    <NavbarItem>
-                        <Button isIconOnly size="sm" variant="bordered" className={`${isDark ? 'bg-card-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}
-                            onPress={toggleTheme}>{isDark ? '☀️' : '🌙'}</Button>
-                    </NavbarItem>
-                    <NavbarItem>
-                        <Button isIconOnly size="sm" variant="bordered" className={`font-bold text-[13px] ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-[#F9FAFB] border-border text-text'}`}
-                            onPress={toggleLanguage}>{isArabic ? 'EN' : 'ع'}</Button>
-                    </NavbarItem>
-                    <NavbarItem>
-                        <Button size="sm" variant="bordered" className={`text-xs font-semibold text-accent2 ${isDark ? 'bg-card-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}
-                            onPress={logoutChild}>🚪 {isArabic ? 'خروج' : 'Exit'}</Button>
-                    </NavbarItem>
-                </NavbarContent>
-            </Navbar>
+        <div className={`min-h-screen selection:bg-indigo-500/30 transition-all duration-1000 ${isArabic ? 'font-[Cairo,sans-serif]' : 'font-[Plus_Jakarta_Sans,sans-serif]'} ${isDark ? 'bg-[#0C0D17] text-slate-200' : 'bg-[#F5F8FF] text-slate-800'} overflow-x-hidden`} dir={isArabic ? 'rtl' : 'ltr'}>
+            
+            {/* AMBIENT BACKGROUND GLOWS */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className={`absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full blur-[120px] transition-all duration-1000 ${isDark ? 'bg-indigo-600/10' : 'bg-indigo-400/20'}`} />
+                <div className={`absolute top-[20%] -right-[5%] w-[40%] h-[40%] rounded-full blur-[100px] transition-all duration-1000 ${isDark ? 'bg-purple-600/10' : 'bg-purple-400/20'}`} />
+                <div className={`absolute -bottom-[10%] left-[20%] w-[60%] h-[60%] rounded-full blur-[150px] transition-all duration-1000 ${isDark ? 'bg-blue-600/10' : 'bg-blue-400/20'}`} />
+            </div>
 
-            <div className="max-w-[1000px] mx-auto px-6 pb-10">
-                {/* Welcome */}
-                <Card className={`mb-6 relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-accent/[0.12] to-accent2/[0.08] border-accent/[0.15]' : 'bg-gradient-to-br from-accent/[0.06] to-accent2/[0.04] border-accent/10'} border`}>
-                    <CardBody className="py-8 px-7">
-                        <div className="absolute top-2.5 right-5 text-[40px] opacity-[0.12]" style={{ animation: 'float 6s ease-in-out infinite' }}>⭐</div>
-                        <div className="absolute bottom-2.5 left-[30px] text-[35px] opacity-10" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>🎈</div>
-                        <div className="flex items-center gap-4 flex-wrap">
-                            <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-[32px] shadow-[0_6px_20px_rgba(108,99,255,0.3)] shrink-0">🧒</div>
-                            <div className="flex-1">
-                                <div className={`text-sm font-medium mb-0.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{getGreetingEmoji()} {getGreeting()}</div>
-                                <h1 className={`m-0 text-[clamp(22px,3vw,28px)] font-extrabold ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                                    {isArabic ? `أهلاً يا ${currentChild.name}! 🌟` : `Hey ${currentChild.name}! 🌟`}
-                                </h1>
-                                <p className={`mt-1 text-sm ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                                    {isArabic ? 'يلا نلعب ونتعلم حاجات جديدة النهاردة!' : "Let's play and learn new things today!"}
-                                </p>
-                            </div>
+            {/* MINIMALIST GLASS NAVBAR */}
+            <nav className={`fixed top-0 inset-x-0 h-20 z-50 px-8 flex items-center justify-between backdrop-blur-xl border-b transition-all duration-500 ${isDark ? 'bg-[#0C0D17]/40 border-white/5' : 'bg-white/40 border-indigo-100'}`}>
+                <div className="flex items-center gap-3 group">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/20 group-hover:rotate-12 transition-transform">✨</div>
+                    <span className={`text-xl font-black tracking-widest uppercase bg-gradient-to-r bg-clip-text text-transparent transition-all duration-1000 ${isDark ? 'from-indigo-300 to-purple-300' : 'from-indigo-600 to-purple-600'}`}>LearnNeur</span>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                    <Button isIconOnly variant="light" radius="full" className={`text-xl font-black ${isDark ? 'text-white/70 hover:text-white' : 'text-indigo-600 hover:bg-indigo-50'}`} onPress={toggleLanguage}>
+                        {isArabic ? 'EN' : 'AR'}
+                    </Button>
+                    <Button isIconOnly variant="light" radius="full" className={`text-xl transition-transform hover:scale-110 ${isDark ? 'text-amber-400' : 'text-indigo-600'}`} onPress={toggleTheme}>
+                        {isDark ? '☀️' : '🌙'}
+                    </Button>
+                    <Button size="sm" variant="flat" color="danger" radius="full" className="px-5 font-black text-[10px] tracking-widest shadow-lg shadow-red-500/10" onPress={logoutChild}>
+                        {isArabic ? 'خروج' : 'EXIT'}
+                    </Button>
+                </div>
+            </nav>
+
+            <main className="relative max-w-[1300px] mx-auto px-8 pt-32 pb-20">
+                
+                {/* HERO GREETING */}
+                <header className="mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
+                    <div className="space-y-3">
+                        <div className={`flex items-center gap-3 font-black tracking-[0.3em] uppercase text-[10px] transition-colors duration-1000 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+                            <span className={`w-12 h-[1px] transition-colors duration-1000 ${isDark ? 'bg-indigo-500/50' : 'bg-indigo-300'}`} />
+                            {isArabic ? 'تم تفعيل النظام' : 'System Online'}
                         </div>
-                    </CardBody>
-                </Card>
+                        <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-none">
+                            {isArabic ? `أهلاً، ${currentChild.name}` : `Hey, ${currentChild.name}`} 
+                            <span className="text-indigo-500 animate-pulse">.</span>
+                        </h1>
+                    </div>
+                    <div className="flex gap-4">
+                       
+                        <div className={`px-8 py-5 rounded-[32px] backdrop-blur-2xl border flex flex-col items-center min-w-[140px] shadow-2xl transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-indigo-100'}`}>
+                            <span className={`text-3xl font-black ${isDark ? 'text-purple-300' : 'text-purple-600'}`}>{routineCompletion}%</span>
+                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">{isArabic ? 'الروتين اليومي' : 'Daily Routine'}</span>
+                        </div>
+                    </div>
+                </header>
 
-                {/* Calming Banner */}
-                <Card isPressable onPress={() => navigate('/calming')}
-                    className={`mb-7 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(167,139,250,0.15)] ${isDark ? 'bg-gradient-to-br from-violet-400/[0.12] to-violet-700/[0.08] border-violet-400/20' : 'bg-gradient-to-br from-violet-400/[0.08] to-violet-700/[0.04] border-violet-400/[0.15]'} border`}>
-                    <CardBody className="py-4 px-5 flex flex-row items-center gap-3.5">
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-400 to-violet-700 flex items-center justify-center text-[22px] shadow-[0_4px_12px_rgba(167,139,250,0.3)] shrink-0">🧘</div>
+                {/* ZEN BANNER (CALMING ZONE) */}
+                <div 
+                    onClick={() => navigate('/calming')}
+                    className={`group relative mb-16 cursor-pointer overflow-hidden rounded-[50px] border h-56 md:h-72 flex items-center transition-all duration-700 shadow-2xl ${isDark ? 'border-white/10 hover:border-indigo-500/40' : 'border-indigo-100 hover:border-indigo-300'}`}
+                >
+                    <div className={`absolute inset-0 z-10 transition-all duration-1000 ${isDark ? 'bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-transparent' : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent'}`} />
+                    {/* Animated aura */}
+                    <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity">
+                        <div className={`absolute top-0 right-0 w-[70%] h-full rounded-full blur-[100px] animate-pulse transition-colors duration-1000 ${isDark ? 'bg-indigo-600/20' : 'bg-indigo-400/30'}`} />
+                    </div>
+
+                    <div className="relative z-20 px-12 md:px-20 flex items-center gap-10 w-full">
+                        <div className={`w-28 h-28 md:w-36 md:h-36 rounded-full border flex items-center justify-center text-7xl shadow-2xl animate-float backdrop-blur-3xl transition-all duration-500 ${isDark ? 'bg-white/10 border-white/20' : 'bg-white/90 border-indigo-200 shadow-indigo-500/10'}`}>🧘</div>
                         <div className="flex-1">
-                            <div className={`text-sm font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'محتاج تهدى شوية؟ 💜' : 'Need to calm down? 💜'}</div>
-                            <div className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'اضغط هنا عشان تسترخي وتاخد نفس عميق' : 'Tap here to relax and take deep breaths'}</div>
+                            <h2 className={`text-3xl md:text-5xl font-black mb-3 tracking-tighter ${isDark ? 'text-white' : 'text-indigo-900'}`}>{isArabic ? 'مساحة الهدوء' : 'The Zen Sanctuary'}</h2>
+                            <p className={`font-bold text-lg max-w-[500px] leading-relaxed transition-colors duration-1000 ${isDark ? 'text-indigo-200/60' : 'text-indigo-600/60'}`}>
+                                {isArabic ? 'استرخِ في عالم من السكينة والتمارين المصممة خصيصاً لمساعدتك على التركيز.' : 'Reconnect with your inner peace in a world designed for ultimate calm and focus.'}
+                            </p>
                         </div>
-                        <span className="text-violet-400 text-xl shrink-0">→</span>
-                    </CardBody>
-                </Card>
+                        <div className={`hidden lg:flex w-20 h-20 rounded-full border items-center justify-center text-3xl group-hover:scale-110 transition-all duration-500 backdrop-blur-3xl ${isDark ? 'bg-white/10 border-white/20 text-white group-hover:bg-indigo-500' : 'bg-white/90 border-indigo-200 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
+                            {isArabic ? '←' : '→'}
+                        </div>
+                    </div>
+                </div>
 
-                {/* Module Grid */}
-                <h2 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                    🎯 {isArabic ? 'اختر نشاطك' : 'Choose Your Activity'}
-                </h2>
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 mb-6">
-                    {modules.map((mod, i) => {
+                {/* EDITORIAL MODULE GRID */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {modules.map((mod) => {
                         const isHovered = hoveredModule === mod.key;
                         return (
-                            <Card key={mod.key} isPressable
+                            <Card 
+                                key={mod.key} 
+                                isPressable
                                 onPress={() => mod.path === 'modal' ? onOpen() : navigate(mod.path)}
                                 onMouseEnter={() => setHoveredModule(mod.key)}
                                 onMouseLeave={() => setHoveredModule(null)}
-                                className={`transition-all duration-300 ${isDark ? 'bg-card-dark' : 'bg-card'} border`}
-                                style={{
-                                    borderColor: isHovered ? `${mod.color}50` : (isDark ? '#21262D' : '#E5E7EB'),
-                                    boxShadow: isHovered ? `0 12px 40px ${mod.color}25` : (isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.03)'),
-                                    transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
-                                    animation: `fadeInUp 0.4s ease-out ${i * 0.08}s both`,
-                                }}>
-                                <CardBody className="p-6 flex flex-row items-center gap-4">
-                                    <div className="w-[60px] h-[60px] rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300"
-                                        style={{
-                                            background: `linear-gradient(135deg, ${mod.gradient[0]}, ${mod.gradient[1]})`,
-                                            boxShadow: `0 6px 18px ${mod.color}35`,
-                                            transform: isHovered ? 'scale(1.1) rotate(-5deg)' : 'scale(1)',
-                                        }}>
-                                        <span className="text-[28px]">{mod.emoji}</span>
+                                className={`group relative h-[320px] rounded-[60px] border overflow-hidden transition-all duration-700 hover:translate-y-[-12px] shadow-2xl backdrop-blur-3xl ${isDark ? 'bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20' : 'bg-white/80 border-indigo-100 hover:bg-white hover:border-indigo-300'}`}
+                            >
+                                {/* Glow layer */}
+                                <div className={`absolute top-0 left-0 w-full h-full bg-gradient-to-br ${mod.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
+                                
+                                <CardBody className="relative z-10 p-12 flex flex-col justify-between h-full">
+                                    <div className={`w-24 h-24 rounded-[32px] border flex items-center justify-center text-5xl transition-all duration-700 backdrop-blur-2xl ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/90 border-indigo-100'} ${isHovered ? 'scale-110 rotate-6 shadow-xl' : ''}`}>
+                                        <div className={`absolute inset-0 rounded-[32px] opacity-20 blur-2xl transition-opacity duration-700 ${isHovered ? 'opacity-50' : 'opacity-0'}`} style={{ backgroundColor: mod.color }} />
+                                        <span className="relative z-10">{mod.emoji}</span>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className={`text-base font-bold mb-0.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? labels[mod.key].ar : labels[mod.key].en}</div>
-                                        <div className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? descriptions[mod.key].ar : descriptions[mod.key].en}</div>
+                                    
+                                    <div className="space-y-2">
+                                        <div className={`text-[10px] uppercase tracking-[0.4em] font-black transition-colors duration-1000 ${isDark ? 'opacity-30 text-white' : 'opacity-50 text-indigo-900'}`}>{mod.key}</div>
+                                        <h3 className={`text-3xl font-black tracking-tight group-hover:translate-x-2 transition-transform duration-500 ${isDark ? 'text-white/90 group-hover:text-white' : 'text-indigo-900'}`}>{isArabic ? labels[mod.key].ar : labels[mod.key].en}</h3>
                                     </div>
-                                    <span className="text-lg shrink-0 transition-all duration-300"
-                                        style={{ color: isHovered ? mod.color : (isDark ? '#30363D' : '#D1D5DB'), transform: isHovered ? (isArabic ? 'translateX(-4px)' : 'translateX(4px)') : 'translateX(0)' }}>
-                                        {isArabic ? '←' : '→'}
-                                    </span>
                                 </CardBody>
                             </Card>
                         );
                     })}
                 </div>
 
-                {/* Tip */}
-                <Card className={`${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'} border`}>
-                    <CardBody className="py-5 px-6 flex flex-row items-center gap-3.5">
-                        <span className="text-[32px] shrink-0">💡</span>
-                        <div>
-                            <div className={`text-sm font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'هل تعلم؟' : 'Did you know?'}</div>
-                            <div className={`text-[13px] leading-relaxed ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                                {isArabic ? 'لما بتلعب وبتتعلم كل يوم، دماغك بيبقى أقوى وأذكى! 🧠✨ حاول تستخدم كل الأنشطة!' : 'When you play and learn every day, your brain gets stronger and smarter! 🧠✨ Try all activities!'}
-                            </div>
-                        </div>
-                    </CardBody>
-                </Card>
-            </div>
 
-            {/* Bot Modal */}
-            <Modal isOpen={isOpen} onClose={onClose} size="lg" backdrop="blur" classNames={{ base: 'max-w-[520px]' }}>
+            </main>
+
+            {/* AI BOT MODAL - GLASS STYLE */}
+            <Modal 
+                isOpen={isOpen} 
+                onClose={onClose} 
+                size="2xl" 
+                backdrop="blur" 
+                classNames={{ 
+                    base: `backdrop-blur-3xl border rounded-[50px] overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0F101A]/95 border-white/10' : 'bg-white/95 border-indigo-100'}`,
+                    backdrop: 'bg-indigo-950/70 backdrop-blur-sm'
+                }}
+            >
                 <ModalContent>
                     <ModalBody className="p-0">
                         <AutismSupportBot mode="child" />
@@ -186,7 +179,15 @@ export default function ChildHomePage() {
             </Modal>
 
             <style>{`
-                @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+                
+                @keyframes float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-20px) rotate(2deg); } }
+                .animate-float { animation: float 7s ease-in-out infinite; }
+                
+                ::-webkit-scrollbar { width: 8px; }
+                ::-webkit-scrollbar-track { background: ${isDark ? '#0C0D17' : '#F5F8FF'}; }
+                ::-webkit-scrollbar-thumb { background: ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.1)'}; border-radius: 10px; }
+                ::-webkit-scrollbar-thumb:hover { background: ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.2)'}; }
             `}</style>
         </div>
     );

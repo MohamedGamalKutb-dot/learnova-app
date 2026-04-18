@@ -1,17 +1,23 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const DataContext = createContext(null);
 
-const STORAGE_KEY = 'lLearnNeur_data';
+const BASE_STORAGE_KEY = 'learnova_data_';
 
-function loadData() {
+function loadChildSpecificData(childId) {
+    if (!childId) return getDefaultData();
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(BASE_STORAGE_KEY + childId);
         if (saved) return JSON.parse(saved);
     } catch (e) { /* ignore */ }
+    return getDefaultData();
+}
+
+function getDefaultData() {
     return {
         // PECS tracking
-        pecsWordsUsed: {},        // { "I want water": 5, ... }
+        pecsWordsUsed: {},
         pecsSentencesBuilt: 0,
         pecsTotalTaps: 0,
 
@@ -19,6 +25,7 @@ function loadData() {
         emotionQuizAttempts: 0,
         emotionQuizCorrect: 0,
         emotionLearningViews: 0,
+        emotionQuizHistory: [], // Latest results
 
         // Routine tracking
         routineCompletedTasks: 0,
@@ -39,9 +46,10 @@ function loadData() {
     };
 }
 
-function saveData(data) {
+function saveChildSpecificData(childId, data) {
+    if (!childId) return;
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(BASE_STORAGE_KEY + childId, JSON.stringify(data));
     } catch (e) { /* ignore */ }
 }
 
@@ -51,16 +59,55 @@ function getTodayKey() {
 }
 
 export function DataProvider({ children }) {
-    const [data, setData] = useState(loadData);
+    const { currentChild, isChildLoggedIn, isParentLoggedIn, linkedChild } = useAuth();
+    
+    // Determine which child we are tracking for
+    const activeChildId = currentChild?.childId || linkedChild?.childId || null;
+
+    const [data, setData] = useState(() => loadChildSpecificData(activeChildId));
+    const [lastChildId, setLastChildId] = useState(activeChildId);
+
+    // Immediate state update if activeChildId changes during render (to avoid stale data)
+    if (activeChildId !== lastChildId) {
+        setLastChildId(activeChildId);
+        setData(loadChildSpecificData(activeChildId));
+    }
+
+    // Reload data when active child changes or when external storage updates (Sync)
+    useEffect(() => {
+        if (!activeChildId) return;
+        
+        // Listen for Storage Events (Same browser, other tabs)
+        const handleStorageChange = (e) => {
+            if (e.key === BASE_STORAGE_KEY + activeChildId) {
+                setData(loadChildSpecificData(activeChildId));
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+
+        const interval = setInterval(() => {
+            const freshData = loadChildSpecificData(activeChildId);
+            if (JSON.stringify(freshData) !== JSON.stringify(data)) {
+                setData(freshData);
+            }
+        }, 1000);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            clearInterval(interval);
+        };
+    }, [activeChildId, data]);
 
     const updateData = useCallback((updater) => {
+        if (!activeChildId) return;
+
         setData(prev => {
             const updated = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
             updated.lastActivity = new Date().toISOString();
-            saveData(updated);
+            saveChildSpecificData(activeChildId, updated);
             return updated;
         });
-    }, []);
+    }, [activeChildId]);
 
     // ===== PECS Tracking =====
     const trackPecsTap = useCallback((item, isArabic) => {
@@ -101,13 +148,20 @@ export function DataProvider({ children }) {
         });
     }, [updateData]);
 
-    const trackEmotionQuiz = useCallback((isCorrect) => {
+    const trackEmotionQuiz = useCallback((isCorrect, scorePct) => {
         updateData(prev => {
             const todayKey = getTodayKey();
+            const newHistory = [{
+                date: new Date().toLocaleDateString(),
+                score: scorePct,
+                correct: isCorrect ? 1 : 0
+            }, ...(prev.emotionQuizHistory || [])].slice(0, 5);
+
             return {
                 ...prev,
                 emotionQuizAttempts: prev.emotionQuizAttempts + 1,
                 emotionQuizCorrect: prev.emotionQuizCorrect + (isCorrect ? 1 : 0),
+                emotionQuizHistory: newHistory,
                 totalInteractions: prev.totalInteractions + 1,
                 moduleUsage: { ...prev.moduleUsage, emotions: prev.moduleUsage.emotions + 1 },
                 weeklyUsage: { ...prev.weeklyUsage, [todayKey]: (prev.weeklyUsage[todayKey] || 0) + 1 },
@@ -177,11 +231,10 @@ export function DataProvider({ children }) {
 
     // ===== Reset =====
     const resetAllData = useCallback(() => {
-        const fresh = loadData();
-        // return defaults
-        localStorage.removeItem(STORAGE_KEY);
-        setData(loadData());
-    }, []);
+        if (!activeChildId) return;
+        localStorage.removeItem(BASE_STORAGE_KEY + activeChildId);
+        setData(getDefaultData());
+    }, [activeChildId]);
 
     // ===== Computed Values =====
     const emotionAccuracy = data.emotionQuizAttempts > 0
@@ -213,6 +266,7 @@ export function DataProvider({ children }) {
             resetAllData,
             // Computed
             emotionAccuracy, routineCompletion, mostUsedWords,
+            activeChildId
         }}>
             {children}
         </DataContext.Provider>

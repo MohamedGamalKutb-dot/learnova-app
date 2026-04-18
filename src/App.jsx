@@ -97,7 +97,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/profile" element={
-                <ProtectedRoute role="parent" redirectTo="/login">
+                <ProtectedRoute redirectTo="/choice">
                   <ProfilePage />
                 </ProtectedRoute>
               } />

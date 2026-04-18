@@ -73,7 +73,7 @@ export default function ChildSignupPage() {
                         <Button fullWidth variant="bordered" radius="lg" className={`mb-2.5 ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}
                             onPress={() => navigator.clipboard?.writeText(createdId)}>📋 {isArabic ? 'نسخ الكود' : 'Copy Code'}</Button>
                         <Button fullWidth radius="lg" className="bg-gradient-to-br from-accent to-[#8B5CF6] text-white font-bold shadow-[0_4px_16px_rgba(108,99,255,0.25)]"
-                            onPress={() => navigate('/child-home')}>🚀 {isArabic ? 'ابدأ التعلم!' : 'Start Learning!'}</Button>
+                            onPress={() => navigate('/child-login')}>🚀 {isArabic ? 'سجل دخولك الآن' : 'Log In Now'}</Button>
                     </CardBody>
                 </Card>
             </div>

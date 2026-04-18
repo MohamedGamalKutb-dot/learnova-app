@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useData } from '../context/DataContext';
-import { Button, Card, CardBody, Navbar } from '@heroui/react';
+import { Button, Card, CardBody, Chip } from '@heroui/react';
 
 export default function CalmingPage() {
     const navigate = useNavigate();
@@ -14,156 +14,151 @@ export default function CalmingPage() {
     const [isSessionActive, setIsSessionActive] = useState(false);
     const [isBreathing, setIsBreathing] = useState(false);
     const [breathPhase, setBreathPhase] = useState('start');
+    
     const intervalRef = useRef(null);
     const breathRef = useRef(null);
-    const [visualPhase, setVisualPhase] = useState(0);
 
-    const accent = '#8B5CF6';
-
+    // BREATHING LOGIC
     useEffect(() => {
-        if (!isBreathing) { if (breathRef.current) clearInterval(breathRef.current); setBreathPhase('start'); return; }
+        if (!isBreathing) {
+            if (breathRef.current) clearInterval(breathRef.current);
+            setBreathPhase('start');
+            return;
+        }
         const phases = ['in', 'hold', 'out', 'hold'];
         let idx = 0;
         setBreathPhase('in');
-        breathRef.current = setInterval(() => { idx = (idx + 1) % phases.length; setBreathPhase(phases[idx]); }, 4000);
+        breathRef.current = setInterval(() => {
+            idx = (idx + 1) % phases.length;
+            setBreathPhase(phases[idx]);
+        }, 4000);
         return () => { if (breathRef.current) clearInterval(breathRef.current); };
     }, [isBreathing]);
 
+    // SESSION TIMER LOGIC
     useEffect(() => {
-        if (!isSessionActive) { if (intervalRef.current) clearInterval(intervalRef.current); return; }
+        if (!isSessionActive) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            return;
+        }
         intervalRef.current = setInterval(() => {
-            setRemainingSeconds(prev => { if (prev <= 1) { setIsSessionActive(false); return 0; } return prev - 1; });
+            setRemainingSeconds(prev => {
+                if (prev <= 1) {
+                    setIsSessionActive(false);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
         return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
     }, [isSessionActive]);
 
-    useEffect(() => {
-        const id = setInterval(() => setVisualPhase(p => (p + 0.01) % 1), 50);
-        return () => clearInterval(id);
-    }, []);
-
     const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
     const breathLabel = () => {
-        if (breathPhase === 'start') return isArabic ? 'ابدأ' : 'Start';
-        if (breathPhase === 'in') return isArabic ? 'شهيق' : 'Breathe In';
-        if (breathPhase === 'out') return isArabic ? 'زفير' : 'Breathe Out';
-        return isArabic ? 'انتظر' : 'Hold';
+        if (breathPhase === 'start') return isArabic ? 'جاهز؟' : 'Ready?';
+        if (breathPhase === 'in') return isArabic ? 'شهيق ببطء...' : 'Breathe In...';
+        if (breathPhase === 'out') return isArabic ? 'زفير هادئ...' : 'Breathe Out...';
+        return isArabic ? 'توقف قليلاً' : 'Hold...';
     };
 
-    const breathScale = breathPhase === 'in' || breathPhase === 'hold' ? 1 : 0.65;
-    const breathColor = breathPhase === 'in' ? '#8B5CF6' : breathPhase === 'out' ? '#F59E0B' : '#6C63FF';
+    const breathScale = breathPhase === 'in' || (breathPhase === 'hold' && isBreathing) ? 1.4 : 0.8;
+    const breathColor = breathPhase === 'in' ? '#8B5CF6' : breathPhase === 'out' ? '#10B981' : '#F59E0B';
 
     return (
-        <div className="min-h-screen font-[Inter,'Segoe_UI',sans-serif]"
-            style={{ background: isDark ? 'linear-gradient(180deg, #0D1117 0%, #161B22 50%, #0D1117 100%)' : 'linear-gradient(180deg, #EDE9FE 0%, #FAFBFF 50%, #EDE9FE 100%)' }}>
-
-            {/* Navbar */}
-            <Navbar maxWidth="lg" className={`py-1 border-b transparent-navbar ${isDark ? 'border-border-dark' : 'border-border'}`} style={{ background: 'transparent' }} classNames={{ wrapper: 'px-6 max-w-[700px] flex justify-start gap-3' }}>
-                <Button isIconOnly size="sm" variant="bordered" className={`text-base ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'}`} onPress={() => navigate(-1)}>←</Button>
-                <h1 className={`m-0 text-lg font-bold flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                    🧘 {isArabic ? 'منطقة الهدوء' : 'Calming Zone'}
-                </h1>
-            </Navbar>
-
-            <div className="max-w-[700px] mx-auto py-6 px-6 pb-10">
-                {/* Breathing Section */}
-                <Card className={`mb-5 ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(139,92,246,0.08)]'} border`}>
-                    <CardBody className="p-8 text-center items-center">
-                        <h3 className={`text-lg font-bold mb-6 ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                            🫁 {isArabic ? 'تمرين التنفس' : 'Breathing Exercise'}
-                        </h3>
-
-                        {/* Breathing Circle */}
-                        <div className="w-[180px] h-[180px] mx-auto rounded-full flex items-center justify-center relative"
-                            style={{
-                                background: `radial-gradient(circle, ${breathColor}30, ${breathColor}10, transparent)`,
-                                transform: `scale(${breathScale})`, transition: 'transform 4s ease-in-out',
-                                boxShadow: `0 0 40px ${breathColor}20`,
-                            }}>
-                            <div className="absolute inset-0 rounded-full"
-                                style={{ border: `3px solid ${breathColor}30`, animation: isBreathing ? 'pulse 4s ease-in-out infinite' : 'none' }} />
-                            <div className={`w-[120px] h-[120px] rounded-full flex flex-col items-center justify-center gap-1 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`}>
-                                <span className="text-sm font-bold" style={{ color: breathColor }}>{breathLabel()}</span>
-                                <span className="text-2xl">{breathPhase === 'in' ? '🌬️' : breathPhase === 'out' ? '💨' : '😌'}</span>
-                            </div>
-                        </div>
-
-                        <Button radius="lg" size="lg" className="mt-6 font-bold text-[15px] transition-all duration-300 w-full max-w-[200px]"
-                            style={{
-                                background: isBreathing ? (isDark ? '#21262D' : '#FEF2F2') : `linear-gradient(135deg, ${accent}, #A78BFA)`,
-                                color: isBreathing ? '#EF4444' : '#fff',
-                                boxShadow: isBreathing ? 'none' : `0 4px 16px ${accent}40`,
-                            }}
-                            onPress={() => { setIsBreathing(!isBreathing); if (!isBreathing) trackBreathingExercise(); }}>
-                            {isBreathing ? (isArabic ? '⏹ إيقاف' : '⏹ Stop') : (isArabic ? '▶️ ابدأ التنفس' : '▶️ Start Breathing')}
-                        </Button>
-                    </CardBody>
-                </Card>
-
-                {/* Timer Section */}
-                <Card className={`mb-5 ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(245,158,11,0.08)]'} border`}>
-                    <CardBody className="p-8 text-center items-center">
-                        <h3 className={`text-lg font-bold mb-5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                            ⏱️ {isArabic ? 'مؤقت الجلسة' : 'Session Timer'}
-                        </h3>
-
-                        {!isSessionActive && (
-                            <div className="flex justify-center gap-2 mb-5">
-                                {[3, 5, 10, 15].map(min => (
-                                    <Button key={min} variant={sessionMinutes === min ? 'solid' : 'bordered'} radius="md"
-                                        className={`font-[inherit] text-sm ${sessionMinutes === min ? 'bg-amber-500 text-white border-amber-500 font-bold shadow-[0_4px_12px_rgba(245,158,11,0.3)]' : `font-medium ${isDark ? 'bg-card-dark text-text-dark border-border-dark' : 'bg-card text-text border-border'}`}`}
-                                        onPress={() => { setSessionMinutes(min); setRemainingSeconds(min * 60); }}>
-                                        {min}m
-                                    </Button>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="text-[56px] font-extrabold text-amber-500 my-3 font-mono tracking-[4px]">
-                            {formatTime(remainingSeconds)}
-                        </div>
-
-                        <Button radius="lg" size="lg" className="font-bold text-[15px] transition-all duration-300 w-full max-w-[200px]"
-                            style={{
-                                background: isSessionActive ? (isDark ? '#21262D' : '#FEF2F2') : 'linear-gradient(135deg, #F59E0B, #F97316)',
-                                color: isSessionActive ? '#EF4444' : '#fff',
-                                boxShadow: isSessionActive ? 'none' : '0 4px 16px rgba(245,158,11,0.4)',
-                            }}
-                            onPress={() => {
-                                if (isSessionActive) { setIsSessionActive(false); trackCalmingSession(sessionMinutes); }
-                                else { setRemainingSeconds(sessionMinutes * 60); setIsSessionActive(true); }
-                            }}>
-                            {isSessionActive ? (isArabic ? '⏹ إيقاف' : '⏹ Stop') : (isArabic ? '▶️ بدء الجلسة' : '▶️ Start Session')}
-                        </Button>
-                    </CardBody>
-                </Card>
-
-                {/* Ambient Visual */}
-                <Card className={`relative h-[120px] overflow-hidden ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'} border`}>
-                    <CardBody className="p-6 text-center">
-                        <h3 className={`text-sm font-semibold mb-2 relative z-[1] ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                            ✨ {isArabic ? 'تأمل بصري' : 'Visual Meditation'}
-                        </h3>
-                        {Array.from({ length: 12 }).map((_, i) => {
-                            const prog = (visualPhase + i / 12) % 1;
-                            const colors = ['#8B5CF6', '#6C63FF', '#10B981', '#F59E0B', '#EC4899'];
-                            return (
-                                <div key={i} className="absolute rounded-full transition-opacity duration-300" style={{
-                                    left: `${(Math.sin(i * 2.1) * 0.5 + 0.5) * 85 + 5}%`,
-                                    top: `${Math.sin(prog * Math.PI * 2) * 25 + 55}px`,
-                                    width: 10 + (i % 3) * 6, height: 10 + (i % 3) * 6,
-                                    background: colors[i % 5],
-                                    opacity: 0.25 + 0.35 * Math.sin(prog * Math.PI),
-                                }} />
-                            );
-                        })}
-                    </CardBody>
-                </Card>
+        <div className={`min-h-screen selection:bg-indigo-500/30 transition-all duration-1000 ${isArabic ? 'font-[Cairo,sans-serif]' : 'font-[Plus_Jakarta_Sans,sans-serif]'} ${isDark ? 'bg-[#05060D] text-slate-200' : 'bg-[#F0F4FF] text-slate-800'} overflow-x-hidden`} dir={isArabic ? 'rtl' : 'ltr'}>
+            
+            {/* AMBIENT BACKGROUND GLOWS */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className={`absolute top-0 left-0 w-full h-full transition-all duration-1000 ${isBreathing ? 'opacity-100' : 'opacity-40'}`}>
+                    <div className="absolute top-[10%] left-[10%] w-[40%] h-[40%] rounded-full blur-[120px] bg-indigo-600/10 animate-pulse" />
+                    <div className="absolute bottom-[10%] right-[10%] w-[40%] h-[40%] rounded-full blur-[120px] bg-emerald-600/10 animate-pulse" style={{ animationDelay: '2s' }} />
+                </div>
             </div>
 
-            <style>{`@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.05); opacity: 0.6; } }
-            nav.transparent-navbar header { background: transparent !important; }`}</style>
+            {/* NAVBAR */}
+            <nav className={`fixed top-0 inset-x-0 h-20 z-50 px-8 flex items-center justify-between backdrop-blur-xl border-b transition-all duration-500 ${isDark ? 'bg-[#05060D]/40 border-white/5' : 'bg-white/40 border-indigo-100'}`}>
+                <div className="flex items-center gap-4">
+                    <Button isIconOnly variant="bordered" radius="full" size="sm" className={`text-base ${isDark ? 'border-white/10 text-white hover:bg-white/5' : 'border-indigo-100 text-indigo-600 hover:bg-indigo-50'}`} onPress={() => navigate(-1)}>
+                        {isArabic ? '→' : '←'}
+                    </Button>
+                    <div className="flex flex-col text-start">
+                        <h1 className={`text-xl font-black leading-none ${isDark ? 'text-indigo-100' : 'text-indigo-900'}`}>{isArabic ? 'مساحة السكينة' : 'Serenity Space'}</h1>
+                        <span className="text-[9px] font-black tracking-widest uppercase opacity-40 mt-1">{isArabic ? 'تنفس، استرخِ، ركز' : 'BREATHE, RELAX, FOCUS'}</span>
+                    </div>
+                </div>
+            </nav>
+
+            <main className="relative max-w-[1300px] mx-auto px-8 pt-32 pb-20">
+                <div className="flex flex-col items-center max-w-[700px] mx-auto space-y-10">
+                    
+                    {/* Breathing Card */}
+                    <Card className={`w-full rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-2xl p-8 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-indigo-500/5'}`}>
+                        <CardBody className="items-center text-center gap-10">
+                            <header className="w-full flex justify-between items-center">
+                                <h3 className="text-sm font-black uppercase tracking-[0.3em] opacity-40">{isArabic ? 'تمرين التنفس' : 'BREATHING'}</h3>
+                                <Chip variant="flat" color="secondary" className="font-bold">{isBreathing ? (isArabic ? 'نشط' : 'ACTIVE') : (isArabic ? 'جاهز' : 'READY')}</Chip>
+                            </header>
+
+                            <div className="relative w-64 h-64 flex items-center justify-center">
+                                <div className="absolute inset-0 rounded-full blur-[40px] transition-all duration-[4000ms]" 
+                                    style={{ 
+                                        background: `radial-gradient(circle, ${breathColor}40, transparent)`,
+                                        transform: `scale(${isBreathing ? breathScale * 1.5 : 1})` 
+                                    }} 
+                                />
+                                
+                                <div className={`relative w-48 h-48 rounded-full border-4 flex flex-col items-center justify-center transition-all duration-[4000ms] shadow-2xl ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-indigo-100'}`}
+                                    style={{ transform: `scale(${breathScale})`, borderColor: isBreathing ? breathColor : 'transparent' }}>
+                                    <div className="text-4xl animate-float">{isBreathing ? (breathPhase === 'in' ? '☁️' : breathPhase === 'out' ? '🍃' : '✨') : '🧘'}</div>
+                                </div>
+
+                                <div className="absolute -bottom-4 bg-indigo-500 text-white px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-xl">
+                                    {breathLabel()}
+                                </div>
+                            </div>
+
+                            <Button size="lg" radius="full" onPress={() => { setIsBreathing(!isBreathing); if (!isBreathing) trackBreathingExercise(); }}
+                                className={`h-16 px-12 font-black text-lg transition-all shadow-xl ${isBreathing ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20' : 'bg-indigo-500 text-white shadow-indigo-500/20'}`}>
+                                {isBreathing ? (isArabic ? 'إيقاف التمرين' : 'Stop Exercise') : (isArabic ? 'ابدأ التنفس الآن' : 'Start Breathing')}
+                            </Button>
+                        </CardBody>
+                    </Card>
+
+                    {/* Session Timer Card */}
+                    <Card className={`w-full rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-xl p-8 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-indigo-500/5'}`}>
+                        <CardBody className="items-center text-center gap-6">
+                            <h3 className="text-sm font-black uppercase tracking-[0.3em] opacity-40">{isArabic ? 'مؤقت الجلسة' : 'SESSION TIMER'}</h3>
+                            
+                            {!isSessionActive && (
+                                <div className="flex gap-3 justify-center">
+                                    {[3, 5, 10].map(min => (
+                                        <Button key={min} size="sm" radius="full" onPress={() => { setSessionMinutes(min); setRemainingSeconds(min * 60); }}
+                                            className={`font-black h-10 px-6 ${sessionMinutes === min ? 'bg-amber-500 text-white shadow-lg' : isDark ? 'bg-white/5' : 'bg-indigo-50 text-indigo-600'}`}>
+                                            {min}m
+                                        </Button>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className={`text-7xl font-black tracking-widest font-mono transition-colors ${isSessionActive ? 'text-amber-500 scale-110' : 'opacity-40'}`}>
+                                {formatTime(remainingSeconds)}
+                            </div>
+
+                            <Button size="lg" radius="full" onPress={() => { if (isSessionActive) { setIsSessionActive(false); trackCalmingSession(sessionMinutes); } else { setRemainingSeconds(sessionMinutes * 60); setIsSessionActive(true); } }}
+                                className={`h-14 px-10 font-black tracking-widest text-xs uppercase shadow-xl ${isSessionActive ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500 text-white shadow-amber-500/20'}`}>
+                                {isSessionActive ? (isArabic ? 'إيقاف المؤقت' : 'STOP TIMER') : (isArabic ? 'ابدأ الجلسة' : 'START SESSION')}
+                            </Button>
+                        </CardBody>
+                    </Card>
+                </div>
+            </main>
+
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+                @keyframes float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-15px) rotate(5deg); } }
+                .animate-float { animation: float 6s ease-in-out infinite; }
+            `}</style>
         </div>
     );
 }

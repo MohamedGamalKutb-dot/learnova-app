@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Button, Card, CardBody, Input, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter } from '@heroui/react';
+import { Button, Card, CardBody, Input, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Avatar } from '@heroui/react';
 
 const behaviorTypes = [
     { key: 'meltdown', label: 'Meltdown', labelAr: 'نوبة انفعالية', emoji: '😤', color: '#FF6584' },
@@ -36,7 +36,7 @@ const tabsList = [
 export default function DoctorPage() {
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
-    const { currentDoctor, childAccounts, findChildForDoctor, addPatientToDoctor, updateChildDiagnosis, isDoctorLoggedIn, logoutDoctor } = useAuth();
+    const { currentDoctor, childAccounts, findChildForDoctor, addPatientToDoctor, updateChildDiagnosis, isDoctorLoggedIn, logoutDoctor, updateDoctorProfile } = useAuth();
     useEffect(() => { if (!isDoctorLoggedIn) navigate('/doctor-auth'); }, [isDoctorLoggedIn, navigate]);
 
     const myPatients = childAccounts.filter(c => currentDoctor?.patientIds?.some(id => id.toUpperCase() === c.childId.toUpperCase()));
@@ -53,6 +53,9 @@ export default function DoctorPage() {
     const [behaviorIntensity, setBehaviorIntensity] = useState(3);
     const [viewingAssessment, setViewingAssessment] = useState(null);
     const [hoveredCard, setHoveredCard] = useState(null);
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    const [tempDoctorName, setTempDoctorName] = useState(currentDoctor?.name || '');
+    const [tempDoctorAvatar, setTempDoctorAvatar] = useState(currentDoctor?.avatar || '🩺');
 
     const accent = '#6C63FF';
     const updatePatientData = (pid, updates) => { updateChildDiagnosis(pid, updates); if (selectedPatient?.childId === pid) setSelectedPatient({ ...selectedPatient, ...updates }); };
@@ -60,6 +63,20 @@ export default function DoctorPage() {
     const handleAddPatient = () => { if (!searchResult) return; const res = addPatientToDoctor(searchResult.childId); if (res.success) { setShowAddModal(false); setSearchQuery(''); setSearchResult(null); } else setSearchError(isArabic ? 'المريض موجود بالفعل' : 'Patient already added'); };
     const submitAssessment = () => { if (!selectedPatient) return; const yesCount = Object.values(assessmentAnswers).filter(v => v === 'yes').length; const score = Math.round((yesCount / assessmentQuestions.length) * 100); const r = { date: new Date().toISOString(), score, answers: assessmentAnswers, totalQuestions: assessmentQuestions.length }; updatePatientData(selectedPatient.childId, { assessments: [...(selectedPatient.assessments || []), r] }); setAssessmentDone(true); };
     const addBehaviorLog = () => { if (!selectedPatient || !behaviorNote) return; const log = { type: behaviorType, note: behaviorNote, intensity: behaviorIntensity, date: new Date().toISOString(), emoji: behaviorTypes.find(b => b.key === behaviorType)?.emoji || '📝' }; updatePatientData(selectedPatient.childId, { behaviorLogs: [...(selectedPatient.behaviorLogs || []), log] }); setBehaviorNote(''); };
+    
+    const handleSaveProfile = () => {
+        updateDoctorProfile({ name: tempDoctorName, avatar: tempDoctorAvatar });
+        setShowProfileModal(false);
+    };
+
+    const handleAvatarUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (re) => setTempDoctorAvatar(re.target.result);
+            reader.readAsDataURL(file);
+        }
+    };
 
     const cardCls = (hk) => `rounded-[18px] mb-4 border transition-all duration-300 ${isDark ? 'bg-card-dark' : 'bg-card'} ${hoveredCard === hk ? 'border-accent/40 shadow-[0_8px_28px_rgba(108,99,255,0.06)]' : `${isDark ? 'border-border-dark' : 'border-border'} ${isDark ? '' : 'shadow-[0_2px_10px_rgba(0,0,0,0.03)]'}`}`;
     const navBtnCls = `text-base ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'} border`;
@@ -86,7 +103,14 @@ export default function DoctorPage() {
                         className={`mb-2.5 transition-all duration-300 border-[1.5px] ${selectedPatient?.childId === p.childId ? `${isDark ? 'bg-accent/[0.07]' : 'bg-accent/[0.04]'} border-accent` : `${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'} hover:border-accent/50`}`}
                         style={{ animation: `fadeInUp 0.3s ease-out ${i * 0.05}s both` }}>
                         <CardBody className="p-4 flex flex-row items-center gap-3.5">
-                            <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-[28px] shrink-0" style={{ background: `${accent}10`, border: `1px solid ${accent}15` }}>{p.avatar}</div>
+                            <Avatar 
+                                radius="lg"
+                                className="w-12 h-12 text-2xl shrink-0"
+                                src={p.avatar?.length > 10 ? p.avatar : undefined}
+                                name={p.avatar?.length <= 2 ? p.avatar : undefined}
+                                icon={p.avatar?.length <= 2 && !p.avatar ? undefined : undefined}
+                                style={{ background: `${accent}10`, border: `1px solid ${accent}15` }}
+                            />
                             <div className="flex-1 text-left rtl:text-right">
                                 <div className={`font-bold text-[15px] ${isDark ? 'text-text-dark' : 'text-text'}`}>{p.name}</div>
                                 <div className={`text-xs mt-0.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>ID: <span className={`font-mono px-1.5 py-px rounded ${isDark ? 'bg-border-dark' : 'bg-gray-100'}`}>{p.childId}</span> • {p.diagnosisLevel}</div>
@@ -100,7 +124,13 @@ export default function DoctorPage() {
                 <Card className={`${cardCls('details')} mt-5 !border-accent/20`} onMouseEnter={() => setHoveredCard('details')} onMouseLeave={() => setHoveredCard(null)}>
                     <CardBody className="p-[22px]">
                         <div className={`flex gap-3.5 mb-5 pb-4 border-b ${isDark ? 'border-border-dark' : 'border-border'}`}>
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-[32px] shrink-0" style={{ background: `linear-gradient(135deg, ${accent}15, #4ECDC415)` }}>{selectedPatient.avatar}</div>
+                            <Avatar 
+                                radius="2xl"
+                                className="w-14 h-14 text-2xl shrink-0"
+                                src={selectedPatient.avatar?.length > 10 ? selectedPatient.avatar : undefined}
+                                name={selectedPatient.avatar?.length <= 2 ? selectedPatient.avatar : undefined}
+                                style={{ background: `linear-gradient(135deg, ${accent}15, #4ECDC415)` }}
+                            />
                             <div>
                                 <h2 className={`m-0 text-xl font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{selectedPatient.name}</h2>
                                 <p className={`mt-0.5 text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'كود الطفل' : 'Child Code'}: <span className={`font-mono font-semibold py-0.5 px-2 rounded-md ${isDark ? 'bg-border-dark text-text-dark' : 'bg-gray-100 text-text'}`}>{selectedPatient.childId}</span></p>
@@ -144,7 +174,16 @@ export default function DoctorPage() {
         }
         return (
             <div>
-                <div className={patientBanner}><span className="text-2xl">{selectedPatient.avatar}</span><span className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? `تقييم ${selectedPatient.name}` : `Assessment for ${selectedPatient.name}`}</span></div>
+                <div className={patientBanner}>
+                    <Avatar 
+                        size="sm"
+                        radius="full"
+                        src={selectedPatient.avatar?.length > 10 ? selectedPatient.avatar : undefined}
+                        name={selectedPatient.avatar?.length <= 2 ? selectedPatient.avatar : undefined}
+                        className="bg-accent/10 text-accent font-black"
+                    />
+                    <span className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? `تقييم ${selectedPatient.name}` : `Assessment for ${selectedPatient.name}`}</span>
+                </div>
                 {assessmentQuestions.map((q, i) => (
                     <Card key={q.id} className={cardCls(`q${q.id}`)} onMouseEnter={() => setHoveredCard(`q${q.id}`)} onMouseLeave={() => setHoveredCard(null)}>
                         <CardBody className="p-4">
@@ -186,7 +225,16 @@ export default function DoctorPage() {
         if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-[40px] mb-2">📊</div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
         return (
             <div>
-                <div className={patientBanner}><span className="text-2xl">{selectedPatient.avatar}</span><span className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? `سلوك ${selectedPatient.name}` : `Behavior Log for ${selectedPatient.name}`}</span></div>
+                <div className={patientBanner}>
+                    <Avatar 
+                        size="sm"
+                        radius="full"
+                        src={selectedPatient.avatar?.length > 10 ? selectedPatient.avatar : undefined}
+                        name={selectedPatient.avatar?.length <= 2 ? selectedPatient.avatar : undefined}
+                        className="bg-accent/10 text-accent font-black"
+                    />
+                    <span className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? `سلوك ${selectedPatient.name}` : `Behavior Log for ${selectedPatient.name}`}</span>
+                </div>
                 <Card className={cardCls('newBehavior')} onMouseEnter={() => setHoveredCard('newBehavior')} onMouseLeave={() => setHoveredCard(null)}>
                     <CardBody className="p-[22px]">
                         <h4 className={`mb-3.5 text-[15px] font-bold flex items-center gap-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}><span>📝</span> {isArabic ? 'تسجيل سلوك جديد' : 'Log New Behavior'}</h4>
@@ -220,7 +268,13 @@ export default function DoctorPage() {
                         const bt = behaviorTypes.find(b => b.key === log.type); return (
                             <Card key={i} className={`mb-2 border ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'}`}>
                                 <CardBody className="p-3.5 flex flex-row gap-3">
-                                    <div className="w-[42px] h-[42px] rounded-xl shrink-0 flex items-center justify-center text-[22px]" style={{ background: `${bt?.color || '#999'}12` }}>{log.emoji}</div>
+                                    <Avatar 
+                                        radius="xl"
+                                        className="w-[42px] h-[42px] shrink-0 text-xl"
+                                        src={selectedPatient.avatar?.length > 10 ? selectedPatient.avatar : undefined}
+                                        icon={<span>{log.emoji}</span>}
+                                        style={{ background: `${bt?.color || '#999'}12` }}
+                                    />
                                     <div className="flex-1">
                                         <div className={`font-bold text-sm ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? bt?.labelAr : bt?.label} <span className={`font-normal text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>({log.intensity}/5)</span></div>
                                         <div className={`text-[13px] mt-0.5 opacity-85 ${isDark ? 'text-text-dark' : 'text-text'}`}>{log.note}</div>
@@ -240,7 +294,16 @@ export default function DoctorPage() {
         const logs = selectedPatient.behaviorLogs || []; const assessments = selectedPatient.assessments || [];
         return (
             <div>
-                <div className={patientBanner}><span className="text-2xl">{selectedPatient.avatar}</span><span className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? `تقرير ${selectedPatient.name}` : `Report for ${selectedPatient.name}`}</span></div>
+                <div className={patientBanner}>
+                    <Avatar 
+                        size="sm"
+                        radius="full"
+                        src={selectedPatient.avatar?.length > 10 ? selectedPatient.avatar : undefined}
+                        name={selectedPatient.avatar?.length <= 2 ? selectedPatient.avatar : undefined}
+                        className="bg-accent/10 text-accent font-black"
+                    />
+                    <span className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? `تقرير ${selectedPatient.name}` : `Report for ${selectedPatient.name}`}</span>
+                </div>
                 <div className="grid grid-cols-2 gap-3 mb-5">
                     {[{ emoji: '📊', value: logs.length, label: isArabic ? 'سجلات سلوكية' : 'Behavior Logs', color: '#FF6584' }, { emoji: '📋', value: assessments.length, label: isArabic ? 'تقييمات مكتملة' : 'Assessments', color: accent }].map(s => (
                         <Card key={s.label} className={cardCls(null)}><CardBody className="text-center p-5 items-center justify-center"><div className="text-[28px]">{s.emoji}</div><div className="text-[28px] font-extrabold my-1.5" style={{ color: s.color }}>{s.value}</div><div className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{s.label}</div></CardBody></Card>
@@ -267,9 +330,17 @@ export default function DoctorPage() {
             <Navbar maxWidth="lg" className={`py-1 border-b sticky top-0 z-50 backdrop-blur-xl ${isDark ? 'bg-card-dark/95 border-border-dark' : 'bg-white/95 border-border'}`} classNames={{ wrapper: 'px-6 max-w-[700px] flex justify-between' }}>
                 <div className="flex items-center gap-3">
                     <Button isIconOnly size="sm" variant="bordered" className={navBtnCls} onPress={() => navigate('/choice')}>←</Button>
-                    <div>
-                        <h1 className={`m-0 text-[17px] font-bold flex items-center gap-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}><span>🩺</span> {isArabic ? 'بوابة الطبيب' : 'Doctor Portal'}</h1>
-                        <p className={`m-0 text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{currentDoctor?.name || 'LearnNova Medical'}</p>
+                    <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => { setTempDoctorName(currentDoctor?.name || ''); setTempDoctorAvatar(currentDoctor?.avatar || '🩺'); setShowProfileModal(true); }}>
+                        <Avatar 
+                            size="sm"
+                            src={currentDoctor?.avatar?.length > 10 ? currentDoctor?.avatar : undefined}
+                            name={currentDoctor?.avatar?.length <= 2 ? currentDoctor?.avatar : undefined}
+                            className="bg-accent/10 text-accent font-black border-2 border-transparent group-hover:border-accent/40 transition-all"
+                        />
+                        <div className="hidden sm:block">
+                            <h1 className={`m-0 text-[15px] font-bold flex items-center gap-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'بوابة الطبيب' : 'Doctor Portal'}</h1>
+                            <p className={`m-0 text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{currentDoctor?.name || 'Doctor'}</p>
+                        </div>
                     </div>
                 </div>
                 <NavbarContent justify="end" className="gap-2 shrink-0">
@@ -318,7 +389,12 @@ export default function DoctorPage() {
                                 </div>
                                 {searchResult && (
                                     <div className={`text-center mb-0 p-4 rounded-[14px] border border-accent/20 ${subBg}`} style={{ animation: 'fadeInUp 0.3s ease-out' }}>
-                                        <div className="text-[44px]">{searchResult.avatar}</div>
+                                        <Avatar 
+                                            radius="full"
+                                            className="w-24 h-24 text-4xl mx-auto shadow-xl border-4 border-white/20"
+                                            src={searchResult.avatar?.length > 10 ? searchResult.avatar : undefined}
+                                            name={searchResult.avatar?.length <= 2 ? searchResult.avatar : undefined}
+                                        />
                                         <div className={`font-bold text-lg mt-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>{searchResult.name}</div>
                                         <div className={`text-[13px] mt-0.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{searchResult.age} {isArabic ? 'سنوات' : 'Years'} • {searchResult.gender}</div>
                                         <Button fullWidth radius="lg" className="mt-3.5 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold shadow-[0_4px_12px_rgba(16,185,129,0.25)]" onPress={handleAddPatient}>✅ {isArabic ? 'إضافة للقائمة' : 'Add to My List'}</Button>
@@ -327,6 +403,58 @@ export default function DoctorPage() {
                             </ModalBody>
                             <ModalFooter className="pt-0">
                                 <Button fullWidth variant="bordered" radius="lg" className={`${isDark ? 'border-border-dark text-subtext-dark' : 'border-border text-subtext'}`} onPress={onClose}>{isArabic ? 'إلغاء' : 'Cancel'}</Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            <Modal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} size="md" backdrop="blur" classNames={{ base: isDark ? 'bg-card-dark border border-border-dark' : 'bg-card border border-border' }}>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className={`flex flex-col gap-1 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                                {isArabic ? 'تعديل الملف الشخصي' : 'Edit Doctor Profile'}
+                            </ModalHeader>
+                            <ModalBody>
+                                <div className="flex flex-col items-center mb-6">
+                                    <div className="relative group">
+                                        <Avatar 
+                                            className="w-24 h-24 text-4xl shadow-2xl border-4 border-white/20"
+                                            src={tempDoctorAvatar?.length > 10 ? tempDoctorAvatar : undefined}
+                                            name={tempDoctorAvatar?.length <= 2 ? tempDoctorAvatar : undefined}
+                                        />
+                                        <label className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-transform">
+                                            📷
+                                            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                                        </label>
+                                    </div>
+                                    <div className="flex gap-3 mt-4">
+                                        {['🩺', '👨‍⚕️', '👩‍⚕️', '🔬', '🏥'].map(e => (
+                                            <button key={e} onClick={() => setTempDoctorAvatar(e)} className={`text-2xl p-2 rounded-xl border transition-all ${tempDoctorAvatar === e ? 'bg-accent/10 border-accent/40 scale-110' : 'border-transparent hover:bg-gray-100'}`}>
+                                                {e}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className={`block text-xs font-bold mb-1.5 opacity-60 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'الاسم' : 'Full Name'}</label>
+                                        <Input 
+                                            value={tempDoctorName}
+                                            onChange={e => setTempDoctorName(e.target.value)}
+                                            variant="bordered"
+                                            radius="lg"
+                                            classNames={{ inputWrapper: isDark ? 'bg-bg-dark border-border-dark' : 'bg-gray-50 border-gray-200' }}
+                                        />
+                                    </div>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" radius="lg" onPress={onClose}>{isArabic ? 'إلغاء' : 'Cancel'}</Button>
+                                <Button className="bg-gradient-to-br from-accent to-indigo-600 text-white font-bold px-8 shadow-xl" radius="lg" onPress={handleSaveProfile}>
+                                    {isArabic ? 'حفظ التعديلات' : 'Save Profile'}
+                                </Button>
                             </ModalFooter>
                         </>
                     )}

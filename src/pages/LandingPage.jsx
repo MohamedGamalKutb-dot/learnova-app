@@ -231,7 +231,7 @@ export default function LandingPage() {
                                 <div className={`w-[76px] h-[76px] rounded-[22px] flex items-center justify-center text-[34px] mb-5 ${c.iconBg}`}>{c.icon}</div>
                                 <h3 className={`text-xl font-bold mb-2 ${darkTxt}`}>{c.h}</h3>
                                 <p className={`${darkTxt2} text-sm leading-[1.65] mb-6`}>{c.p}</p>
-                                <Button size="sm" radius="lg" className={`${c.btnBg} text-white font-bold font-jakarta hover:scale-105`}>{c.btn}</Button>
+                                <Button size="sm" radius="lg" className={`${c.btnBg} text-white font-bold font-jakarta hover:scale-105`} onPress={() => navigate(c.path)}>{c.btn}</Button>
                             </CardBody>
                         </Card>
                     ))}
