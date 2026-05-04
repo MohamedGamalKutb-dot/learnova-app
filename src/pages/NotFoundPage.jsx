@@ -62,8 +62,10 @@ export default function NotFoundPage() {
                 <a onClick={() => navigate('/')} className="flex items-center gap-2.5 cursor-pointer no-underline">
                     <span className="text-[19px] font-black tracking-tight bg-clip-text [-webkit-text-fill-color:transparent]"
                         style={{ background: 'linear-gradient(90deg, #2563EB, #8B5CF6)', WebkitBackgroundClip: 'text' }}>LearnNeur</span>
-                    <div className="w-9 h-9 rounded-[11px] flex items-center justify-center text-lg shadow-[0_4px_12px_rgba(37,99,235,0.25)]"
-                        style={{ background: 'linear-gradient(135deg, #2563EB, #06B6D4)' }}>🧩</div>
+                    <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shadow-[0_4px_12px_rgba(37,99,235,0.25)] overflow-hidden"
+                        style={{ background: 'linear-gradient(135deg, #2563EB, #06B6D4)' }}>
+                        <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover" />
+                    </div>
                 </a>
             </nav>
 

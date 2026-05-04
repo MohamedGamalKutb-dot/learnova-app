@@ -19,6 +19,9 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DoctorAuthPage from './pages/DoctorAuthPage';
 import DoctorPage from './pages/DoctorPage';
+import SettingsPage from './pages/SettingsPage';
+import ParentProfilePage from './pages/ParentProfilePage';
+import DoctorProfilePage from './pages/DoctorProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -91,21 +94,36 @@ function App() {
               } />
 
               {/* ===== صفحات ولي الأمر (محمية - لازم يكون ولي الأمر مسجل دخول) ===== */}
-              <Route path="/dashboard" element={
+              <Route path="/parent-dashboard/:tab?" element={
                 <ProtectedRoute role="parent" redirectTo="/login">
                   <DashboardPage />
                 </ProtectedRoute>
               } />
-              <Route path="/profile" element={
-                <ProtectedRoute redirectTo="/choice">
+               <Route path="/profile" element={
+                <ProtectedRoute role="child" redirectTo="/child-login">
                   <ProfilePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent-dashboard/profile" element={
+                <ProtectedRoute role="parent" redirectTo="/login">
+                  <ParentProfilePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute redirectTo="/choice">
+                  <SettingsPage />
                 </ProtectedRoute>
               } />
 
               {/* ===== صفحات الدكتور (محمية - لازم يكون الدكتور مسجل دخول) ===== */}
-              <Route path="/doctor-dashboard" element={
+               <Route path="/doctor-dashboard/:tab?" element={
                 <ProtectedRoute role="doctor" redirectTo="/doctor-auth">
                   <DoctorPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/doctor-dashboard/profile" element={
+                <ProtectedRoute role="doctor" redirectTo="/doctor-auth">
+                  <DoctorProfilePage />
                 </ProtectedRoute>
               } />
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
-import { categories, categoryEmojis, categoryLabels, categoryLabelsAr, getItemsByCategory } from '../data/pecsData';
+import { categories, categoryIcons, categoryLabels, categoryLabelsAr, getItemsByCategory } from '../data/pecsData';
 import { Button, Card, CardBody, Chip } from '@heroui/react';
 
 export default function PecsPage() {
@@ -93,7 +93,22 @@ export default function PecsPage() {
                                                 onClose={() => updateSentence(sentence.filter((_, idx) => idx !== i))}
                                                 variant="flat"
                                                 className={`h-16 px-8 rounded-[30px] transition-all ${isDark ? 'bg-indigo-500/20 text-indigo-200' : 'bg-indigo-50 text-indigo-900'}`}>
-                                                <span className="text-4xl mr-2 ml-2">{item.emoji}</span>
+                                                <span className="w-10 h-10 flex items-center justify-center mr-2 ml-2 overflow-hidden rounded-lg">
+                                                    <img 
+                                                        src={item.category === 'emotions' ? `/icons/emotion_${item.id}.png` : `/icons/pecs_${item.id}.png`} 
+                                                        alt="" 
+                                                        className="w-full h-full object-cover" 
+                                                        onError={(e) => { 
+                                                            if (e.target.src.includes('pecs_') || e.target.src.includes('emotion_')) {
+                                                                e.target.src = `/icons/${item.category}_cat.png`; 
+                                                            } else {
+                                                                e.target.style.display = 'none'; 
+                                                                e.target.nextSibling.style.display = 'flex'; 
+                                                            }
+                                                        }}
+                                                    />
+                                                    <span style={{ display: 'none' }} className="w-full h-full items-center justify-center text-4xl">{item.emoji}</span>
+                                                </span>
                                                 <span className="font-black text-xl">{isArabic ? item.labelAr?.split(' ').slice(-1)[0] : item.label?.split(' ').slice(-1)[0]}</span>
                                             </Chip>
                                         ))}
@@ -125,7 +140,11 @@ export default function PecsPage() {
                                     ? 'bg-indigo-500 text-white border-indigo-500 shadow-xl'
                                     : `${isDark ? 'border-white/10 text-white/50' : 'border-indigo-100 text-indigo-900/40'}`
                                 }`}
-                                startContent={<span className="text-2xl">{categoryEmojis[cat]}</span>}>
+                                startContent={
+                                    <div className="w-8 h-8 overflow-hidden flex items-center justify-center rounded-lg">
+                                        <img src={categoryIcons[cat]} alt="" className="w-full h-full object-cover" />
+                                    </div>
+                                }>
                                 {isArabic ? categoryLabelsAr[cat] : categoryLabels[cat]}
                             </Button>
                         ))}
@@ -146,10 +165,23 @@ export default function PecsPage() {
                                     animation: `fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.04}s both`
                                 }}>
                                 <CardBody className="p-7 flex flex-row items-center gap-12">
-                                    <div className={`w-24 h-24 rounded-[35px] flex items-center justify-center text-6xl shrink-0 transition-all duration-500 ${
+                                    <div className={`w-24 h-24 rounded-[35px] flex items-center justify-center text-6xl shrink-0 transition-all duration-500 overflow-hidden ${
                                         isDark ? 'bg-white/5' : 'bg-indigo-50/70'
                                     } ${hoveredItem === item.id ? 'rotate-6 scale-110' : ''}`}>
-                                        {item.emoji}
+                                        <img 
+                                            src={item.category === 'emotions' ? `/icons/emotion_${item.id}.png` : `/icons/pecs_${item.id}.png`} 
+                                            alt="" 
+                                            className="w-full h-full object-cover" 
+                                            onError={(e) => { 
+                                                if (e.target.src.includes('pecs_') || e.target.src.includes('emotion_')) {
+                                                    e.target.src = `/icons/${item.category}_cat.png`; 
+                                                } else {
+                                                    e.target.style.display = 'none'; 
+                                                    e.target.nextSibling.style.display = 'flex'; 
+                                                }
+                                            }}
+                                        />
+                                        <span style={{ display: 'none' }} className="w-full h-full items-center justify-center">{item.emoji}</span>
                                     </div>
                                     <div className="flex-1 text-left rtl:text-right">
                                         <h3 className={`text-3xl font-black tracking-tight ${isDark ? 'text-indigo-100' : 'text-indigo-920'}`}>

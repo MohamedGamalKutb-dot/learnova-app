@@ -98,6 +98,7 @@ learnova_app/
 │   ├── components/
 │   │   ├── AutismSupportBot.jsx    # شات بوت ذكي (AI + Local KB)
 │   │   ├── ClinicsMap.jsx          # خريطة مراكز التوحد (Leaflet)
+│   │   ├── MainNavbar.jsx          # شريط التنقل الرئيسي الموحد لكافة الأدوار
 │   │   ├── ProtectedRoute.jsx      # حماية الصفحات المحمية
 │   │   └── GuestRoute.jsx          # منع المسجلين من صفحات Login
 │   │
@@ -128,8 +129,10 @@ learnova_app/
 │       ├── RoutinePage.jsx        # الجدول البصري اليومي
 │       ├── CalmingPage.jsx        # منطقة الهدوء (تنفس + تأمل)
 │       ├── DashboardPage.jsx      # لوحة تحكم ولي الأمر
-│       ├── ProfilePage.jsx        # الملف الشخصي للطفل
+│       ├── ParentProfilePage.jsx  # الملف الشخصي لولي الأمر
 │       ├── DoctorPage.jsx         # بوابة الطبيب
+│       ├── DoctorProfilePage.jsx  # الملف الشخصي للطبيب
+│       ├── SettingsPage.jsx       # صفحة الإعدادات (التبديل بين اللغات والمظهر)
 │       └── NotFoundPage.jsx       # صفحة 404 المتحركة
 ```
 
@@ -190,7 +193,7 @@ learnova_app/
 - **مؤقت الجلسة** — اختيار 3/5/10/15 دقيقة مع عد تنازلي
 - **تأمل بصري** — كرات ملونة متحركة (ambient animation)
 
-### 📊 Dashboard Page (`DashboardPage.jsx`)
+### 📊 Parent Dashboard Page (`DashboardPage.jsx`)
 لوحة تحكم ولي الأمر (الأكبر والأكثر تعقيداً):
 - **بطاقة الطفل** — معلومات أساسية بتدرج لوني
 - **إحصائيات سريعة** — التفاعلات / دقة المشاعر / نسبة الروتين
@@ -212,13 +215,18 @@ learnova_app/
 3. **السلوك (Behavior)** — تسجيل 8 أنواع سلوكية مع شدة 1–5 + ملاحظات
 4. **التقارير (Reports)** — ملخص شامل للمريض + التشخيص
 
-### 👤 Profile Page (`ProfilePage.jsx`)
-الملف الشخصي للطفل:
-- تعديل الاسم / العمر / البريد
-- اختيار Avatar من 12 خيار
-- مستوى التشخيص (يحدده الطبيب فقط — read-only)
-- التفضيلات الحسية (6 خيارات قابلة للتبديل)
-- ملاحظات نصية حرة
+### 👤 Profile Pages (`ParentProfilePage.jsx`, `DoctorProfilePage.jsx`, `ProfilePage.jsx`)
+الملفات الشخصية المنفصلة (تم تحويلها من Modals إلى صفحات مستقلة لتحسين مسار التنقل):
+- تعديل بيانات الحساب الأساسية والـ Avatar.
+- واجهة موحدة ومتسقة مع نظام الـ Routing الجديد.
+- مستوى التشخيص في صفحة الطفل (يحدده الطبيب فقط — read-only).
+- التفضيلات الحسية وملاحظات نصية حرة (للطفل).
+
+### ⚙️ Settings Page (`SettingsPage.jsx`)
+صفحة إعدادات التطبيق المركزية:
+- تبديل اللغة (عربي / إنجليزي).
+- تبديل المظهر (Light / Dark Mode).
+- إزالة أزرار الإعدادات من شريط التنقل (Navbar) لتبسيط واجهة المستخدم.
 
 ### 🚫 Not Found Page (`NotFoundPage.jsx`)
 صفحة 404 متحركة ومصممة بشكل احترافي:
@@ -438,9 +446,11 @@ API: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:ge
 | `/emotions` | `EmotionsPage` | `ProtectedRoute (child)` → `/child-login` |
 | `/routine` | `RoutinePage` | `ProtectedRoute (child)` → `/child-login` |
 | `/calming` | `CalmingPage` | `ProtectedRoute (child)` → `/child-login` |
-| `/dashboard` | `DashboardPage` | `ProtectedRoute (parent)` → `/login` |
-| `/profile` | `ProfilePage` | `ProtectedRoute (parent)` → `/login` |
+| `/parent-dashboard` | `DashboardPage` | `ProtectedRoute (parent)` → `/login` |
+| `/parent-dashboard/profile` | `ParentProfilePage` | `ProtectedRoute (parent)` → `/login` |
 | `/doctor-dashboard` | `DoctorPage` | `ProtectedRoute (doctor)` → `/doctor-auth` |
+| `/doctor-dashboard/profile` | `DoctorProfilePage` | `ProtectedRoute (doctor)` → `/doctor-auth` |
+| `/settings` | `SettingsPage` | عام |
 | `*` | `NotFoundPage` | عام |
 
 ---
@@ -609,7 +619,17 @@ export default heroui();
 
 ---
 
-## 🚀 التحديثات الأخيرة | Recent Updates (April 2026)
+## 🚀 التحديثات الأخيرة | Recent Updates (May 2026)
+
+- 🧭 **نظام تنقل موحد (Unified Navigation)**: إنشاء `MainNavbar.jsx` ليعمل كشريط تنقل ذكي وموحد بين كافة الأدوار (Child, Parent, Doctor) مع إزالة النوافذ المنبثقة (Modals) من التنقل الأساسي.
+- ⚙️ **صفحة إعدادات مستقلة**: نقل خيارات تبديل اللغة والمظهر (Light/Dark Mode) إلى `SettingsPage.jsx` لتبسيط واجهة شريط التنقل وجعل تجربة المستخدم أنظف.
+- 🗂️ **إعادة هيكلة المسارات**: تغيير مسار لوحة تحكم ولي الأمر إلى `/parent-dashboard` ليتناسق منطقياً مع `/doctor-dashboard` و `/child-home`.
+- 🎨 **توحيد التصميم (Design Consistency)**: توحيد عرض القائمة الجانبية (Sidebar) وتنسيقات الألوان الخاصة بـ Profile Header بين لوحة تحكم الطبيب ولوحة تحكم ولي الأمر.
+- 👤 **صفحات شخصية مستقلة**: تحويل الملفات الشخصية (Profile) إلى صفحات مستقلة (`ParentProfilePage.jsx`, `DoctorProfilePage.jsx`) بدلاً من النوافذ المنبثقة لتحسين الـ Routing وتجربة المستخدم.
+
+---
+
+## 📅 التحديثات السابقة | Previous Updates (April 2026)
 
 - 🔒 **الاستغناء عن Firebase**: تحويل المشروع بالكامل ليعمل بنظام `Local-First` لحماية الخصوصية وتبسيط البنية.
 - 🎯 **إصلاحات الاستقرار**: حل مشكلة "الشاشة البيضاء" (White Screen) في لوحة التحكم وصفحة الاختيار عبر معالجة البيانات غير المعرّفة.

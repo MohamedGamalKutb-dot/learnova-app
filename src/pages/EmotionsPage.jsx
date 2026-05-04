@@ -41,13 +41,13 @@ export default function EmotionsPage() {
         while (pool.length < 10) {
             pool = [...pool, ...[...emotions].sort(() => Math.random() - 0.5)];
         }
-        
+
         const finalSelection = pool.slice(0, 10);
         const questions = finalSelection.map(answer => {
             const options = [answer, ...emotions.filter(e => e.id !== answer.id).sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
             return { answer, options };
         });
-        
+
         setQuizQuestions(questions); setCurrentQuestionIdx(0); setCorrectAnswers(0);
         setTotalAttempts(0); setLastAnswerCorrect(null); setSelectedOptionId(null); setQuizFinished(false); setIsQuizMode(true);
     };
@@ -55,8 +55,8 @@ export default function EmotionsPage() {
     const nextQuiz = useCallback(() => {
         if (currentQuestionIdx >= quizQuestions.length - 1) {
             setQuizFinished(true);
-        } else { 
-            setCurrentQuestionIdx(p => p + 1); 
+        } else {
+            setCurrentQuestionIdx(p => p + 1);
             setLastAnswerCorrect(null);
             setSelectedOptionId(null);
         }
@@ -66,11 +66,11 @@ export default function EmotionsPage() {
         if (lastAnswerCorrect !== null) return;
         const correct = quizQuestions[currentQuestionIdx].answer.id === optionId;
         setSelectedOptionId(optionId);
-        setLastAnswerCorrect(correct); 
-        
+        setLastAnswerCorrect(correct);
+
         const newTotal = totalAttempts + 1;
         const newCorrect = correct ? correctAnswers + 1 : correctAnswers;
-        
+
         setTotalAttempts(newTotal);
         setCorrectAnswers(newCorrect);
         trackEmotionQuiz(correct);
@@ -110,7 +110,7 @@ export default function EmotionsPage() {
 
     return (
         <div className={`min-h-screen selection:bg-indigo-500/30 transition-all duration-1000 ${isArabic ? 'font-[Cairo,sans-serif]' : 'font-[Plus_Jakarta_Sans,sans-serif]'} ${isDark ? 'bg-[#0C0D17] text-slate-200' : 'bg-[#F5F8FF] text-slate-800'} overflow-x-hidden`} dir={isArabic ? 'rtl' : 'ltr'}>
-            
+
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className={`absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full blur-[120px] transition-all duration-1000 ${isQuizMode ? 'bg-amber-500/10' : 'bg-purple-600/10'}`} />
                 <div className={`absolute top-[20%] -right-[5%] w-[40%] h-[40%] rounded-full blur-[100px] transition-all duration-1000 ${isDark ? 'bg-indigo-600/10' : 'bg-indigo-400/20'}`} />
@@ -123,7 +123,12 @@ export default function EmotionsPage() {
                         {isArabic ? '→' : '←'}
                     </Button>
                     <div className="flex flex-col">
-                        <h1 className={`text-xl font-black leading-none ${isDark ? 'text-rose-100' : 'text-rose-900'}`}>{isArabic ? 'مستكشف المشاعر' : 'Emotion Lab'}</h1>
+                        <h1 className={`text-xl font-black leading-none ${isDark ? 'text-rose-100' : 'text-rose-900'} flex items-center gap-2`}>
+                            <div className="w-8 h-8 overflow-hidden rounded-lg flex items-center justify-center">
+                                <img src="/icons/emotions.png" alt="" className="w-full h-full object-cover" />
+                            </div>
+                            {isArabic ? 'مستكشف المشاعر' : 'Emotion Lab'}
+                        </h1>
                         <span className="text-[9px] font-black tracking-widest uppercase opacity-40 mt-1">{isArabic ? 'افهم مشاعرك' : 'UNDERSTAND YOURSELF'}</span>
                     </div>
                 </div>
@@ -137,24 +142,32 @@ export default function EmotionsPage() {
                             {/* Main Result Card */}
                             <Card className={`w-full max-w-[600px] rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-2xl p-10 flex flex-col items-center ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/95 border-indigo-50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]'}`}>
                                 <CardBody className="items-center gap-6 p-0">
-                                    <div className="text-8xl animate-bounce mb-2">{accuracy >= 0.8 ? '🎉' : accuracy >= 0.5 ? '👏' : '💪'}</div>
+                                    <div className="w-32 h-32 animate-bounce mb-2 overflow-hidden flex items-center justify-center">
+                                        <img
+                                            src={`/icons/${accuracy >= 0.8 ? 'quiz_excellent.png' : accuracy >= 0.5 ? 'quiz_good.png' : 'quiz_try.png'}`}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                        />
+                                        <span style={{ display: 'none' }} className="text-8xl">{accuracy >= 0.8 ? '🎉' : accuracy >= 0.5 ? '👏' : '💪'}</span>
+                                    </div>
                                     <h2 className="text-4xl font-black text-slate-900 dark:text-white leading-tight">
                                         {accuracy >= 0.8 ? (isArabic ? 'رائع يا بطل!' : 'Amazing, Hero!') : (isArabic ? 'محاولة جيدة!' : 'Good Effort!')}
                                     </h2>
-                                    
+
                                     <div className="grid grid-cols-3 gap-4 w-full my-6">
                                         <div className={`p-4 rounded-[25px] flex flex-col items-center border ${isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-100'}`}>
-                                            <span className="text-2xl mb-1">✅</span>
+                                            <div className="w-8 h-8 mb-2"><img src="/icons/quiz_correct.png" alt="Correct" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-2xl">✅</span></div>
                                             <span className="text-2xl font-black text-emerald-500">{correctAnswers}</span>
                                             <span className="text-[9px] font-black uppercase opacity-40">{isArabic ? 'صحيح' : 'CORRECT'}</span>
                                         </div>
                                         <div className={`p-4 rounded-[25px] flex flex-col items-center border ${isDark ? 'bg-rose-500/10 border-rose-500/20' : 'bg-rose-50 border-rose-100'}`}>
-                                            <span className="text-2xl mb-1">❌</span>
+                                            <div className="w-8 h-8 mb-2"><img src="/icons/quiz_wrong.png" alt="Wrong" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-2xl">❌</span></div>
                                             <span className="text-2xl font-black text-rose-500">{totalAttempts - correctAnswers}</span>
                                             <span className="text-[9px] font-black uppercase opacity-40">{isArabic ? 'خاطئ' : 'WRONG'}</span>
                                         </div>
                                         <div className={`p-4 rounded-[25px] flex flex-col items-center border ${isDark ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'}`}>
-                                            <span className="text-2xl mb-1">📈</span>
+                                            <div className="w-8 h-8 mb-2"><img src="/icons/quiz_stats.png" alt="Stats" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-2xl">📈</span></div>
                                             <span className="text-2xl font-black text-indigo-500">{Math.round(accuracy * 100)}%</span>
                                             <span className="text-[9px] font-black uppercase opacity-40">{isArabic ? 'النسبة' : 'PERCENT'}</span>
                                         </div>
@@ -184,15 +197,21 @@ export default function EmotionsPage() {
                                     <h3 className="text-2xl font-black">{currentQuestionIdx + 1} <span className="text-indigo-500 text-sm">/ {quizQuestions.length}</span></h3>
                                 </div>
                                 <div className="flex gap-3">
-                                    <Chip variant="flat" className="h-10 px-4 bg-emerald-500/10 text-emerald-500 font-bold">✅ {correctAnswers}</Chip>
-                                    <Chip variant="flat" className="h-10 px-4 bg-rose-500/10 text-rose-500 font-bold">❌ {totalAttempts - correctAnswers}</Chip>
+                                    <Chip variant="flat" className="h-10 px-4 bg-emerald-500/10 text-emerald-500 font-bold flex items-center gap-2"><img src="/icons/quiz_correct.png" className="w-4 h-4 inline-block object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} /><span style={{ display: 'none' }}>✅</span> {correctAnswers}</Chip>
+                                    <Chip variant="flat" className="h-10 px-4 bg-rose-500/10 text-rose-500 font-bold flex items-center gap-2"><img src="/icons/quiz_wrong.png" className="w-4 h-4 inline-block object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} /><span style={{ display: 'none' }}>❌</span> {totalAttempts - correctAnswers}</Chip>
                                 </div>
                             </div>
 
                             <Card className={`rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-2xl shadow-indigo-500/5'}`}>
                                 <CardBody className="p-12 text-center flex flex-col items-center gap-6">
-                                    <div className="text-[120px] transition-all duration-500 hover:scale-110">
-                                        {quizQuestions[currentQuestionIdx].answer.emoji}
+                                    <div className="w-[200px] h-[200px] transition-all duration-500 hover:scale-110 flex items-center justify-center overflow-hidden mx-auto">
+                                        <img
+                                            src={`/icons/emotion_${quizQuestions[currentQuestionIdx].answer.id}.png`}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                        />
+                                        <span style={{ display: 'none' }} className="text-[120px]">{quizQuestions[currentQuestionIdx].answer.emoji}</span>
                                     </div>
                                     <h2 className="text-3xl font-black">{isArabic ? 'ماذا يعبر هذا الوجه؟' : 'What is this feeling?'}</h2>
                                 </CardBody>
@@ -202,7 +221,7 @@ export default function EmotionsPage() {
                                 {quizQuestions[currentQuestionIdx].options.map((option) => {
                                     const isCorrect = option.id === quizQuestions[currentQuestionIdx].answer.id;
                                     const isSelected = selectedOptionId === option.id;
-                                    
+
                                     let cardStyle = isDark ? 'bg-white/[0.02] border-white/5' : 'bg-white shadow-sm border-indigo-50';
                                     if (lastAnswerCorrect !== null) {
                                         if (isCorrect) cardStyle = 'bg-emerald-500/20 border-emerald-500/50 shadow-emerald-500/10';
@@ -211,15 +230,15 @@ export default function EmotionsPage() {
                                     }
 
                                     return (
-                                        <Card 
-                                            key={option.id + Math.random()} 
+                                        <Card
+                                            key={option.id + Math.random()}
                                             isPressable={lastAnswerCorrect === null}
                                             onPress={() => answerQuiz(option.id)}
                                             className={`rounded-[35px] border transition-all duration-500 backdrop-blur-md w-full ${cardStyle} ${lastAnswerCorrect === null ? 'hover:scale-[1.01] hover:border-indigo-500/30' : 'cursor-default'}`}>
                                             <CardBody className="p-6 flex flex-row items-center gap-8 px-12">
                                                 <span className="flex-1 text-2xl font-black text-center">{isArabic ? option.nameAr : option.name}</span>
-                                                {lastAnswerCorrect !== null && isCorrect && <span className="text-3xl absolute right-10 animate-appearance-in">✅</span>}
-                                                {lastAnswerCorrect === false && isSelected && !isCorrect && <span className="text-3xl absolute right-10 animate-appearance-in">❌</span>}
+                                                {lastAnswerCorrect !== null && isCorrect && <div className="w-8 h-8 absolute right-10 animate-appearance-in"><img src="/icons/quiz_correct.png" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-3xl">✅</span></div>}
+                                                {lastAnswerCorrect === false && isSelected && !isCorrect && <div className="w-8 h-8 absolute right-10 animate-appearance-in"><img src="/icons/quiz_wrong.png" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-3xl">❌</span></div>}
                                             </CardBody>
                                         </Card>
                                     );
@@ -238,14 +257,15 @@ export default function EmotionsPage() {
                                 {[1, 2, 3].map(level => (
                                     <Button key={level} radius="full" size="lg" onPress={() => { setCurrentLevel(level); setCurrentIndex(0); }}
                                         variant={currentLevel === level ? "solid" : "bordered"}
-                                        className={`px-10 h-14 font-black text-xs uppercase tracking-widest transition-all ${
-                                            currentLevel === level ? 'bg-rose-500 text-white shadow-xl' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`
-                                        }`}>
+                                        className={`px-10 h-14 font-black text-xs uppercase tracking-widest transition-all ${currentLevel === level ? 'bg-rose-500 text-white shadow-xl' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`
+                                            }`}>
                                         {[isArabic ? 'نجم واحد' : 'Level 1', isArabic ? 'نجمتان' : 'Level 2', isArabic ? 'ثلاثة نجوم' : 'Level 3'][level - 1]}
                                     </Button>
                                 ))}
-                                <Button radius="full" size="lg" onPress={startQuiz} className="h-14 px-10 bg-indigo-500 text-white font-black text-xs uppercase tracking-widest shadow-xl ml-auto">
-                                    🧩 {isArabic ? 'ابدأ الاختبار' : 'Start Quiz'}
+                                <Button radius="full" size="lg" onPress={startQuiz} className="h-14 px-10 bg-indigo-500 text-white font-black text-xs uppercase tracking-widest shadow-xl ml-auto flex items-center gap-2">
+                                    <div className="w-6 h-6 overflow-hidden rounded-md flex items-center justify-center">
+                                        <img src="/icons/games.png" alt="" className="w-full h-full object-cover" />
+                                    </div> {isArabic ? 'ابدأ الاختبار' : 'Start Quiz'}
                                 </Button>
                             </div>
 
@@ -253,8 +273,14 @@ export default function EmotionsPage() {
                                 <Card isPressable onPress={() => speak(isArabic ? currentEmotion.nameAr : currentEmotion.name)}
                                     className={`rounded-[60px] border transition-all duration-700 backdrop-blur-3xl p-12 overflow-hidden w-full ${isDark ? 'bg-white/[0.03] border-white/10 shadow-2xl' : 'bg-white border-indigo-100 shadow-xl'}`}>
                                     <CardBody className="items-center text-center gap-8 relative z-10">
-                                        <div className="text-[180px] animate-float transition-all duration-700 group-hover:scale-110">
-                                            {currentEmotion.emoji}
+                                        <div className="w-[300px] h-[300px] text-[180px] animate-float transition-all duration-700 group-hover:scale-110 overflow-hidden flex items-center justify-center">
+                                            <img
+                                                src={`/icons/emotion_${currentEmotion.id}.png`}
+                                                alt=""
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                            />
+                                            <span style={{ display: 'none' }} className="w-full h-full items-center justify-center">{currentEmotion.emoji}</span>
                                         </div>
                                         <div className="space-y-4">
                                             <h2 className="text-6xl font-black tracking-tighter">{isArabic ? currentEmotion.nameAr : currentEmotion.name}</h2>

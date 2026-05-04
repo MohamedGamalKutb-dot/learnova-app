@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Button, Input, Card, CardBody } from '@heroui/react';
+import { Button, Input, Card, CardBody, Divider } from '@heroui/react';
+import GoogleAuthButton from '../components/GoogleAuthButton';
+import { getAuthData } from '../data/authData';
 
 export default function SignupPage() {
     const navigate = useNavigate();
@@ -25,14 +27,8 @@ export default function SignupPage() {
         let score = 0;
         if (p.length >= 6) score++; if (p.length >= 8) score++;
         if (/[A-Z]/.test(p)) score++; if (/[0-9]/.test(p)) score++; if (/[^A-Za-z0-9]/.test(p)) score++;
-        const levels = [
-            { label: isArabic ? 'ضعيفة جداً' : 'Very Weak', color: '#EF4444' },
-            { label: isArabic ? 'ضعيفة' : 'Weak', color: '#EF4444' },
-            { label: isArabic ? 'متوسطة' : 'Fair', color: '#F59E0B' },
-            { label: isArabic ? 'جيدة' : 'Good', color: '#10B981' },
-            { label: isArabic ? 'قوية' : 'Strong', color: '#10B981' },
-        ];
-        return { level: score, ...levels[Math.min(score, 4)] };
+        const { passwordLevels } = getAuthData(isArabic);
+        return { level: score, ...passwordLevels[Math.min(score, 4)] };
     };
 
     const validateStep = () => {
@@ -58,8 +54,7 @@ export default function SignupPage() {
         else { if (result.error === 'email_exists') setError(isArabic ? 'هذا الإيميل مسجل بالفعل' : 'Email already exists'); else if (result.error === 'child_not_found') setError(isArabic ? 'كود الطفل غير موجود' : 'Child code not found'); }
     };
 
-    const stepLabels = isArabic ? ['كود الطفل', 'الاسم', 'البريد', 'كلمة المرور', 'الهاتف', 'مراجعة'] : ['Child Code', 'Name', 'Email', 'Password', 'Phone', 'Review'];
-    const stepIcons = ['🔗', '👤', '📧', '🔒', '📱', '✅'];
+    const { parentStepLabels: stepLabels, parentStepIcons: stepIcons } = getAuthData(isArabic);
     const strength = passwordStrength();
 
     const inputWrapperCls = `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
@@ -68,7 +63,7 @@ export default function SignupPage() {
         if (isSuccess) {
             return (
                 <div className="text-center py-10" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
-                    <div className="text-[72px] mb-4">🎉</div>
+                    <div className="w-24 h-24 mb-4 mx-auto overflow-hidden"><img src="/icons/rewards.png" className="w-full h-full object-contain" /></div>
                     <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-text-dark' : 'text-text'}`}>
                         {isArabic ? 'تم إنشاء الحساب بنجاح!' : 'Account Created Successfully!'}
                     </h2>
@@ -76,8 +71,9 @@ export default function SignupPage() {
                         {isArabic ? 'تم تسجيل حسابك بنجاح في LearnNeur. يرجى تسجيل الدخول للوصول إلى لوحة التحكم.' : 'Your account has been successfully registered. Please log in to access your dashboard.'}
                     </p>
                     <Button fullWidth radius="lg" className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-base py-4 shadow-[0_4px_16px_rgba(16,185,129,0.35)]"
-                        onPress={() => navigate('/login')}>
-                        🚀 {isArabic ? 'سجل دخولك الآن' : 'Log In Now'}
+                        onPress={() => navigate('/login')}
+                        startContent={<div className="w-6 h-6 overflow-hidden"><img src="/icons/quiz_excellent.png" className="w-full h-full object-contain" /></div>}>
+                        {isArabic ? 'سجل دخولك الآن' : 'Log In Now'}
                     </Button>
                 </div>
             );
@@ -168,18 +164,18 @@ export default function SignupPage() {
         <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
             {/* Left: Branding */}
             <div className="flex-[0_0_45%] hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent3 to-[#44B09E] to-[#3A9D8F] p-10 relative overflow-hidden">
-                <div className="absolute top-[10%] left-[10%] text-5xl opacity-15" style={{ animation: 'float 6s ease-in-out infinite' }}>👨‍👩‍👧</div>
-                <div className="absolute bottom-[15%] right-[10%] text-[40px] opacity-[0.12]" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>📊</div>
-                <div className="absolute top-[60%] left-[5%] text-[35px] opacity-10" style={{ animation: 'float 8s ease-in-out infinite 2s' }}>💚</div>
-                <div className="text-[80px] mb-5 z-[1]">👨‍👩‍👧</div>
+                <div className="absolute top-[10%] left-[10%] w-20 h-20 opacity-15 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}><img src="/icons/parent_icon.png" className="w-full h-full object-cover" /></div>
+                <div className="absolute bottom-[15%] right-[10%] w-16 h-16 opacity-[0.12] overflow-hidden" style={{ animation: 'float 7s ease-in-out infinite 1s' }}><img src="/icons/quiz_stats.png" className="w-full h-full object-cover" /></div>
+                <div className="absolute top-[60%] left-[5%] w-16 h-16 opacity-10 overflow-hidden" style={{ animation: 'float 8s ease-in-out infinite 2s' }}><img src="/icons/emotion_emo_love.png" className="w-full h-full object-cover" /></div>
+                <div className="w-32 h-32 mb-5 z-[1] overflow-hidden rounded-3xl shadow-2xl"><img src="/icons/parent_icon.png" className="w-full h-full object-cover" /></div>
                 <h2 className="text-white text-3xl font-extrabold text-center z-[1] mb-2.5">{isArabic ? 'إنشاء حساب ولي الأمر' : 'Create Parent Account'}</h2>
                 <p className="text-white/85 text-[15px] text-center z-[1] max-w-[320px] leading-relaxed">{isArabic ? 'اربط حسابك بطفلك وابدأ متابعة تقدمه اليومي' : 'Link your account to your child and start tracking daily progress'}</p>
                 <div className="mt-10 z-[1] flex flex-col gap-2">
                     {stepLabels.map((label, i) => (
                         <div key={i} className="flex items-center gap-2.5 transition-opacity duration-300" style={{ opacity: i <= step ? 1 : 0.4 }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold backdrop-blur-sm"
-                                style={{ background: i < step ? 'rgba(255,255,255,0.3)' : i === step ? '#fff' : 'rgba(255,255,255,0.1)', color: i === step ? accent : '#fff' }}>
-                                {i < step ? '✓' : stepIcons[i]}
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden border border-white/20 backdrop-blur-sm"
+                                style={{ background: i < step ? 'rgba(255,255,255,0.3)' : i === step ? '#fff' : 'rgba(255,255,255,0.1)' }}>
+                                {i < step ? <span className="text-emerald-600 font-bold">✓</span> : <img src={stepIcons[i]} className="w-4 h-4 object-contain" />}
                             </div>
                             <span className={`text-white text-[13px] ${i === step ? 'font-bold' : ''}`}>{label}</span>
                         </div>
@@ -224,6 +220,19 @@ export default function SignupPage() {
 
                     {!isSuccess && (
                         <>
+                            <div className="flex items-center gap-3 my-5">
+                                <Divider className="flex-1" />
+                                <span className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'أو' : 'OR'}</span>
+                                <Divider className="flex-1" />
+                            </div>
+
+                            <GoogleAuthButton 
+                                role="parent" 
+                                mode="signup" 
+                                onSuccess={() => setIsSuccess(true)} 
+                                text={isArabic ? 'التسجيل بجوجل' : 'Sign up with Google'}
+                            />
+
                             <div className="text-center mt-5">
                                 <span className={`text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'عندك حساب؟ ' : 'Already have an account? '}</span>
                                 <Button variant="light" size="sm" className="text-accent3 font-bold text-[13px] p-0 min-w-0 h-auto"

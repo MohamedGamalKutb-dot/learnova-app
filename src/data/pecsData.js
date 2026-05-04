@@ -1,8 +1,8 @@
 export const categories = ['food', 'emotions', 'places', 'activities', 'body', 'clothes'];
 
-export const categoryEmojis = {
-    food: '🍎', emotions: '😊', places: '🏠',
-    activities: '🎨', body: '🖐️', clothes: '👕',
+export const categoryIcons = {
+    food: '/icons/food_cat.png', emotions: '/icons/feelings_cat.png', places: '/icons/places_cat.png',
+    activities: '/icons/activities_cat.png', body: '/icons/body_cat.png', clothes: '/icons/clothes_cat.png',
 };
 
 export const categoryLabels = {

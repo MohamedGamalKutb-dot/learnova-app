@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { defaultRoutine, timeOfDayLabels, timeOfDayLabelsAr, availableEmojis } from '../data/routineData';
+import { defaultRoutine, timeOfDayLabels, timeOfDayLabelsAr, availableIcons } from '../data/routineData';
 import { Button, Card, CardBody, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Input } from '@heroui/react';
 
 export default function RoutinePage() {
@@ -20,7 +20,7 @@ export default function RoutinePage() {
     });
     const [selectedTime, setSelectedTime] = useState('morning');
     const [showAddModal, setShowAddModal] = useState(false);
-    const [newItem, setNewItem] = useState({ title: '', titleAr: '', emoji: '🎯', timeOfDay: 'morning', startTime: '' });
+    const [newItem, setNewItem] = useState({ title: '', titleAr: '', iconId: 'routine_wake_up', timeOfDay: 'morning', startTime: '' });
     const [hoveredItem, setHoveredItem] = useState(null);
 
     const filteredItems = items.filter(i => i.timeOfDay === selectedTime);
@@ -69,7 +69,7 @@ export default function RoutinePage() {
         }
 
         setShowAddModal(false);
-        setNewItem({ title: '', titleAr: '', emoji: '🎯', timeOfDay: 'morning', startTime: '' });
+        setNewItem({ title: '', titleAr: '', iconId: 'routine_wake_up', timeOfDay: 'morning', startTime: '' });
     };
 
     const historyEntries = Object.entries(currentChild?.routineHistory || {}).sort((a, b) => new Date(b[0]) - new Date(a[0])).slice(0, 5);
@@ -92,15 +92,17 @@ export default function RoutinePage() {
                         {isArabic ? '→' : '←'}
                     </Button>
                     <div className="flex flex-col">
-                        <h1 className={`text-xl font-black transition-all duration-1000 leading-none ${isDark ? 'text-emerald-100' : 'text-emerald-900'}`}>{isArabic ? 'الروتين اليومي' : 'Daily Routine'}</h1>
+                        <h1 className={`text-xl font-black transition-all duration-1000 leading-none ${isDark ? 'text-emerald-100' : 'text-emerald-900'} flex items-center gap-2`}>
+                            <div className="w-8 h-8 overflow-hidden rounded-lg flex items-center justify-center">
+                                <img src="/icons/routine.png" alt="" className="w-full h-full object-cover" />
+                            </div>
+                            {isArabic ? 'الروتين اليومي' : 'Daily Routine'}
+                        </h1>
                         <span className="text-[9px] font-black tracking-widest uppercase opacity-40 mt-1">{isArabic ? 'يومي السعيد' : 'MY HAPPY DAY'}</span>
                     </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                    <Button isIconOnly size="sm" variant="flat" color="danger" radius="full" className="px-5 font-black text-[10px]" onPress={resetDay}>
-                        {isArabic ? 'إعادة' : 'RESET'}
-                    </Button>
                 </div>
             </nav>
 
@@ -164,10 +166,20 @@ export default function RoutinePage() {
                                 animation: `fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.05}s both`
                             }}>
                             <CardBody className="p-6 flex flex-row items-center gap-8">
-                                <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center text-4xl shrink-0 transition-all duration-500 ${
+                                <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center text-4xl shrink-0 transition-all duration-500 overflow-hidden ${
                                     item.isCompleted ? 'bg-emerald-500 text-white rotate-12 scale-110' : (isDark ? 'bg-white/5' : 'bg-indigo-50/50')
                                 }`}>
-                                    {item.isCompleted ? '✅' : item.emoji}
+                                    {item.isCompleted ? <img src="/icons/quiz_correct.png" alt="" className="w-10 h-10 object-contain" /> : (
+                                        <>
+                                            <img 
+                                                src={`/icons/${item.id.includes('custom_') ? item.iconId : `routine_${item.id}`}.png`} 
+                                                alt="" 
+                                                className="w-full h-full object-cover" 
+                                                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                            />
+                                            <span style={{ display: 'none' }} className="w-full h-full items-center justify-center">{item.emoji}</span>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="flex-1 text-left rtl:text-right">
                                     <div className={`text-2xl font-black tracking-tight transition-all ${item.isCompleted ? 'opacity-40 line-through' : ''}`}>
@@ -212,15 +224,6 @@ export default function RoutinePage() {
                 )}
             </main>
 
-            {/* FLOATING ACTION BUTTON */}
-            <Button 
-                isIconOnly 
-                radius="full" 
-                size="lg" 
-                onPress={() => setShowAddModal(true)}
-                className="fixed z-50 bottom-10 right-10 w-20 h-20 bg-gradient-to-br from-emerald-400 to-indigo-600 text-white text-4xl shadow-2xl shadow-indigo-500/40 flex items-center justify-center transition-all duration-500 hover:scale-110 hover:rotate-90">
-                +
-            </Button>
 
             {/* ADD ACTIVITY MODAL */}
             <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} size="md" backdrop="blur" 
@@ -232,16 +235,22 @@ export default function RoutinePage() {
                     {(onClose) => (
                         <>
                             <ModalHeader className={`flex flex-col gap-1 text-center justify-center w-full mt-6 font-black text-xl ${isDark ? 'text-emerald-100' : 'text-emerald-900'}`}>
-                                {isArabic ? '➕ نشاط جديد' : '➕ New Activity'}
+                                {isArabic ? 'نشاط جديد' : 'New Activity'}
                             </ModalHeader>
                             <ModalBody className="pb-8 pt-4 px-8 space-y-6">
                                 <div>
                                     <p className={`text-[10px] font-black uppercase tracking-widest opacity-40 mb-3 ml-2`}>{isArabic ? 'اختر رمز' : 'CHOOSE ICON'}</p>
                                     <div className="flex flex-wrap gap-2">
-                                        {availableEmojis.map(em => (
-                                            <Button key={em} isIconOnly radius="xl" variant={newItem.emoji === em ? "flat" : "bordered"} onPress={() => setNewItem(p => ({ ...p, emoji: em }))}
-                                                className={`text-2xl h-12 w-12 transition-all ${newItem.emoji === em ? 'scale-110 bg-emerald-500/20 border-emerald-500' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`}`}>
-                                                {em}
+                                        {availableIcons.map(iconObj => (
+                                            <Button key={iconObj.id} isIconOnly radius="xl" variant={newItem.iconId === iconObj.id ? "flat" : "bordered"} onPress={() => setNewItem(p => ({ ...p, iconId: iconObj.id, emoji: iconObj.emoji }))}
+                                                className={`h-12 w-12 p-1 overflow-hidden transition-all ${newItem.iconId === iconObj.id ? 'scale-110 bg-emerald-500/20 border-emerald-500' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`}`}>
+                                                <img 
+                                                    src={`/icons/${iconObj.id}.png`} 
+                                                    alt="" 
+                                                    className="w-full h-full object-cover" 
+                                                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                                />
+                                                <span style={{ display: 'none' }} className="text-xl">{iconObj.emoji}</span>
                                             </Button>
                                         ))}
                                     </div>

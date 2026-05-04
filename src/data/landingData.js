@@ -1,0 +1,100 @@
+export const getLandingData = (isArabic, navigate) => {
+    const T = {
+        heroPill: isArabic ? 'منصة متخصصة في طيف التوحد' : 'Specialized Autism Support Platform',
+        heroH1a: isArabic ? 'رحلة التعلم تبدأ' : "Every child's journey",
+        heroH1b: isArabic ? 'من ' : 'starts with ',
+        heroSub: isArabic
+            ? 'منصة رقمية شاملة تربط بين الطفل وولي الأمر والطبيب لدعم أطفال طيف التوحد بأدوات علمية وتقنية متكاملة.'
+            : 'A comprehensive digital platform connecting children, parents, and medical specialists to support families navigating autism spectrum disorder — with science-backed tools, real-time tracking, and compassionate care.',
+        heroBtn1: isArabic ? 'ابدأ الآن ←' : 'Get Started →',
+        heroBtn2: isArabic ? 'اعرف أكثر عن التوحد' : 'Learn About Autism',
+        hc1t: isArabic ? 'لوحة الطفل' : 'Child Dashboard', hc1s: isArabic ? 'ألعاب تعليمية تفاعلية' : 'Interactive learning games',
+        hc2t: isArabic ? 'بوابة ولي الأمر' : 'Parent Dashboard', hc2s: isArabic ? 'تتبع التقدم والإحصائيات' : 'Progress tracking & insights',
+        hc3t: isArabic ? 'لوحة الطبيب' : 'Doctor Console', hc3s: isArabic ? 'التقارير الطبية والإدارة' : 'Clinical reports & management',
+        ltag: isArabic ? 'تسجيل الدخول' : 'Log In',
+        lh2: isArabic ? 'من أنت في منظومة LearnNeur؟' : 'Who are you in LearnNeur?',
+        lsub: isArabic ? 'اختر نوع حسابك للوصول إلى لوحة التحكم المخصصة لك' : 'Choose your account type to access your personalised dashboard',
+        lc1h: isArabic ? 'الطفل' : 'Child',
+        lc1p: isArabic ? 'ادخل إلى عالمك الممتع! ألعاب تعليمية وتحديات ونشاطات مصممة خصيصاً لك.' : 'Enter your fun world! Educational games, challenges and activities designed especially for you.',
+        lc1btn: isArabic ? 'دخول كطفل' : 'Login as Child',
+        lc2h: isArabic ? 'ولي الأمر' : 'Parent / Guardian',
+        lc2p: isArabic ? 'تابع تقدم طفلك، تواصل مع الطبيب، واطّلع على أحدث التقارير والنصائح.' : "Track your child's progress, communicate with the specialist, and access the latest reports and tips.",
+        lc2btn: isArabic ? 'دخول كولي أمر' : 'Parent Dashboard',
+        lc3h: isArabic ? 'الطبيب / المختص' : 'Doctor / Specialist',
+        lc3p: isArabic ? 'إدارة الحالات، متابعة التقدم العلاجي، وإصدار التقارير التفصيلية.' : 'Manage cases, monitor therapeutic progress and generate detailed clinical reports.',
+        lc3btn: isArabic ? 'دخول كطبيب' : 'Login as Doctor',
+        aitag: isArabic ? 'دليل المعرفة' : 'Knowledge Guide',
+        aih2: isArabic ? 'ما هو اضطراب طيف التوحد؟' : 'What is Autism Spectrum Disorder?',
+        aiTitle: isArabic ? 'فهم التوحد' : 'Understanding Autism',
+        aip1: isArabic ? 'اضطراب طيف التوحد (ASD) هو حالة عصبية تؤثر على التواصل والتفاعل الاجتماعي وأنماط السلوك. يُسمى "طيفاً" لأن كل طفل مصاب به فريد ومختلف.' : 'Autism Spectrum Disorder (ASD) is a neurodevelopmental condition affecting communication, social interaction, and behaviour patterns. It\'s called a "spectrum" because it encompasses a wide range of characteristics — every autistic person is unique.',
+        aip2: isArabic ? 'يُشخَّص التوحد عادةً في السنوات الأولى. التدخل المبكر والدعم المناسب يحدثان فرقاً هائلاً في حياة الطفل.' : 'ASD is typically diagnosed in the early years of life. Early intervention and the right support can make an enormous difference to a child\'s development and future independence.',
+        stats: [
+            { n: '1:36', l: isArabic ? 'طفل مشخص بالتوحد عالمياً' : 'Children diagnosed with ASD worldwide' },
+            { n: '4×', l: isArabic ? 'أكثر شيوعاً لدى الذكور' : 'More common in males than females' },
+            { n: 'Age 3', l: isArabic ? 'أنسب سن للتشخيص المبكر' : 'Ideal window for early diagnosis' },
+            { n: '80%', l: isArabic ? 'تحسن مع التدخل المبكر' : 'Improvement with early intervention' },
+        ],
+        types: [
+            { h: isArabic ? 'متلازمة أسبرجر' : 'Asperger Syndrome', p: isArabic ? 'ذكاء عالٍ وقدرات لغوية جيدة مع صعوبات في التفاعل الاجتماعي.' : 'High intelligence and good language skills with social interaction difficulties. Often diagnosed later.', dot: '#2563EB' },
+            { h: isArabic ? 'التوحد الكلاسيكي' : "Classic Autism (Kanner's)", p: isArabic ? 'تأخر في اللغة والتواصل مع سلوكيات متكررة.' : 'Language and communication delays with repetitive behaviours. Ranges from mild to severe.', dot: '#06B6D4' },
+            { h: isArabic ? 'اضطراب النمو الشامل' : 'Pervasive Developmental Disorder', p: isArabic ? 'نمط أوسع يشمل أعراضاً متنوعة دون تصنيف محدد.' : "A broader pattern including varied symptoms that don't fit neatly into other categories.", dot: '#8B5CF6' },
+            { h: isArabic ? 'متلازمة ريت' : 'Rett Syndrome', p: isArabic ? 'نادرة وتصيب الإناث غالباً، تتميز بفقدان المهارات الحركية تدريجياً.' : 'Rare; predominantly affects females. Characterised by gradual loss of motor and hand skills.', dot: '#10B981' },
+            { h: isArabic ? 'اضطراب الطفولة التفككي' : 'Childhood Disintegrative Disorder', p: isArabic ? 'فقدان مفاجئ للمهارات اللغوية والاجتماعية بعد نمو طبيعي مبكر.' : 'Sudden loss of language and social skills after a period of normal early development.', dot: '#F59E0B' },
+        ],
+        titag: isArabic ? 'دليل الأهل' : "Parent's Guide",
+        tih2: isArabic ? 'كيف نتعامل مع طفل التوحد؟' : 'How to Support a Child with Autism',
+        tisub: isArabic ? 'نصائح عملية مبنية على أحدث الأبحاث لدعم طفلك في رحلته' : 'Evidence-based tips to help your child thrive every day',
+        tips: [
+            { h: isArabic ? 'الروتين الثابت' : 'Consistent Routines', p: isArabic ? 'الأطفال المصابون بالتوحد يحتاجون إلى جداول يومية واضحة. استخدم الجداول البصرية.' : 'Children with autism thrive on predictable daily schedules. Use visual timetables and picture cards to clarify daily activities.' },
+            { h: isArabic ? 'التواصل البصري' : 'Visual Communication', p: isArabic ? 'استخدم الصور والرموز والبطاقات. تطبيقات AAC يمكنها أن تكون أداة ذهبية.' : 'Use images, symbols and communication cards to ease interaction. AAC apps can be transformative tools for non-verbal children.' },
+            { h: isArabic ? 'التعزيز الإيجابي' : 'Positive Reinforcement', p: isArabic ? 'كافئ السلوكيات الجيدة فوراً. استخدم مبادئ التحليل السلوكي التطبيقي ABA.' : 'Reward desirable behaviours immediately in a way your child loves. ABA principles can effectively guide your approach.' },
+            { h: isArabic ? 'تقليل الحمل الحسي' : 'Sensory-Friendly Environment', p: isArabic ? 'لاحظ ما يُثير الطفل حسياً واخلق بيئة مريحة تحترم حساسيته.' : "Identify sensory triggers — sounds, lights, textures — and create a comfortable space that respects your child's sensitivities." },
+            { h: isArabic ? 'التدخل المبكر' : 'Early Intervention', p: isArabic ? 'كلما بدأ التدخل مبكراً كلما كانت النتائج أفضل. لا تتردد في طلب التقييم.' : 'The earlier support begins, the better the outcomes. Seek professional assessment at any early warning sign.' },
+            { h: isArabic ? 'اعتنِ بنفسك' : 'Take Care of Yourself', p: isArabic ? 'صحة الوالدين النفسية أساس لدعم الطفل. انضم لمجموعات الدعم ولا تتردد.' : "A parent's mental health is the foundation for supporting their child. Join support groups and ask for help freely." },
+        ],
+        tltag: isArabic ? 'أدوات المنصة' : 'Platform Features',
+        tlh2: isArabic ? 'كل ما تحتاجه في مكان واحد' : 'Everything you need, in one place',
+        tlsub: isArabic ? 'أدوات متكاملة مصممة لكل طرف في رحلة التوحد' : 'Integrated tools designed for every stakeholder in the autism journey',
+        tools: [
+            { icon: '/icons/games.png', h: isArabic ? 'ألعاب تعليمية تفاعلية' : 'Interactive Learning Games', p: isArabic ? 'أنشطة وألعاب مصممة بأساليب ABA وDIR/Floortime لتطوير مهارات الطفل.' : "Activities designed using ABA and DIR/Floortime methods to develop your child's skills enjoyably.", badge: isArabic ? 'للأطفال' : 'For Children' },
+            { icon: '/icons/quiz_stats.png', h: isArabic ? 'لوحة تتبع التقدم' : 'Progress Tracking Dashboard', p: isArabic ? 'رسوم بيانية واضحة تُظهر مسيرة تطور الطفل في جميع مجالات النمو.' : "Clear charts showing your child's developmental journey over time across all growth domains.", badge: isArabic ? 'للآباء والأطباء' : 'Parents & Doctors' },
+            { icon: '/icons/pecs.png', h: isArabic ? 'نظام التواصل المعزز' : 'Augmentative Communication', p: isArabic ? 'مكتبة غنية من البطاقات المصورة وأدوات AAC لدعم التواصل اللفظي وغير اللفظي.' : 'Rich library of picture cards and AAC tools to support verbal and non-verbal communication.', badge: isArabic ? 'أدوات AAC' : 'AAC Tools' },
+            { icon: '/icons/routine.png', h: isArabic ? 'الجدول البصري اليومي' : 'Visual Daily Schedule', p: isArabic ? 'أداة لبناء روتين يومي مرئي يساعد الطفل على التكيف والشعور بالأمان.' : 'Build a clear visual routine that helps your child adapt and manage daily transitions with ease.', badge: isArabic ? 'للأطفال' : 'For Children' },
+            { icon: '/icons/doctor_consultation.png', h: isArabic ? 'استشارة الطبيب أونلاين' : 'Online Specialist Consultation', p: isArabic ? 'جلسات استشارية افتراضية مع أفضل متخصصي التوحد من منزلك.' : 'Virtual sessions with leading autism specialists — from the comfort of your home.', badge: isArabic ? 'للآباء' : 'For Parents' },
+            { icon: '/icons/resource_library.png', h: isArabic ? 'مكتبة الموارد' : 'Resource Library', p: isArabic ? 'مئات المقالات والدراسات المحدثة باستمرار عن التوحد وأساليب التدخل.' : 'Hundreds of articles, videos and research papers on autism and intervention strategies, updated continuously.', badge: isArabic ? 'للجميع' : 'For Everyone' },
+        ],
+        ctah2: isArabic ? 'مستعد تبدأ الرحلة؟' : 'Ready to start the journey?',
+        ctap: isArabic ? 'انضم لآلاف الأسر التي تستخدم LearnNeur لدعم أطفالها كل يوم.' : 'Join thousands of families already using LearnNeur to support their children every day.',
+        ctabtn: isArabic ? 'أنشئ حسابك المجاني ←' : 'Create your free account →',
+        footdesc: isArabic ? 'منصة رقمية متكاملة تدعم أطفال طيف التوحد وأسرهم بأحدث الأدوات العلمية والتكنولوجية.' : 'A comprehensive digital platform supporting autism spectrum children and their families with the latest scientific and technological tools.',
+        fc1h: isArabic ? 'المنصة' : 'Platform',
+        fc1: [isArabic ? 'الرئيسية' : 'Home', isArabic ? 'عن التوحد' : 'About Autism', isArabic ? 'الأدوات' : 'Tools', isArabic ? 'الأسعار' : 'Pricing'],
+        fc2h: isArabic ? 'الحسابات' : 'Accounts',
+        fc2: [
+            { t: isArabic ? 'دخول الطفل' : 'Child Login', p: '/child-login' },
+            { t: isArabic ? 'دخول ولي الأمر' : 'Parent Login', p: '/login' },
+            { t: isArabic ? 'دخول الطبيب' : 'Doctor Login', p: '/doctor-auth' },
+            { t: isArabic ? 'إنشاء حساب' : 'Create Account', p: '/choice' },
+        ],
+        fc3h: isArabic ? 'تواصل' : 'Contact',
+        fc3: [isArabic ? 'سياسة الخصوصية' : 'Privacy Policy', isArabic ? 'شروط الاستخدام' : 'Terms of Use', isArabic ? 'الدعم الفني' : 'Support'],
+        footcopy: isArabic ? '© 2025 LearnNeur. جميع الحقوق محفوظة.' : '© 2025 LearnNeur. All rights reserved.',
+        nl: [isArabic ? 'الرئيسية' : 'Home', isArabic ? 'عن التوحد' : 'About Autism', isArabic ? 'تسجيل الدخول' : 'Log In', isArabic ? 'الأدوات' : 'Tools', isArabic ? 'تواصل' : 'Contact'],
+        langBtn: isArabic ? 'English' : 'عربي',
+        regBtn: isArabic ? 'سجّل الآن' : 'Register Now',
+    };
+
+    const navIds = ['hero', 'about', 'login', 'tools', 'footer'];
+    const loginCards = [
+        { icon: '/icons/child.png', h: T.lc1h, p: T.lc1p, btn: T.lc1btn, topC: 'from-p500 to-a500', iconBg: 'bg-gradient-to-br from-p100 to-p200', btnBg: 'bg-gradient-to-br from-p500 to-a500', path: '/child-login' },
+        { icon: '/icons/parent_icon.png', h: T.lc2h, p: T.lc2p, btn: T.lc2btn, topC: 'from-emerald-500 to-p500', iconBg: 'bg-gradient-to-br from-emerald-100 to-emerald-200', btnBg: 'bg-gradient-to-br from-emerald-500 to-emerald-600', path: '/login' },
+        { icon: '/icons/doctor_icon.png', h: T.lc3h, p: T.lc3p, btn: T.lc3btn, topC: 'from-violet-500 to-p500', iconBg: 'bg-gradient-to-br from-violet-100 to-violet-200', btnBg: 'bg-gradient-to-br from-violet-500 to-violet-600', path: '/doctor-auth' },
+    ];
+    const heroCards = [
+        { icon: '/icons/child.png', bg: 'bg-gradient-to-br from-p100 to-p200', t: T.hc1t, s: T.hc1s, cls: 'hcard-1' },
+        { icon: '/icons/parent_icon.png', bg: 'bg-gradient-to-br from-cyan-100 to-cyan-200', t: T.hc2t, s: T.hc2s, cls: 'hcard-2' },
+        { icon: '/icons/doctor_icon.png', bg: 'bg-gradient-to-br from-emerald-100 to-emerald-200', t: T.hc3t, s: T.hc3s, cls: 'hcard-3' },
+    ];
+
+    return { T, navIds, loginCards, heroCards };
+};

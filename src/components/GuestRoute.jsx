@@ -18,7 +18,7 @@ export default function GuestRoute({ role, children }) {
             if (currentChild) return <Navigate to="/child-home" replace />;
             break;
         case 'parent':
-            if (currentParent) return <Navigate to="/dashboard" replace />;
+            if (currentParent) return <Navigate to="/parent-dashboard" replace />;
             break;
         case 'doctor':
             if (currentDoctor) return <Navigate to="/doctor-dashboard" replace />;
@@ -26,7 +26,7 @@ export default function GuestRoute({ role, children }) {
         default:
             // لو أي حد مسجل دخول، وجهه للصفحة المناسبة
             if (currentChild) return <Navigate to="/child-home" replace />;
-            if (currentParent) return <Navigate to="/dashboard" replace />;
+            if (currentParent) return <Navigate to="/parent-dashboard" replace />;
             if (currentDoctor) return <Navigate to="/doctor-dashboard" replace />;
             break;
     }

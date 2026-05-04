@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Button, Card, CardBody, Input, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, Textarea } from '@heroui/react';
+import { getProfileData } from '../data/profileData';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -66,14 +67,7 @@ export default function ProfilePage() {
         navigate('/');
     };
 
-    const sensoryOptions = [
-        { key: 'light_sensitive', label: isArabic ? 'حساسية للضوء' : 'Light Sensitive', emoji: '💡' },
-        { key: 'sound_sensitive', label: isArabic ? 'حساسية للصوت' : 'Sound Sensitive', emoji: '🔊' },
-        { key: 'touch_sensitive', label: isArabic ? 'حساسية للمس' : 'Touch Sensitive', emoji: '✋' },
-        { key: 'visual_stimming', label: isArabic ? 'تحفيز بصري' : 'Visual Stimming', emoji: '👀' },
-        { key: 'movement_seeking', label: isArabic ? 'يحب الحركة' : 'Movement Seeking', emoji: '🏃' },
-        { key: 'calm_environment', label: isArabic ? 'يحب الهدوء' : 'Prefers Calm', emoji: '🧘' },
-    ];
+    const { sensoryOptions, avatarOptions } = getProfileData(isArabic);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -118,9 +112,6 @@ export default function ProfilePage() {
                 </div>
                 
                 <div className="flex items-center gap-4">
-                    <Button size="sm" variant="flat" color="danger" radius="full" className="px-5 font-black text-[10px] tracking-widest shadow-lg shadow-red-500/10" onPress={handleLogout}>
-                        {isArabic ? 'خروج' : 'EXIT'}
-                    </Button>
                 </div>
             </nav>
 
@@ -132,7 +123,21 @@ export default function ProfilePage() {
                         <div onClick={() => userRole === 'child' && setShowAvatarPicker(true)}
                             className={`w-32 h-32 rounded-[40px] mx-auto mb-6 flex items-center justify-center text-6xl cursor-pointer relative z-[1] border-[4px] transition-transform duration-500 hover:scale-110 overflow-hidden shadow-2xl ${isDark ? 'bg-[#0C0D17]/80 border-white/10' : 'bg-white border-indigo-100'}`}
                             style={{ boxShadow: isDark ? '0 10px 40px rgba(99, 102, 241, 0.2)' : '0 10px 40px rgba(99, 102, 241, 0.1)' }}>
-                            {renderAvatar(activeUser.avatar)}
+                            {activeUser.avatar && (activeUser.avatar.startsWith('data:image') || activeUser.avatar.startsWith('http')) ? (
+                                <img src={activeUser.avatar} className="w-full h-full object-cover" alt="Avatar" />
+                            ) : activeUser.avatar && activeUser.avatar.length <= 2 ? (
+                                <div className="w-full h-full flex items-center justify-center bg-indigo-50/10">
+                                    {activeUser.avatar}
+                                </div>
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <img 
+                                        src="/icons/profile.png" 
+                                        alt="Avatar" 
+                                        className="w-full h-full object-cover" 
+                                    />
+                                </div>
+                            )}
                         </div>
                         <h2 className={`text-3xl font-black mb-2 tracking-tighter ${isDark ? 'text-white' : 'text-indigo-900'}`}>{activeUser.name}</h2>
                         {userRole === 'child' && (
@@ -161,7 +166,15 @@ export default function ProfilePage() {
                                 { key: 'gender', label: isArabic ? 'الجنس' : 'Gender', value: activeUser.gender === 'Male' ? (isArabic ? 'ذكر' : 'Male') : (isArabic ? 'أنثى' : 'Female'), emoji: activeUser.gender === 'Male' ? '👦' : '👧', editable: false, show: userRole === 'child' },
                             ].filter(f => f.show).map(field => (
                                 <div key={field.key} className={`flex items-start gap-4 group py-4 border-b last:border-0 ${isDark ? 'border-white/5' : 'border-indigo-50'}`}>
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 transition-all duration-500 ${isDark ? 'bg-white/5 border border-white/10' : 'bg-indigo-50 border border-indigo-100'}`}>{field.emoji}</div>
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 transition-all duration-500 overflow-hidden ${isDark ? 'bg-white/5 border border-white/10' : 'bg-indigo-50 border border-indigo-100'}`}>
+                                        <img 
+                                            src={`/icons/profile_${field.key}.png`} 
+                                            alt="" 
+                                            className="w-full h-full object-cover" 
+                                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                        />
+                                        <span style={{ display: 'none' }} className="w-full h-full items-center justify-center">{field.emoji}</span>
+                                    </div>
                                     <div className="flex-1">
                                         <div className={`text-[10px] font-black uppercase tracking-widest opacity-40 mb-1`}>{field.label}</div>
                                         {editingField === field.key ? (
@@ -233,7 +246,7 @@ export default function ProfilePage() {
                                         <Button key={opt.key} radius="full" variant={active ? 'flat' : 'bordered'} color={active ? 'primary' : 'default'}
                                             className={`font-black text-[12px] tracking-tight h-12 px-6 transition-all duration-500 ${active ? 'scale-105 shadow-indigo-500/10' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`}`}
                                             onPress={() => togglePref(opt.key)}>
-                                            {opt.emoji} {opt.label}
+                                            <div className="w-5 h-5 me-2 overflow-hidden rounded-md"><img src={opt.emoji} className="w-full h-full object-cover" alt="" /></div> {opt.label}
                                         </Button>
                                     );
                                 })}
@@ -265,9 +278,6 @@ export default function ProfilePage() {
                             <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{isArabic ? 'تاريخ التسجيل' : 'JOINED'}</span>
                             <span className="text-sm font-bold">{activeUser.createdAt ? new Date(activeUser.createdAt).toLocaleDateString() : 'N/A'}</span>
                         </div>
-                        <Button color="danger" variant="flat" radius="full" className="font-black text-xs px-8" onPress={handleLogout}>
-                            {isArabic ? 'تسجيل خروج' : 'LOG OUT'}
-                        </Button>
                     </CardBody>
                 </Card>
             </main>
@@ -294,7 +304,7 @@ export default function ProfilePage() {
                                         </Button>
                                     </div>
                                     <div className={`grid grid-cols-4 gap-4 border-t pt-8 transition-colors duration-1000 ${isDark ? 'border-white/5' : 'border-indigo-100'}`}>
-                                        {['👦', '👧', '🧒', '👶', '🐱', '🐻', '🦊', '🐰', '🦁', '🐸', '🦄', '🐼'].map(em => (
+                                        {avatarOptions.map(em => (
                                             <Button key={em} isIconOnly radius="2xl" variant={activeUser.avatar === em ? 'flat' : 'bordered'} color={activeUser.avatar === em ? 'primary' : 'default'}
                                                 className={`w-full h-auto aspect-square text-3xl transition-transform hover:scale-110 ${activeUser.avatar !== em ? (isDark ? 'border-white/10' : 'border-indigo-100') : ''}`}
                                                 onPress={() => { updateChildProfile({ avatar: em }); onClose(); }}>

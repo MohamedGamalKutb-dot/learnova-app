@@ -4,17 +4,16 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import AutismSupportBot from '../components/AutismSupportBot';
+import MainNavbar from '../components/MainNavbar';
 import {
-    Button, Navbar, NavbarBrand, NavbarContent,
-    Modal, ModalContent, ModalBody, useDisclosure, Card, CardBody
+    Button, Modal, ModalContent, ModalBody, useDisclosure, Card, CardBody
 } from '@heroui/react';
 
 const modules = [
-    { key: 'pecs', emoji: '🗣️', color: '#A8B4FF', gradient: 'from-indigo-500/20 to-purple-500/10', glow: 'shadow-indigo-500/30', path: '/pecs' },
-    { key: 'routine', emoji: '📅', color: '#818CF8', gradient: 'from-blue-500/20 to-indigo-500/10', glow: 'shadow-blue-500/30', path: '/routine' },
-    { key: 'emotions', emoji: '😊', color: '#C084FC', gradient: 'from-purple-500/20 to-pink-500/10', glow: 'shadow-purple-500/30', path: '/emotions' },
-    { key: 'bot', emoji: '🤖', color: '#F472B6', gradient: 'from-pink-500/20 to-rose-500/10', glow: 'shadow-pink-500/30', path: 'modal' },
-    { key: 'profile', emoji: '👤', color: '#38BDF8', gradient: 'from-sky-500/20 to-blue-500/10', glow: 'shadow-sky-500/30', path: '/profile' },
+    { key: 'pecs', icon: '/icons/pecs.png', color: '#A8B4FF', gradient: 'from-indigo-500/20 to-purple-500/10', glow: 'shadow-indigo-500/30', path: '/pecs' },
+    { key: 'routine', icon: '/icons/routine.png', color: '#818CF8', gradient: 'from-blue-500/20 to-indigo-500/10', glow: 'shadow-blue-500/30', path: '/routine' },
+    { key: 'emotions', icon: '/icons/emotions.png', color: '#C084FC', gradient: 'from-purple-500/20 to-pink-500/10', glow: 'shadow-purple-500/30', path: '/emotions' },
+    { key: 'bot', icon: '/icons/bot.png', color: '#F472B6', gradient: 'from-pink-500/20 to-rose-500/10', glow: 'shadow-pink-500/30', path: 'modal' },
 ];
 
 const labels = {
@@ -22,7 +21,6 @@ const labels = {
     routine: { en: 'Daily Schedule', ar: 'الجدول اليومي' },
     emotions: { en: 'Mood Explorer', ar: 'مستكشف المشاعر' },
     bot: { en: 'AI Companion', ar: 'الرفيق الذكي' },
-    profile: { en: 'User Profile', ar: 'ملفي الشخصي' },
 };
 
 export default function ChildHomePage() {
@@ -57,25 +55,7 @@ export default function ChildHomePage() {
                 <div className={`absolute -bottom-[10%] left-[20%] w-[60%] h-[60%] rounded-full blur-[150px] transition-all duration-1000 ${isDark ? 'bg-blue-600/10' : 'bg-blue-400/20'}`} />
             </div>
 
-            {/* MINIMALIST GLASS NAVBAR */}
-            <nav className={`fixed top-0 inset-x-0 h-20 z-50 px-8 flex items-center justify-between backdrop-blur-xl border-b transition-all duration-500 ${isDark ? 'bg-[#0C0D17]/40 border-white/5' : 'bg-white/40 border-indigo-100'}`}>
-                <div className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/20 group-hover:rotate-12 transition-transform">✨</div>
-                    <span className={`text-xl font-black tracking-widest uppercase bg-gradient-to-r bg-clip-text text-transparent transition-all duration-1000 ${isDark ? 'from-indigo-300 to-purple-300' : 'from-indigo-600 to-purple-600'}`}>LearnNeur</span>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                    <Button isIconOnly variant="light" radius="full" className={`text-xl font-black ${isDark ? 'text-white/70 hover:text-white' : 'text-indigo-600 hover:bg-indigo-50'}`} onPress={toggleLanguage}>
-                        {isArabic ? 'EN' : 'AR'}
-                    </Button>
-                    <Button isIconOnly variant="light" radius="full" className={`text-xl transition-transform hover:scale-110 ${isDark ? 'text-amber-400' : 'text-indigo-600'}`} onPress={toggleTheme}>
-                        {isDark ? '☀️' : '🌙'}
-                    </Button>
-                    <Button size="sm" variant="flat" color="danger" radius="full" className="px-5 font-black text-[10px] tracking-widest shadow-lg shadow-red-500/10" onPress={logoutChild}>
-                        {isArabic ? 'خروج' : 'EXIT'}
-                    </Button>
-                </div>
-            </nav>
+            <MainNavbar userType="child" />
 
             <main className="relative max-w-[1300px] mx-auto px-8 pt-32 pb-20">
                 
@@ -112,7 +92,13 @@ export default function ChildHomePage() {
                     </div>
 
                     <div className="relative z-20 px-12 md:px-20 flex items-center gap-10 w-full">
-                        <div className={`w-28 h-28 md:w-36 md:h-36 rounded-full border flex items-center justify-center text-7xl shadow-2xl animate-float backdrop-blur-3xl transition-all duration-500 ${isDark ? 'bg-white/10 border-white/20' : 'bg-white/90 border-indigo-200 shadow-indigo-500/10'}`}>🧘</div>
+                        <div className={`w-28 h-28 md:w-36 md:h-36 rounded-full border flex items-center justify-center text-7xl shadow-2xl animate-float backdrop-blur-3xl transition-all duration-500 overflow-hidden ${isDark ? 'bg-white/10 border-white/20' : 'bg-white/90 border-indigo-200 shadow-indigo-500/10'}`}>
+                            {currentChild.avatar && (currentChild.avatar.startsWith('data:image') || currentChild.avatar.startsWith('http')) ? (
+                                <img src={currentChild.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                <img src="/icons/emotion_emo_calm.png" alt="Zen" className="w-[70%] h-[70%] object-contain opacity-80" />
+                            )}
+                        </div>
                         <div className="flex-1">
                             <h2 className={`text-3xl md:text-5xl font-black mb-3 tracking-tighter ${isDark ? 'text-white' : 'text-indigo-900'}`}>{isArabic ? 'مساحة الهدوء' : 'The Zen Sanctuary'}</h2>
                             <p className={`font-bold text-lg max-w-[500px] leading-relaxed transition-colors duration-1000 ${isDark ? 'text-indigo-200/60' : 'text-indigo-600/60'}`}>
@@ -142,9 +128,9 @@ export default function ChildHomePage() {
                                 <div className={`absolute top-0 left-0 w-full h-full bg-gradient-to-br ${mod.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
                                 
                                 <CardBody className="relative z-10 p-12 flex flex-col justify-between h-full">
-                                    <div className={`w-24 h-24 rounded-[32px] border flex items-center justify-center text-5xl transition-all duration-700 backdrop-blur-2xl ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/90 border-indigo-100'} ${isHovered ? 'scale-110 rotate-6 shadow-xl' : ''}`}>
+                                    <div className={`w-24 h-24 rounded-[32px] border flex items-center justify-center transition-all duration-700 backdrop-blur-2xl overflow-hidden ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/90 border-indigo-100'} ${isHovered ? 'scale-110 rotate-6 shadow-xl' : ''}`}>
                                         <div className={`absolute inset-0 rounded-[32px] opacity-20 blur-2xl transition-opacity duration-700 ${isHovered ? 'opacity-50' : 'opacity-0'}`} style={{ backgroundColor: mod.color }} />
-                                        <span className="relative z-10">{mod.emoji}</span>
+                                        <img src={mod.icon} alt={mod.key} className="relative z-10 w-full h-full object-cover" />
                                     </div>
                                     
                                     <div className="space-y-2">

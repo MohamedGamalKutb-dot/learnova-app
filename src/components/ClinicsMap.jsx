@@ -29,13 +29,47 @@ export default function ClinicsMap() {
     const accent = '#6C63FF';
     const cities = useMemo(() => Array.from(new Set(clinicsData.map(c => c.city))), []);
 
-    const handleSearch = useCallback(() => {
+    const handleSearch = useCallback(async () => {
         if (!searchQuery.trim()) return;
         const q = searchQuery.trim().toLowerCase();
+        
+        // 1. Try local city match
         const cityMatch = egyptCities.find(c => c.name.toLowerCase().includes(q) || c.nameAr.includes(searchQuery.trim()));
-        if (cityMatch) { setMapCenter([cityMatch.lat, cityMatch.lng]); setMapZoom(12); setSelectedCity(cityMatch.name); return; }
-        const clinicMatch = clinicsData.find(c => c.name.toLowerCase().includes(q) || c.nameAr.includes(searchQuery.trim()) || c.area.toLowerCase().includes(q) || c.areaAr.includes(searchQuery.trim()));
-        if (clinicMatch) { setMapCenter([clinicMatch.lat, clinicMatch.lng]); setMapZoom(14); setSelectedCity(clinicMatch.city); }
+        if (cityMatch) { 
+            setMapCenter([cityMatch.lat, cityMatch.lng]); 
+            setMapZoom(12); 
+            setSelectedCity(cityMatch.name); 
+            return; 
+        }
+
+        // 2. Try local clinic match
+        const clinicMatch = clinicsData.find(c => 
+            c.name.toLowerCase().includes(q) || 
+            c.nameAr.includes(searchQuery.trim()) || 
+            c.area.toLowerCase().includes(q) || 
+            c.areaAr.includes(searchQuery.trim())
+        );
+        if (clinicMatch) { 
+            setMapCenter([clinicMatch.lat, clinicMatch.lng]); 
+            setMapZoom(14); 
+            setSelectedCity(clinicMatch.city);
+            return;
+        }
+
+        // 3. Global search via Nominatim (OpenStreetMap)
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`);
+            const data = await response.json();
+            if (data && data.length > 0) {
+                const { lat, lon, display_name } = data[0];
+                setMapCenter([parseFloat(lat), parseFloat(lon)]);
+                setMapZoom(14);
+                // Optionally clear selected city as it's a global search
+                setSelectedCity(null);
+            }
+        } catch (error) {
+            console.error("Geocoding error:", error);
+        }
     }, [searchQuery]);
 
     const filteredClinics = useMemo(() => {
@@ -53,7 +87,7 @@ export default function ClinicsMap() {
         <div className={`rounded-[40px] border-none shadow-none ${isDark ? 'bg-transparent text-white' : 'bg-transparent text-[#0C0D17]'}`}>
             
             {/* Sticky Search & Filter Header (Adjusted for main Navbar) */}
-            <div className={`sticky top-[75px] z-20 pb-6 mb-2 pt-8 px-8 rounded-b-[40px] border-b ${isDark ? 'bg-[#0E101F]/95 backdrop-blur-3xl border-white/5' : 'bg-white/95 backdrop-blur-3xl border-slate-100 shadow-md'}`}>
+            <div className={`sticky top-[75px] z-20 pb-6 mb-12 pt-8 px-8 border-b ${isDark ? 'bg-[#0E101F]/95 backdrop-blur-3xl border-white/5' : 'bg-white/95 backdrop-blur-3xl border-slate-100 shadow-md'}`}>
                 {/* Header Row */}
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex flex-col">
@@ -67,11 +101,6 @@ export default function ClinicsMap() {
                             </p>
                         )}
                     </div>
-                    {selectedCity && (
-                        <Button size="sm" variant="flat" onPress={showAll} className="bg-rose-500/10 text-rose-500 font-black rounded-full text-xs">
-                             ✕ {isArabic ? 'إعادة ضبط' : 'RESET'}
-                        </Button>
-                    )}
                 </div>
 
                 {/* Search Bar */}
@@ -114,10 +143,10 @@ export default function ClinicsMap() {
                 </div>
             </div>
 
-            <div className="px-8 pb-10 space-y-8">
+            <div className="px-8 pt-10 pb-10 space-y-12">
                 {/* Main Map Canvas */}
-                <div className={`h-[600px] rounded-[40px] overflow-hidden border shadow-2xl ${isDark ? 'border-white/10 bg-[#0C0D17]' : 'border-slate-200 bg-white'}`}>
-                    <MapContainer center={mapCenter} zoom={mapZoom} style={{ height: '100%', width: '100%' }}>
+                <div className={`h-[600px] rounded-[40px] overflow-hidden border shadow-2xl relative z-0 ${isDark ? 'border-white/10 bg-[#0C0D17]' : 'border-slate-200 bg-white'}`}>
+                    <MapContainer center={mapCenter} zoom={mapZoom} style={{ height: '100%', width: '100%', zIndex: 0 }}>
                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' />
                         {filteredClinics.map(clinic => (
                             <Marker key={clinic.id} position={[clinic.lat, clinic.lng]}>

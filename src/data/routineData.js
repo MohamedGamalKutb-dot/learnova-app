@@ -17,17 +17,34 @@ export const defaultRoutine = [
 ];
 
 export const timeOfDayLabels = {
-    morning: '🌅 Morning', afternoon: '☀️ Afternoon',
-    evening: '🌆 Evening', night: '🌙 Night',
+    morning: 'Morning', afternoon: 'Afternoon',
+    evening: 'Evening', night: 'Night',
 };
 
 export const timeOfDayLabelsAr = {
-    morning: '🌅 الصباح', afternoon: '☀️ الظهر',
-    evening: '🌆 المساء', night: '🌙 الليل',
+    morning: 'الصباح', afternoon: 'الظهر',
+    evening: 'المساء', night: 'الليل',
 };
 
-export const availableEmojis = [
-    '🛌', '🪥', '🍳', '👕', '🏫', '🍽️', '😴', '🎨', '🍪', '🌳',
-    '🍲', '🛁', '📖', '🎮', '📺', '🎵', '🧹', '🏃', '🧘', '📝',
-    '🎯', '🤸', '🚶', '🏊', '🫧', '💊', '🥤', '🧸', '🎸', '🖍️',
+export const availableIcons = [
+    { id: 'routine_wake_up', emoji: '🛌' },
+    { id: 'routine_brush_teeth_morning', emoji: '🪥' },
+    { id: 'routine_breakfast', emoji: '🍳' },
+    { id: 'routine_get_dressed', emoji: '👕' },
+    { id: 'routine_school', emoji: '🏫' },
+    { id: 'routine_lunch', emoji: '🍽️' },
+    { id: 'routine_rest_time', emoji: '😴' },
+    { id: 'routine_play_time', emoji: '🎨' },
+    { id: 'routine_snack', emoji: '🍪' },
+    { id: 'routine_outdoor', emoji: '🌳' },
+    { id: 'routine_dinner', emoji: '🍲' },
+    { id: 'routine_bath_time', emoji: '🛁' },
+    { id: 'routine_story_time', emoji: '📖' },
+    { id: 'routine_sleep', emoji: '😴' },
+    { id: 'pecs_act_draw', emoji: '🖍️' },
+    { id: 'pecs_act_music', emoji: '🎵' },
+    { id: 'pecs_act_swim', emoji: '🏊' },
+    { id: 'pecs_act_watch', emoji: '📺' },
+    { id: 'pecs_act_read', emoji: '📚' },
+    { id: 'games', emoji: '🎮' },
 ];

@@ -2,12 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useData } from '../context/DataContext';
+import { useAuth } from '../context/AuthContext';
 import { Button, Card, CardBody, Chip } from '@heroui/react';
 
 export default function CalmingPage() {
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
     const { trackBreathingExercise, trackCalmingSession } = useData();
+    const { currentChild } = useAuth();
 
     const [sessionMinutes, setSessionMinutes] = useState(5);
     const [remainingSeconds, setRemainingSeconds] = useState(300);
@@ -83,7 +85,16 @@ export default function CalmingPage() {
                         {isArabic ? '→' : '←'}
                     </Button>
                     <div className="flex flex-col text-start">
-                        <h1 className={`text-xl font-black leading-none ${isDark ? 'text-indigo-100' : 'text-indigo-900'}`}>{isArabic ? 'مساحة السكينة' : 'Serenity Space'}</h1>
+                        <h1 className={`text-xl font-black leading-none ${isDark ? 'text-indigo-100' : 'text-indigo-900'} flex items-center gap-2`}>
+                            <div className="w-8 h-8 rounded-full border overflow-hidden shrink-0">
+                                {currentChild?.avatar && (currentChild.avatar.startsWith('data:image') || currentChild.avatar.startsWith('http')) ? (
+                                    <img src={currentChild.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-indigo-500/20 text-xs">{currentChild?.avatar || '🧘'}</div>
+                                )}
+                            </div>
+                            {isArabic ? 'مساحة السكينة' : 'Serenity Space'}
+                        </h1>
                         <span className="text-[9px] font-black tracking-widest uppercase opacity-40 mt-1">{isArabic ? 'تنفس، استرخِ، ركز' : 'BREATHE, RELAX, FOCUS'}</span>
                     </div>
                 </div>

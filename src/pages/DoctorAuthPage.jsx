@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Button, Input, Chip } from '@heroui/react';
+import { Button, Input, Chip, Divider } from '@heroui/react';
+import GoogleAuthButton from '../components/GoogleAuthButton';
+import { getDoctorData } from '../data/doctorData';
 
 export default function DoctorAuthPage() {
     const navigate = useNavigate();
@@ -25,7 +27,8 @@ export default function DoctorAuthPage() {
         if (/[A-Z]/.test(p)) s++; if (/[0-9]/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++;
         return s;
     };
-    const strengthColors = ['#EF4444', '#F59E0B', '#F59E0B', '#10B981', '#10B981'];
+    
+    const { features, strengthColors } = getDoctorData(isArabic);
 
     const handleSubmit = async (e) => {
         e.preventDefault(); setLoading(true); setError('');
@@ -43,13 +46,6 @@ export default function DoctorAuthPage() {
         setLoading(false);
     };
 
-    const features = [
-        { emoji: '👥', text: isArabic ? 'إدارة المرضى' : 'Patient Management' },
-        { emoji: '📋', text: isArabic ? 'تقييمات شاملة' : 'Comprehensive Assessments' },
-        { emoji: '📊', text: isArabic ? 'تتبع السلوك' : 'Behavior Tracking' },
-        { emoji: '📈', text: isArabic ? 'تقارير مفصلة' : 'Detailed Reports' },
-    ];
-
     const inputWrapperCls = `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
 
     return (
@@ -58,18 +54,28 @@ export default function DoctorAuthPage() {
             <div className="flex-[0_0_420px] hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-accent to-[#4834D4] p-12 relative overflow-hidden">
                 <div className="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full bg-white/[0.06]" />
                 <div className="absolute -bottom-20 -left-20 w-[280px] h-[280px] rounded-full bg-white/[0.04]" />
-                <div className="absolute top-[15%] left-[12%] text-[44px] opacity-15" style={{ animation: 'float 6s ease-in-out infinite' }}>🩺</div>
-                <div className="absolute bottom-[20%] right-[15%] text-4xl opacity-[0.12]" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>💊</div>
-                <div className="absolute top-[60%] left-[8%] text-[30px] opacity-10" style={{ animation: 'float 8s ease-in-out infinite 2s' }}>🏥</div>
+                <div className="absolute top-[15%] left-[12%] w-16 h-16 opacity-20" style={{ animation: 'float 6s ease-in-out infinite' }}>
+                    <img src="/icons/doctor_consultation.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <div className="absolute bottom-[20%] right-[15%] w-14 h-14 opacity-15" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>
+                    <img src="/icons/pecs_body_hurt.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <div className="absolute top-[60%] left-[8%] w-12 h-12 opacity-15" style={{ animation: 'float 8s ease-in-out infinite 2s' }}>
+                    <img src="/icons/pecs_place_hospital.png" alt="" className="w-full h-full object-contain" />
+                </div>
                 <div className="relative z-[1] text-center">
-                    <div className="text-[72px] mb-5">🩺</div>
+                    <div className="w-24 h-24 mx-auto mb-6">
+                        <img src="/icons/doctor_consultation.png" alt="" className="w-full h-full object-contain" />
+                    </div>
                     <h2 className="text-white text-[28px] font-extrabold mb-2.5">{isArabic ? 'بوابة الطبيب' : 'Doctor Portal'}</h2>
                     <p className="text-white/80 text-[15px] leading-relaxed mb-8">{isArabic ? 'منصة متكاملة لإدارة ومتابعة حالات الأطفال' : "A comprehensive platform for managing and tracking children's cases"}</p>
                     <div className="grid grid-cols-2 gap-3">
                         {features.map((f, i) => (
                             <div key={i} className="bg-white/10 backdrop-blur-lg rounded-[14px] py-3.5 px-3 text-center border border-white/15"
                                 style={{ animation: `fadeInUp 0.4s ease-out ${i * 0.1}s both` }}>
-                                <div className="text-2xl mb-1">{f.emoji}</div>
+                                <div className="w-10 h-10 mx-auto mb-2 overflow-hidden rounded-lg flex items-center justify-center bg-white/10 border border-white/10">
+                                    <img src={f.icon} alt="" className="w-full h-full object-cover" />
+                                </div>
                                 <div className="text-white/90 text-xs font-semibold">{f.text}</div>
                             </div>
                         ))}
@@ -168,9 +174,22 @@ export default function DoctorAuthPage() {
 
                                 <Button type="submit" fullWidth radius="lg" isLoading={loading}
                                     className="bg-gradient-to-br from-accent to-[#4834D4] text-white font-bold text-base mt-2 shadow-[0_4px_16px_rgba(108,99,255,0.25)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(108,99,255,0.35)]">
-                                    {loading ? (isArabic ? '⏳ جاري التحميل...' : '⏳ Loading...') : isLogin ? (isArabic ? '🩺 تسجيل الدخول' : '🩺 Sign In') : (isArabic ? '🩺 إنشاء الحساب' : '🩺 Create Account')}
+                                    {loading ? (isArabic ? '⏳ جاري التحميل...' : '⏳ Loading...') : isLogin ? (isArabic ? 'تسجيل الدخول' : 'Sign In') : (isArabic ? 'إنشاء الحساب' : 'Create Account')}
                                 </Button>
                             </form>
+
+                            <div className="flex items-center gap-3 my-5">
+                                <Divider className="flex-1" />
+                                <span className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'أو' : 'OR'}</span>
+                                <Divider className="flex-1" />
+                            </div>
+
+                            <GoogleAuthButton 
+                                role="doctor" 
+                                mode={isLogin ? 'login' : 'signup'} 
+                                onSuccess={(res) => { if(isLogin) navigate('/doctor-dashboard'); else { setIsSuccess(true); setIsLogin(true); setFormData({ ...formData, password: '', confirmPassword: '' }); } }} 
+                                text={isLogin ? (isArabic ? 'الدخول بجوجل' : 'Sign in with Google') : (isArabic ? 'التسجيل بجوجل' : 'Sign up with Google')}
+                            />
 
                             <div className="text-center mt-6">
                                 <p className={`text-[13px] m-0 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
