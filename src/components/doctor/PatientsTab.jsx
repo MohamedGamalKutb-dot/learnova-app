@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, Avatar } from '@heroui/react';
+import { FaInbox, FaStethoscope, FaNotesMedical } from 'react-icons/fa';
 
 export default function PatientsTab({
     isArabic, isDark, accent,
@@ -17,8 +18,8 @@ export default function PatientsTab({
             {myPatients.length === 0 ? (
                 <Card className={cardCls('empty')} onMouseEnter={() => setHoveredCard('empty')} onMouseLeave={() => setHoveredCard(null)}>
                     <CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
-                        <div className="w-20 h-20 mx-auto mb-4">
-                            <img src="/icons/empty_state.png" alt="" className="w-full h-full object-contain" />
+                        <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center text-5xl opacity-20">
+                            <FaInbox />
                         </div>
                         {isArabic ? 'لا يوجد مرضى. أضف مريضاً باستخدام الكود أو الرقم.' : 'No patients yet. Add one using Code or Phone.'}
                     </CardBody>
@@ -63,9 +64,7 @@ export default function PatientsTab({
                             </div>
                         </div>
                         <h4 className={`mb-2.5 text-sm font-bold flex items-center gap-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                            <div className="w-5 h-5 overflow-hidden rounded-md flex items-center justify-center">
-                                <img src="/icons/doctor_consultation.png" alt="" className="w-full h-full object-cover" />
-                            </div> 
+                            <FaStethoscope className="text-accent" />
                             {isArabic ? 'مستوى التشخيص' : 'Diagnosis Level'}
                         </h4>
                         <div className="flex gap-2 mb-5">
@@ -75,9 +74,7 @@ export default function PatientsTab({
                             ))}
                         </div>
                         <h4 className={`mb-2.5 text-sm font-bold flex items-center gap-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                            <div className="w-5 h-5 overflow-hidden rounded-md flex items-center justify-center">
-                                <img src="/icons/journal_entry.png" alt="" className="w-full h-full object-cover" />
-                            </div> 
+                            <FaNotesMedical className="text-accent" />
                             {isArabic ? 'خطة العلاج والملاحظات' : 'Treatment Plan & Notes'}
                         </h4>
                         <textarea value={selectedPatient.treatmentPlan || ''} onChange={e => updatePatientData(selectedPatient.childId, { treatmentPlan: e.target.value })} placeholder={isArabic ? 'اكتب التقرير الطبي هنا...' : 'Write medical report here...'} className={`${inputCls} min-h-[100px] resize-y`} />

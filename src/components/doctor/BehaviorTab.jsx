@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, Avatar } from '@heroui/react';
+import { FaTheaterMasks, FaPen, FaChartBar } from 'react-icons/fa';
 
 export default function BehaviorTab({
     isArabic, isDark, accent,
@@ -9,7 +10,7 @@ export default function BehaviorTab({
     addBehaviorLog,
     hoveredCard, setHoveredCard, cardCls, inputCls, patientBanner
 }) {
-    if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-[40px] mb-2">📊</div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
+    if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-5xl mb-4 opacity-20 flex justify-center"><FaTheaterMasks /></div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
     return (
         <div>
             <div className={patientBanner}>
@@ -25,9 +26,7 @@ export default function BehaviorTab({
             <Card className={cardCls('newBehavior')} onMouseEnter={() => setHoveredCard('newBehavior')} onMouseLeave={() => setHoveredCard(null)}>
                 <CardBody className="p-[22px]">
                     <h4 className={`mb-3.5 text-[15px] font-bold flex items-center gap-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                        <div className="w-6 h-6 overflow-hidden rounded-md flex items-center justify-center bg-indigo-500/10">
-                            <img src="/icons/journal_entry.png" alt="" className="w-full h-full object-cover" />
-                        </div> 
+                        <FaPen className="text-accent" />
                         {isArabic ? 'تسجيل سلوك جديد' : 'Log New Behavior'}
                     </h4>
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -40,7 +39,7 @@ export default function BehaviorTab({
                                     color: behaviorType === bt.key ? bt.color : (isDark ? '#999' : '#666')
                                 }}>
                                 <div className="w-5 h-5 flex items-center justify-center overflow-hidden rounded-md me-1.5">
-                                    <img src={bt.emoji} alt="" className="w-full h-full object-cover" />
+                                    <img src={bt.emoji} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                 </div>
                                 {isArabic ? bt.labelAr : bt.label}
                             </Button>
@@ -57,7 +56,8 @@ export default function BehaviorTab({
                     </div>
                     <textarea value={behaviorNote} onChange={e => setBehaviorNote(e.target.value)} placeholder={isArabic ? 'ملاحظات تفصيلية...' : 'Detailed notes...'} className={`${inputCls} min-h-[80px] resize-y mb-3`} />
                     <Button fullWidth radius="xl" size="lg" onPress={addBehaviorLog} className="bg-gradient-to-br from-[#FF6584] to-pink-500 text-white font-bold text-sm shadow-[0_4px_12px_rgba(255,101,132,0.25)] transition-all duration-200 hover:-translate-y-px mt-2">
-                        {isArabic ? '📊 تسجيل السلوك' : '📊 Log Entry'}
+                        <FaChartBar className="me-2" />
+                        {isArabic ? 'تسجيل السلوك' : 'Log Entry'}
                     </Button>
                 </CardBody>
             </Card>
@@ -71,7 +71,7 @@ export default function BehaviorTab({
                                     radius="xl"
                                     className="w-[42px] h-[42px] shrink-0 text-xl"
                                     src={selectedPatient.avatar?.length > 10 ? selectedPatient.avatar : undefined}
-                                    icon={<div className="w-full h-full overflow-hidden flex items-center justify-center"><img src={bt?.emoji || log.emoji} alt="" className="w-full h-full object-cover" /></div>}
+                                    icon={<div className="w-full h-full overflow-hidden flex items-center justify-center"><img src={bt?.emoji || log.emoji} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/></div>}
                                     style={{ background: `${bt?.color || '#999'}12` }}
                                 />
                                 <div className="flex-1">

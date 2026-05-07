@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input, Divider, Chip } from '@heroui/react';
+import { FaCheckCircle, FaTimesCircle, FaChartBar, FaMapMarkerAlt, FaRobot, FaBookOpen } from 'react-icons/fa';
 import GoogleAuthButton from '../components/GoogleAuthButton';
 
 export default function LoginPage() {
@@ -37,10 +38,10 @@ export default function LoginPage() {
         <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
             {/* Left: Branding Panel */}
             <div className="flex-[0_0_45%] hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent3 to-[#44B09E] relative overflow-hidden p-10">
-                <div className="absolute top-[10%] left-[10%] w-20 h-20 opacity-15 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}><img src="/icons/quiz_stats.png" className="w-full h-full object-cover" /></div>
-                <div className="absolute bottom-[15%] right-[10%] w-16 h-16 opacity-[0.12] overflow-hidden" style={{ animation: 'float 7s ease-in-out infinite 1s' }}><img src="/icons/parent_icon.png" className="w-full h-full object-cover" /></div>
-                <div className="absolute top-[60%] left-[5%] w-16 h-16 opacity-10 overflow-hidden" style={{ animation: 'float 8s ease-in-out infinite 2s' }}><img src="/icons/emotion_emo_love.png" className="w-full h-full object-cover" /></div>
-                <div className="w-32 h-32 mb-5 z-[1] overflow-hidden rounded-3xl shadow-2xl"><img src="/icons/daily_rhythm.png" className="w-full h-full object-cover" /></div>
+                <div className="absolute top-[10%] left-[10%] w-20 h-20 opacity-15 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}><img src="/icons/quiz_stats.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="absolute bottom-[15%] right-[10%] w-16 h-16 opacity-[0.12] overflow-hidden" style={{ animation: 'float 7s ease-in-out infinite 1s' }}><img src="/icons/daily_rhythm.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="absolute top-[60%] left-[5%] w-16 h-16 opacity-10 overflow-hidden" style={{ animation: 'float 8s ease-in-out infinite 2s' }}><img src="/icons/emotion_emo_love.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="w-32 h-32 mb-5 z-[1] overflow-hidden rounded-3xl shadow-2xl"><img src="/icons/parent_icon.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
                 <h2 className="text-white text-3xl font-extrabold text-center z-[1] mb-2.5">
                     {isArabic ? 'مرحباً بعودتك' : 'Welcome Back'}
                 </h2>
@@ -48,8 +49,10 @@ export default function LoginPage() {
                     {isArabic ? 'تابع تقدم طفلك واحصل على تقارير مفصلة ونصائح ذكية' : "Track your child's progress with detailed reports and AI-powered insights"}
                 </p>
                 <div className="mt-10 flex gap-3 z-[1]">
-                    {['/icons/quiz_stats.png', '/icons/support_circles.png', '/icons/assistant_aura.png', '/icons/journal_entry.png'].map((icon, i) => (
-                        <div key={i} className="w-12 h-12 rounded-[14px] bg-white/15 flex items-center justify-center overflow-hidden backdrop-blur-sm border border-white/10"><img src={icon} className="w-full h-full object-cover" /></div>
+                    {[FaChartBar, FaMapMarkerAlt, FaRobot, FaBookOpen].map((Icon, i) => (
+                        <div key={i} className="w-12 h-12 rounded-[14px] bg-white/15 flex items-center justify-center backdrop-blur-sm border border-white/10 hover:bg-white/25 transition-all">
+                            <Icon className="text-white text-xl" />
+                        </div>
                     ))}
                 </div>
             </div>
@@ -62,7 +65,7 @@ export default function LoginPage() {
 
                     <div className="mb-8">
                         <Chip variant="bordered" className="bg-accent3/[0.07] border-accent3/[0.12] text-accent3 mb-4">
-                            <div className="w-4 h-4 me-2 overflow-hidden rounded-sm inline-block align-middle"><img src="/icons/parent_icon.png" className="w-full h-full object-cover" /></div>
+                            <div className="w-4 h-4 me-2 overflow-hidden rounded-sm inline-block align-middle"><img src="/icons/parent_icon.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
                             <span className="text-xs font-semibold">{isArabic ? 'ولي الأمر' : 'Parent Dashboard'}</span>
                         </Chip>
                         <h1 className={`text-[28px] font-extrabold mb-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
@@ -92,14 +95,14 @@ export default function LoginPage() {
 
                     {error && (
                         <div className={`rounded-[10px] py-2.5 px-3.5 mt-3.5 border ${isDark ? 'bg-red-500/10 border-red-500/20' : 'bg-red-50 border-red-200'} flex items-center gap-2`}>
-                            <img src="/icons/quiz_wrong.png" className="w-5 h-5 object-contain" />
+                            <FaTimesCircle className="w-5 h-5 text-red-500" />
                             <span className="text-red-500 text-[13px] font-semibold">{error}</span>
                         </div>
                     )}
 
                     <Button fullWidth radius="lg" className="bg-gradient-to-br from-accent3 to-[#44B09E] text-white font-bold text-base mt-6 shadow-[0_4px_16px_rgba(78,205,196,0.25)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(78,205,196,0.35)]"
                         onPress={handleLogin}
-                        startContent={<div className="w-6 h-6 overflow-hidden rounded-md"><img src="/icons/quiz_excellent.png" className="w-full h-full object-contain" /></div>}>
+                        startContent={<FaCheckCircle className="w-5 h-5" />}>
                         {isArabic ? 'تسجيل الدخول' : 'Log In'}</Button>
 
                     <div className="flex items-center gap-3 my-6">
@@ -118,7 +121,7 @@ export default function LoginPage() {
                         <Button fullWidth variant="bordered" radius="lg"
                             className="border-accent3 text-accent3 font-bold text-[15px] hover:bg-accent3/[0.06]"
                             onPress={() => navigate('/signup')}
-                            startContent={<div className="w-5 h-5 overflow-hidden rounded-md"><img src="/icons/rewards.png" className="w-full h-full object-contain" /></div>}>
+                            startContent={<div className="w-5 h-5 overflow-hidden rounded-md"><img src="/icons/rewards.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>}>
                             {isArabic ? 'إنشاء حساب جديد' : 'Create New Account'}
                         </Button>
                     </div>

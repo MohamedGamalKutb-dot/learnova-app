@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Button, Card, CardBody, Input, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Avatar } from '@heroui/react';
+import { FaUsers, FaClipboardList, FaTheaterMasks, FaFileAlt, FaSearch, FaUserPlus } from 'react-icons/fa';
 import MainNavbar from '../components/MainNavbar';
 import { getDoctorData } from '../data/doctorData';
 import PatientsTab from '../components/doctor/PatientsTab';
@@ -17,6 +18,12 @@ export default function DoctorPage() {
     useEffect(() => { if (!isDoctorLoggedIn) navigate('/doctor-auth'); }, [isDoctorLoggedIn, navigate]);
 
     const { behaviorTypes, assessmentQuestions, tabsList } = getDoctorData(isArabic);
+    const tabIcons = {
+        patients: <FaUsers />,
+        assessment: <FaClipboardList />,
+        behavior: <FaTheaterMasks />,
+        reports: <FaFileAlt />
+    };
 
     const myPatients = childAccounts.filter(c => currentDoctor?.patientIds?.some(id => id.toUpperCase() === c.childId.toUpperCase()));
     const { tab } = useParams();
@@ -103,7 +110,7 @@ export default function DoctorPage() {
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm shrink-0 bg-white group-hover:scale-105 transition-transform">
                                 {currentDoctor?.avatar && currentDoctor.avatar.length > 10 ? (
-                                    <img src={currentDoctor.avatar} className="w-full h-full object-cover" alt="" />
+                                    <img src={currentDoctor.avatar} className="w-full h-full object-cover" alt=""  loading="lazy" decoding="async"/>
                                 ) : (
                                     <div className="w-full h-full bg-indigo-50 flex items-center justify-center text-xl">🩺</div>
                                 )}
@@ -136,7 +143,7 @@ export default function DoctorPage() {
                                     )}
                                     
                                     <div className={`w-5 h-5 flex items-center justify-center transition-all duration-300 shrink-0 ${isActive ? 'scale-110 drop-shadow-md' : 'grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100'}`}>
-                                        <img src={tab.emoji} alt="" className="w-full h-full object-contain" />
+                                        <span className="text-xl">{tabIcons[tab.key] || tab.emoji}</span>
                                     </div>
                                     <span className={`text-[14px] font-semibold tracking-wide ${isArabic ? 'text-right flex-1' : 'text-left flex-1'}`}>
                                         {isArabic ? tab.labelAr : tab.label}
@@ -154,9 +161,7 @@ export default function DoctorPage() {
                         <>
                             <ModalHeader className={`flex flex-col gap-1 text-center mt-2 pb-0 ${isDark ? 'text-text-dark' : 'text-text'}`}>
                                 <h3 className={`m-0 text-lg font-bold flex items-center justify-center gap-2`}>
-                                    <div className="w-7 h-7 overflow-hidden rounded-lg flex items-center justify-center">
-                                        <img src="/icons/people_cat.png" alt="" className="w-full h-full object-cover" />
-                                    </div>
+                                    <FaUserPlus className="text-accent" />
                                     {isArabic ? 'إضافة مريض جديد' : 'Add New Patient'}
                                 </h3>
                             </ModalHeader>
@@ -169,9 +174,7 @@ export default function DoctorPage() {
                                             placeholder="LN-XXXXXX or 01xxxxxxx" className="flex-1"
                                             classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'} focus-within:!border-accent` }} />
                                         <Button isIconOnly radius="lg" className="bg-gradient-to-br from-accent to-[#4834D4] text-white shadow-[0_2px_8px_rgba(108,99,255,0.2)] text-base flex items-center justify-center" onPress={handleSearch}>
-                                            <div className="w-5 h-5 flex items-center justify-center overflow-hidden">
-                                                <img src="/icons/pecs_place_outside.png" alt="" className="w-full h-full object-contain brightness-0 invert" />
-                                            </div>
+                                            <FaSearch className="text-sm" />
                                         </Button>
                                     </div>
                                     {searchError && <div className="text-red-500 text-xs mt-2">⚠️ {searchError}</div>}

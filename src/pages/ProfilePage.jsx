@@ -85,14 +85,14 @@ export default function ProfilePage() {
         if (!avatar) return '👤';
         const isImage = avatar.startsWith('data:image') || avatar.startsWith('http');
         if (isImage) {
-            return <img src={avatar} alt="Avatar" className="w-full h-full object-cover rounded-[17px]" />;
+            return <img src={avatar} alt="Avatar" className="w-full h-full object-cover rounded-[17px]"  loading="lazy" decoding="async"/>;
         }
         return avatar;
     };
 
     return (
         <div className={`min-h-screen selection:bg-indigo-500/30 transition-all duration-1000 ${isArabic ? 'font-[Cairo,sans-serif]' : 'font-[Plus_Jakarta_Sans,sans-serif]'} ${isDark ? 'bg-[#0C0D17] text-slate-200' : 'bg-[#F5F8FF] text-slate-800'} overflow-x-hidden`} dir={isArabic ? 'rtl' : 'ltr'}>
-            
+
             <input type="file" id="avatar-upload" className="hidden" accept="image/*" onChange={handleImageUpload} />
 
             {/* AMBIENT BACKGROUND GLOWS */}
@@ -101,7 +101,7 @@ export default function ProfilePage() {
                 <div className={`absolute top-[20%] -right-[5%] w-[40%] h-[40%] rounded-full blur-[100px] transition-all duration-1000 ${isDark ? 'bg-purple-600/10' : 'bg-purple-400/20'}`} />
                 <div className={`absolute -bottom-[10%] left-[20%] w-[60%] h-[60%] rounded-full blur-[150px] transition-all duration-1000 ${isDark ? 'bg-blue-600/10' : 'bg-blue-400/20'}`} />
             </div>
-            
+
             {/* MINIMALIST GLASS NAVBAR */}
             <nav className={`fixed top-0 inset-x-0 h-20 z-50 px-8 flex items-center justify-between backdrop-blur-xl border-b transition-all duration-500 ${isDark ? 'bg-[#0C0D17]/40 border-white/5' : 'bg-white/40 border-indigo-100'}`}>
                 <div className="flex items-center gap-4">
@@ -110,7 +110,7 @@ export default function ProfilePage() {
                     </Button>
                     <h1 className={`text-xl font-black transition-all duration-1000 ${isDark ? 'text-indigo-100' : 'text-indigo-900'}`}>{isArabic ? 'ملفي الشخصي' : 'Profile'}</h1>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                 </div>
             </nav>
@@ -124,18 +124,17 @@ export default function ProfilePage() {
                             className={`w-32 h-32 rounded-[40px] mx-auto mb-6 flex items-center justify-center text-6xl cursor-pointer relative z-[1] border-[4px] transition-transform duration-500 hover:scale-110 overflow-hidden shadow-2xl ${isDark ? 'bg-[#0C0D17]/80 border-white/10' : 'bg-white border-indigo-100'}`}
                             style={{ boxShadow: isDark ? '0 10px 40px rgba(99, 102, 241, 0.2)' : '0 10px 40px rgba(99, 102, 241, 0.1)' }}>
                             {activeUser.avatar && (activeUser.avatar.startsWith('data:image') || activeUser.avatar.startsWith('http')) ? (
-                                <img src={activeUser.avatar} className="w-full h-full object-cover" alt="Avatar" />
+                                <img src={activeUser.avatar} className="w-full h-full object-cover" alt="Avatar"  loading="lazy" decoding="async"/>
                             ) : activeUser.avatar && activeUser.avatar.length <= 2 ? (
                                 <div className="w-full h-full flex items-center justify-center bg-indigo-50/10">
                                     {activeUser.avatar}
                                 </div>
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center">
-                                    <img 
-                                        src="/icons/profile.png" 
-                                        alt="Avatar" 
-                                        className="w-full h-full object-cover" 
-                                    />
+                                    <img src="/icons/profile.png"
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                     loading="lazy" decoding="async"/>
                                 </div>
                             )}
                         </div>
@@ -167,10 +166,9 @@ export default function ProfilePage() {
                             ].filter(f => f.show).map(field => (
                                 <div key={field.key} className={`flex items-start gap-4 group py-4 border-b last:border-0 ${isDark ? 'border-white/5' : 'border-indigo-50'}`}>
                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 transition-all duration-500 overflow-hidden ${isDark ? 'bg-white/5 border border-white/10' : 'bg-indigo-50 border border-indigo-100'}`}>
-                                        <img 
-                                            src={`/icons/profile_${field.key}.png`} 
-                                            alt="" 
-                                            className="w-full h-full object-cover" 
+                                        <img src={`/icons/profile_${field.key}.png`}
+                                            alt=""
+                                            className="w-full h-full object-cover"
                                             onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                                         />
                                         <span style={{ display: 'none' }} className="w-full h-full items-center justify-center">{field.emoji}</span>
@@ -180,11 +178,11 @@ export default function ProfilePage() {
                                         {editingField === field.key ? (
                                             <div className="flex gap-2">
                                                 <Input
-                                                    value={editValue} 
-                                                    onChange={e => setEditValue(e.target.value)} 
+                                                    value={editValue}
+                                                    onChange={e => setEditValue(e.target.value)}
                                                     type={field.key === 'age' ? 'number' : 'text'}
-                                                    variant="flat" 
-                                                    radius="full" 
+                                                    variant="flat"
+                                                    radius="full"
                                                     autoFocus
                                                     className="max-w-[400px]"
                                                     classNames={{ inputWrapper: `${isDark ? 'bg-white/10 border border-indigo-500/30' : 'bg-white border border-indigo-200'}` }}
@@ -246,7 +244,7 @@ export default function ProfilePage() {
                                         <Button key={opt.key} radius="full" variant={active ? 'flat' : 'bordered'} color={active ? 'primary' : 'default'}
                                             className={`font-black text-[12px] tracking-tight h-12 px-6 transition-all duration-500 ${active ? 'scale-105 shadow-indigo-500/10' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`}`}
                                             onPress={() => togglePref(opt.key)}>
-                                            <div className="w-5 h-5 me-2 overflow-hidden rounded-md"><img src={opt.emoji} className="w-full h-full object-cover" alt="" /></div> {opt.label}
+                                            <div className="w-5 h-5 me-2 overflow-hidden rounded-md"><img src={opt.emoji} className="w-full h-full object-cover" alt=""  loading="lazy" decoding="async"/></div> {opt.label}
                                         </Button>
                                     );
                                 })}
@@ -258,7 +256,7 @@ export default function ProfilePage() {
                             <h3 className={`px-4 text-[10px] font-black uppercase tracking-[0.4em] opacity-30`}>{isArabic ? 'مذكرات' : 'Hero Notes'}</h3>
                             <Card className={`rounded-[40px] border transition-all duration-700 backdrop-blur-3xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-100'}`}>
                                 <CardBody className="p-8">
-                                    <textarea 
+                                    <textarea
                                         className={`w-full min-h-[140px] bg-transparent border-none outline-none font-bold text-lg leading-relaxed ${isDark ? 'text-white/80 placeholder:text-white/10' : 'text-indigo-900 placeholder:text-indigo-200'}`}
                                         placeholder={isArabic ? 'اكتب ملاحظاتك هنا...' : 'Add some notes...'}
                                         value={activeUser.notes || ''}
@@ -275,8 +273,20 @@ export default function ProfilePage() {
                 <Card className={`mt-10 rounded-[30px] border transition-all duration-700 backdrop-blur-3xl ${isDark ? 'bg-white/[0.01] border-white/5' : 'bg-white/40 border-indigo-100'}`}>
                     <CardBody className="p-8 flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{isArabic ? 'تاريخ التسجيل' : 'JOINED'}</span>
-                            <span className="text-sm font-bold">{activeUser.createdAt ? new Date(activeUser.createdAt).toLocaleDateString() : 'N/A'}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{isArabic ? 'تاريخ الانضمام' : 'MEMBER SINCE'}</span>
+                            <div className="flex items-center gap-2 mt-0.5" dir="ltr">
+                                <span className="text-lg font-black text-indigo-500">
+                                    {activeUser.createdAt ? new Date(activeUser.createdAt).getDate().toString().padStart(2, '0') : '--'}
+                                </span>
+                                <span className="text-lg font-black opacity-20">/</span>
+                                <span className="text-lg font-black text-indigo-500">
+                                    {activeUser.createdAt ? (new Date(activeUser.createdAt).getMonth() + 1).toString().padStart(2, '0') : '--'}
+                                </span>
+                                <span className="text-lg font-black opacity-20">/</span>
+                                <span className="text-lg font-black text-indigo-500">
+                                    {activeUser.createdAt ? new Date(activeUser.createdAt).getFullYear() : '----'}
+                                </span>
+                            </div>
                         </div>
                     </CardBody>
                 </Card>
@@ -284,8 +294,8 @@ export default function ProfilePage() {
 
             {/* Avatar Picker Modal - Only for Child */}
             {userRole === 'child' && (
-                <Modal isOpen={showAvatarPicker} onClose={() => setShowAvatarPicker(false)} size="sm" backdrop="blur" 
-                    classNames={{ 
+                <Modal isOpen={showAvatarPicker} onClose={() => setShowAvatarPicker(false)} size="sm" backdrop="blur"
+                    classNames={{
                         base: `backdrop-blur-3xl border rounded-[50px] overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0F101A]/95 border-white/10' : 'bg-white/95 border-indigo-100'}`,
                         backdrop: 'bg-indigo-950/40 backdrop-blur-sm'
                     }}>

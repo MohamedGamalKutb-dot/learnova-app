@@ -1,4 +1,5 @@
 import { Card, CardBody, Progress } from '@heroui/react';
+import { FaChartLine, FaCheck, FaTimes } from 'react-icons/fa';
 
 export default function ModuleFocusTab({
     isArabic, isDark, auraCard, auraAccent, SectionTitle,
@@ -46,8 +47,8 @@ export default function ModuleFocusTab({
                             <div className="flex-1 space-y-2">
                                 <p className={`text-[12px] font-black uppercase tracking-widest m-0 ${isDark ? 'text-white/40' : 'text-slate-500'}`}>{isArabic ? 'نسبة الدقة' : 'Recognition'}</p>
                                 <div className="flex items-center gap-4">
-                                    <span className="text-emerald-400 font-black text-xl">✓ {todayEmotionStats.correct}</span>
-                                    <span className="text-rose-500 font-black text-xl">✕ {todayEmotionStats.total - todayEmotionStats.correct}</span>
+                                    <span className="text-emerald-400 font-black text-xl flex items-center gap-1"><FaCheck /> {todayEmotionStats.correct}</span>
+                                    <span className="text-rose-500 font-black text-xl flex items-center gap-1"><FaTimes /> {todayEmotionStats.total - todayEmotionStats.correct}</span>
                                 </div>
                                 <p className={`text-[10px] mt-2 font-black ${isDark ? 'text-white/20' : 'text-slate-400'}`}>{isArabic ? 'مجموع الجلسات' : 'Total Sessions'} : {todayEmotionStats.total}</p>
                             </div>
@@ -58,13 +59,13 @@ export default function ModuleFocusTab({
 
             {/* MODULE USAGE (Aura Mosaic) */}
             <div className="space-y-6">
-                <SectionTitle icon="/icons/quiz_stats.png" title={isArabic ? 'تحليل الأداء' : 'Module Focus'} badge={isArabic ? 'شامل' : 'Overall'} badgeColor={auraAccent} />
+                <SectionTitle emoji={<FaChartLine />} title={isArabic ? 'تحليل الأداء' : 'Module Focus'} badge={isArabic ? 'شامل' : 'Overall'} badgeColor={auraAccent} />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {Object.entries(data?.moduleUsage || {}).map(([mod, count]) => (
                         <Card key={mod} className={`group rounded-[38px] border ${auraCard} hover:border-[#A8B4FF]/40 transition-all duration-500`}>
                             <CardBody className="p-7 text-center">
                                 <div className="w-14 h-14 rounded-3xl bg-white/5 border border-white/5 mx-auto mb-4 flex items-center justify-center text-3xl group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-500 shadow-inner">
-                                    {moduleEmojis[mod].includes('.png') ? <img src={moduleEmojis[mod]} alt="" className="w-full h-full object-cover" /> : moduleEmojis[mod]}
+                                    {moduleEmojis[mod].includes('.png') ? <img src={moduleEmojis[mod]} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/> : moduleEmojis[mod]}
                                 </div>
                                 <div className={`text-[11px] font-black uppercase tracking-[0.2em] mb-1 ${isDark ? 'text-white/30' : 'text-slate-400'}`}>{moduleNames[mod]}</div>
                                 <div className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-800'}`}>{count}</div>

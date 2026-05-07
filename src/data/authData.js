@@ -8,7 +8,7 @@ export const getAuthData = (isArabic) => {
     ];
 
     const parentStepLabels = isArabic ? ['كود الطفل', 'الاسم', 'البريد', 'كلمة المرور', 'الهاتف', 'مراجعة'] : ['Child Code', 'Name', 'Email', 'Password', 'Phone', 'Review'];
-    const parentStepIcons = ['/icons/pecs_module.png', '/icons/profile.png', '/icons/assistant_aura.png', '/icons/pecs_place_home.png', '/icons/doctor_consultation.png', '/icons/quiz_correct.png'];
+    const parentStepIcons = ['/icons/pecs_module.png', '/icons/profile.png', '/icons/assistant_aura.png', '/icons/pecs_place_home.png', '/icons/doctor_consultation.png', '/icons/quiz_excellent.png'];
 
     const childAvatars = ['👦', '👧', '🧒', '👶', '🐱', '🐻', '🦊', '🐰'];
 

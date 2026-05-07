@@ -94,9 +94,9 @@ export default function ChildHomePage() {
                     <div className="relative z-20 px-12 md:px-20 flex items-center gap-10 w-full">
                         <div className={`w-28 h-28 md:w-36 md:h-36 rounded-full border flex items-center justify-center text-7xl shadow-2xl animate-float backdrop-blur-3xl transition-all duration-500 overflow-hidden ${isDark ? 'bg-white/10 border-white/20' : 'bg-white/90 border-indigo-200 shadow-indigo-500/10'}`}>
                             {currentChild.avatar && (currentChild.avatar.startsWith('data:image') || currentChild.avatar.startsWith('http')) ? (
-                                <img src={currentChild.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                <img src={currentChild.avatar} alt="Avatar" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                             ) : (
-                                <img src="/icons/emotion_emo_calm.png" alt="Zen" className="w-[70%] h-[70%] object-contain opacity-80" />
+                                <img src="/icons/emotion_emo_calm.png" alt="Zen" className="w-[70%] h-[70%] object-contain opacity-80"  loading="lazy" decoding="async"/>
                             )}
                         </div>
                         <div className="flex-1">
@@ -130,7 +130,7 @@ export default function ChildHomePage() {
                                 <CardBody className="relative z-10 p-12 flex flex-col justify-between h-full">
                                     <div className={`w-24 h-24 rounded-[32px] border flex items-center justify-center transition-all duration-700 backdrop-blur-2xl overflow-hidden ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/90 border-indigo-100'} ${isHovered ? 'scale-110 rotate-6 shadow-xl' : ''}`}>
                                         <div className={`absolute inset-0 rounded-[32px] opacity-20 blur-2xl transition-opacity duration-700 ${isHovered ? 'opacity-50' : 'opacity-0'}`} style={{ backgroundColor: mod.color }} />
-                                        <img src={mod.icon} alt={mod.key} className="relative z-10 w-full h-full object-cover" />
+                                        <img src={mod.icon} alt={mod.key} className="relative z-10 w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                     </div>
                                     
                                     <div className="space-y-2">

@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input, Chip, Divider } from '@heroui/react';
 import GoogleAuthButton from '../components/GoogleAuthButton';
+import { FaUserMd, FaStethoscope, FaHospital, FaNotesMedical, FaUsers, FaClipboardList, FaTheaterMasks, FaFileAlt } from 'react-icons/fa';
 import { getDoctorData } from '../data/doctorData';
 
 export default function DoctorAuthPage() {
@@ -29,6 +30,7 @@ export default function DoctorAuthPage() {
     };
     
     const { features, strengthColors } = getDoctorData(isArabic);
+    const featureIcons = [<FaUsers />, <FaClipboardList />, <FaTheaterMasks />, <FaFileAlt />];
 
     const handleSubmit = async (e) => {
         e.preventDefault(); setLoading(true); setError('');
@@ -55,17 +57,17 @@ export default function DoctorAuthPage() {
                 <div className="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full bg-white/[0.06]" />
                 <div className="absolute -bottom-20 -left-20 w-[280px] h-[280px] rounded-full bg-white/[0.04]" />
                 <div className="absolute top-[15%] left-[12%] w-16 h-16 opacity-20" style={{ animation: 'float 6s ease-in-out infinite' }}>
-                    <img src="/icons/doctor_consultation.png" alt="" className="w-full h-full object-contain" />
+                    <img src="/icons/doctor_consultation.png" alt="" className="w-full h-full object-contain"  loading="lazy" decoding="async"/>
                 </div>
                 <div className="absolute bottom-[20%] right-[15%] w-14 h-14 opacity-15" style={{ animation: 'float 7s ease-in-out infinite 1s' }}>
-                    <img src="/icons/pecs_body_hurt.png" alt="" className="w-full h-full object-contain" />
+                    <img src="/icons/pecs_body_hurt.png" alt="" className="w-full h-full object-contain"  loading="lazy" decoding="async"/>
                 </div>
                 <div className="absolute top-[60%] left-[8%] w-12 h-12 opacity-15" style={{ animation: 'float 8s ease-in-out infinite 2s' }}>
-                    <img src="/icons/pecs_place_hospital.png" alt="" className="w-full h-full object-contain" />
+                    <img src="/icons/pecs_place_hospital.png" alt="" className="w-full h-full object-contain"  loading="lazy" decoding="async"/>
                 </div>
                 <div className="relative z-[1] text-center">
                     <div className="w-24 h-24 mx-auto mb-6">
-                        <img src="/icons/doctor_consultation.png" alt="" className="w-full h-full object-contain" />
+                        <img src="/icons/doctor_icon.png" alt="" className="w-full h-full object-contain"  loading="lazy" decoding="async"/>
                     </div>
                     <h2 className="text-white text-[28px] font-extrabold mb-2.5">{isArabic ? 'بوابة الطبيب' : 'Doctor Portal'}</h2>
                     <p className="text-white/80 text-[15px] leading-relaxed mb-8">{isArabic ? 'منصة متكاملة لإدارة ومتابعة حالات الأطفال' : "A comprehensive platform for managing and tracking children's cases"}</p>
@@ -73,8 +75,8 @@ export default function DoctorAuthPage() {
                         {features.map((f, i) => (
                             <div key={i} className="bg-white/10 backdrop-blur-lg rounded-[14px] py-3.5 px-3 text-center border border-white/15"
                                 style={{ animation: `fadeInUp 0.4s ease-out ${i * 0.1}s both` }}>
-                                <div className="w-10 h-10 mx-auto mb-2 overflow-hidden rounded-lg flex items-center justify-center bg-white/10 border border-white/10">
-                                    <img src={f.icon} alt="" className="w-full h-full object-cover" />
+                                <div className="w-10 h-10 mx-auto mb-2 overflow-hidden rounded-lg flex items-center justify-center bg-white/10 border border-white/10 text-white text-xl">
+                                    {featureIcons[i] || f.text[0]}
                                 </div>
                                 <div className="text-white/90 text-xs font-semibold">{f.text}</div>
                             </div>

@@ -64,7 +64,7 @@ export default function NotFoundPage() {
                         style={{ background: 'linear-gradient(90deg, #2563EB, #8B5CF6)', WebkitBackgroundClip: 'text' }}>LearnNeur</span>
                     <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shadow-[0_4px_12px_rgba(37,99,235,0.25)] overflow-hidden"
                         style={{ background: 'linear-gradient(135deg, #2563EB, #06B6D4)' }}>
-                        <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover" />
+                        <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                     </div>
                 </a>
             </nav>

@@ -94,8 +94,7 @@ export default function PecsPage() {
                                                 variant="flat"
                                                 className={`h-16 px-8 rounded-[30px] transition-all ${isDark ? 'bg-indigo-500/20 text-indigo-200' : 'bg-indigo-50 text-indigo-900'}`}>
                                                 <span className="w-10 h-10 flex items-center justify-center mr-2 ml-2 overflow-hidden rounded-lg">
-                                                    <img 
-                                                        src={item.category === 'emotions' ? `/icons/emotion_${item.id}.png` : `/icons/pecs_${item.id}.png`} 
+                                                    <img src={item.category === 'emotions' ? `/icons/emotion_${item.id}.png` : `/icons/pecs_${item.id}.png`} 
                                                         alt="" 
                                                         className="w-full h-full object-cover" 
                                                         onError={(e) => { 
@@ -142,7 +141,7 @@ export default function PecsPage() {
                                 }`}
                                 startContent={
                                     <div className="w-8 h-8 overflow-hidden flex items-center justify-center rounded-lg">
-                                        <img src={categoryIcons[cat]} alt="" className="w-full h-full object-cover" />
+                                        <img src={categoryIcons[cat]} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                     </div>
                                 }>
                                 {isArabic ? categoryLabelsAr[cat] : categoryLabels[cat]}
@@ -168,8 +167,7 @@ export default function PecsPage() {
                                     <div className={`w-24 h-24 rounded-[35px] flex items-center justify-center text-6xl shrink-0 transition-all duration-500 overflow-hidden ${
                                         isDark ? 'bg-white/5' : 'bg-indigo-50/70'
                                     } ${hoveredItem === item.id ? 'rotate-6 scale-110' : ''}`}>
-                                        <img 
-                                            src={item.category === 'emotions' ? `/icons/emotion_${item.id}.png` : `/icons/pecs_${item.id}.png`} 
+                                        <img src={item.category === 'emotions' ? `/icons/emotion_${item.id}.png` : `/icons/pecs_${item.id}.png`} 
                                             alt="" 
                                             className="w-full h-full object-cover" 
                                             onError={(e) => { 

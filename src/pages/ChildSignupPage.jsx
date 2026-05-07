@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input, Card, CardBody, Divider } from '@heroui/react';
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import GoogleAuthButton from '../components/GoogleAuthButton';
 import { getAuthData } from '../data/authData';
 
@@ -54,7 +55,7 @@ export default function ChildSignupPage() {
                 <Card className={`max-w-[460px] w-full ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border shadow-[0_8px_30px_rgba(0,0,0,0.06)]'} border`}
                     style={{ animation: 'fadeInUp 0.5s ease-out' }}>
                     <CardBody className="p-12 text-center">
-                        <div className="w-24 h-24 mb-4 mx-auto overflow-hidden"><img src="/icons/rewards.png" className="w-full h-full object-contain" /></div>
+                        <div className="w-24 h-24 mb-4 mx-auto overflow-hidden"><img src="/icons/rewards.png" className="w-full h-full object-contain"  loading="lazy" decoding="async" alt=""/></div>
                         <h2 className={`text-[26px] font-extrabold mb-2 ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تم التسجيل بنجاح!' : 'Registration Successful!'}</h2>
                         <p className={`text-sm ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'هذا هو كودك الخاص. احتفظ به!' : 'This is your unique code. Keep it safe!'}</p>
                         <div className="mx-auto my-6 py-5 px-8 rounded-2xl bg-gradient-to-br from-accent to-accent2 inline-block">
@@ -62,18 +63,18 @@ export default function ChildSignupPage() {
                             <div className="text-4xl font-black text-white tracking-[4px] font-mono">{createdId}</div>
                         </div>
                         <div className={`rounded-xl p-3.5 my-4 border text-start ${isDark ? 'bg-[#1C2333] border-[#2D333B]' : 'bg-amber-50 border-amber-200'} flex items-center gap-2`}>
-                            <img src="/icons/quiz_wrong.png" className="w-5 h-5 object-contain" />
+                            <FaTimesCircle className="w-5 h-5 text-amber-500" />
                             <p className={`text-[13px] font-semibold m-0 ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>
                                 {isArabic ? 'مهم: شاركه مع ولي أمرك!' : 'Important: Share this code with your parent!'}
                             </p>
                         </div>
                         <Button fullWidth variant="bordered" radius="lg" className={`mb-2.5 ${isDark ? 'text-text-dark border-border-dark' : 'text-text border-border'}`}
                             onPress={() => navigator.clipboard?.writeText(createdId)}
-                            startContent={<div className="w-5 h-5 overflow-hidden"><img src="/icons/daily_rhythm.png" className="w-full h-full object-contain" /></div>}>
+                            startContent={<div className="w-5 h-5 overflow-hidden"><img src="/icons/daily_rhythm.png" className="w-full h-full object-contain"  loading="lazy" decoding="async" alt=""/></div>}>
                             {isArabic ? 'نسخ الكود' : 'Copy Code'}</Button>
                         <Button fullWidth radius="lg" className="bg-gradient-to-br from-accent to-[#8B5CF6] text-white font-bold shadow-[0_4px_16px_rgba(108,99,255,0.25)]"
                             onPress={() => navigate('/child-login')}
-                            startContent={<div className="w-6 h-6 overflow-hidden"><img src="/icons/quiz_excellent.png" className="w-full h-full object-contain" /></div>}>
+                            startContent={<FaCheckCircle className="w-6 h-6" />}>
                             {isArabic ? 'سجل دخولك الآن' : 'Log In Now'}</Button>
                     </CardBody>
                 </Card>
@@ -86,14 +87,14 @@ export default function ChildSignupPage() {
         <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
             {/* Left: Branding */}
             <div className="flex-1 hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent2 to-pink-500 to-accent p-10 relative overflow-hidden">
-                <div className="absolute top-[10%] left-[10%] w-20 h-20 opacity-15 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}><img src="/icons/rewards.png" className="w-full h-full object-cover" /></div>
-                <div className="absolute bottom-[20%] right-[15%] w-16 h-16 opacity-[0.12] overflow-hidden" style={{ animation: 'float 7s ease-in-out infinite 1s' }}><img src="/icons/games.png" className="w-full h-full object-cover" /></div>
-                <div className="w-32 h-32 mb-5 z-[1] overflow-hidden rounded-3xl shadow-2xl"><img src="/icons/rewards.png" className="w-full h-full object-cover" /></div>
+                <div className="absolute top-[10%] left-[10%] w-20 h-20 opacity-15 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}><img src="/icons/rewards.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="absolute bottom-[20%] right-[15%] w-16 h-16 opacity-[0.12] overflow-hidden" style={{ animation: 'float 7s ease-in-out infinite 1s' }}><img src="/icons/games.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="w-32 h-32 mb-5 z-[1] overflow-hidden rounded-3xl shadow-2xl"><img src="/icons/rewards.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
                 <h2 className="text-white text-3xl font-extrabold text-center z-[1] mb-2.5">{isArabic ? 'إنشاء حساب جديد' : 'Create Account'}</h2>
                 <p className="text-white/80 text-[15px] text-center max-w-[280px] z-[1] leading-relaxed">{isArabic ? 'سجل عشان تبدأ رحلة التعلم الممتعة!' : 'Sign up to start your fun learning journey!'}</p>
                 <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer mt-10 z-[1] text-white/70 text-sm">
                     <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
-                        <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover" />
+                        <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                     </div>
                     <span className="font-bold text-white">LearnNeur</span>
                 </div>
@@ -106,7 +107,7 @@ export default function ChildSignupPage() {
                         onPress={() => navigate('/choice')}>← {isArabic ? 'رجوع' : 'Back'}</Button>
 
                     <h1 className={`text-[26px] font-extrabold mb-1 ${isDark ? 'text-text-dark' : 'text-text'} flex items-center gap-3`}>
-                        <div className="w-10 h-10 overflow-hidden rounded-xl"><img src="/icons/rewards.png" className="w-full h-full object-cover" /></div> {isArabic ? 'تسجيل طفل جديد' : 'New Child Account'}
+                        <div className="w-10 h-10 overflow-hidden rounded-xl"><img src="/icons/rewards.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div> {isArabic ? 'تسجيل طفل جديد' : 'New Child Account'}
                     </h1>
                     <p className={`text-[13px] mb-6 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'سجل عشان تبدأ رحلة التعلم' : 'Sign up to start your learning journey'}</p>
 
@@ -171,14 +172,14 @@ export default function ChildSignupPage() {
 
                     {error && (
                         <div className={`rounded-[10px] py-2.5 px-3.5 my-3 border ${isDark ? 'bg-[rgba(255,101,132,0.1)]' : 'bg-red-50'} border-red-500/20 flex items-center gap-2`}>
-                            <img src="/icons/quiz_wrong.png" className="w-5 h-5 object-contain" />
+                            <FaTimesCircle className="w-5 h-5 text-red-500" />
                             <span className="text-red-500 text-[13px] font-semibold">{error}</span>
                         </div>
                     )}
 
                     <Button fullWidth radius="lg" className="bg-gradient-to-br from-accent2 to-pink-500 text-white font-bold text-base mt-5 shadow-[0_4px_16px_rgba(255,101,132,0.35)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(255,101,132,0.45)]"
                         onPress={handleRegister}
-                        startContent={<div className="w-6 h-6 overflow-hidden rounded-md"><img src="/icons/games.png" className="w-full h-full object-contain" /></div>}>
+                        startContent={<div className="w-6 h-6 overflow-hidden rounded-md"><img src="/icons/games.png" className="w-full h-full object-contain"  loading="lazy" decoding="async" alt=""/></div>}>
                         {isArabic ? 'سجل وابدأ!' : 'Register & Start!'}</Button>
 
                     <div className="flex items-center gap-3 my-5">

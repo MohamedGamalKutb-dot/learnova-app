@@ -25,7 +25,7 @@ export default function ClinicalOverviewTab({
                             className={`flex-1 h-12 rounded-[22px] font-black text-[13px] transition-all duration-500 ${activeReportTab === tab.key ? 'bg-indigo-500 text-white shadow-lg' : isDark ? 'text-white/40 hover:text-white/60' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <div className="w-5 h-5 me-2 overflow-hidden flex items-center justify-center">
-                                <img src={tab.icon} alt="" className="w-full h-full object-contain" />
+                                <img src={tab.icon} alt="" className="w-full h-full object-contain"  loading="lazy" decoding="async"/>
                             </div>
                             {tab.label}
                         </Button>
@@ -62,7 +62,9 @@ export default function ClinicalOverviewTab({
                                     </div>
                                     <div className="p-8 rounded-[40px] bg-white/5 border border-white/10 text-center flex flex-col justify-center">
                                         <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">{isArabic ? 'التاريخ' : 'Date'}</p>
-                                        <p className="text-lg font-black text-white">{new Date(viewingAssessment.date).toLocaleDateString()}</p>
+                                        <p className="text-lg font-black text-white" dir="ltr">
+                                            {activeUser.createdAt ? `${new Date(viewingAssessment.date).getDate().toString().padStart(2, '0')} / ${(new Date(viewingAssessment.date).getMonth() + 1).toString().padStart(2, '0')} / ${new Date(viewingAssessment.date).getFullYear()}` : '--'}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -75,7 +77,9 @@ export default function ClinicalOverviewTab({
                                         <div className="w-16 h-16 rounded-[24px] bg-indigo-500 shadow-lg shadow-indigo-500/20 flex items-center justify-center text-xl font-black text-white">{ass.score}%</div>
                                         <div className="flex-1">
                                             <p className="text-lg font-black text-white m-0">{isArabic ? 'تقييم شامل' : 'Clinical Assessment'}</p>
-                                            <p className="text-xs text-white/30 font-bold m-0">{new Date(ass.date).toLocaleDateString()}</p>
+                                            <p className="text-xs text-white/30 font-bold m-0" dir="ltr">
+                                                {new Date(ass.date).getDate().toString().padStart(2, '0')} / {(new Date(ass.date).getMonth() + 1).toString().padStart(2, '0')} / {new Date(ass.date).getFullYear()}
+                                            </p>
                                         </div>
                                         <div className="text-indigo-400 text-2xl font-black opacity-0 group-hover:opacity-100 transition-opacity">→</div>
                                     </div>
@@ -94,7 +98,7 @@ export default function ClinicalOverviewTab({
                             return (
                                 <div key={idx} className={`p-6 rounded-[40px] border transition-colors flex gap-6 ${isDark ? 'border-white/5 bg-white/5 group-hover:bg-white/10' : 'border-slate-200 bg-white group-hover:bg-slate-50'}`}>
                                     <div className="w-14 h-14 rounded-[22px] flex items-center justify-center overflow-hidden shadow-inner" style={{ background: `${bt?.color || '#999'}20` }}>
-                                        <img src={bt?.emoji || log.emoji || '/icons/emotion_mastery.png'} alt="" className="w-full h-full object-cover" />
+                                        <img src={bt?.emoji || log.emoji || '/icons/emotion_mastery.png'} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-center mb-2">
@@ -102,7 +106,9 @@ export default function ClinicalOverviewTab({
                                             <span className="px-3 py-1 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-black uppercase tracking-widest">{log.intensity}/5 Intensity</span>
                                         </div>
                                         <p className={`text-base font-medium m-0 leading-relaxed ${isDark ? 'text-indigo-100/60' : 'text-slate-600'}`}>{log.note}</p>
-                                        <p className={`text-[10px] font-black mt-2 uppercase tracking-widest ${isDark ? 'text-white/20' : 'text-slate-400'}`}>{new Date(log.date).toLocaleString()}</p>
+                                        <p className={`text-[10px] font-black mt-2 uppercase tracking-widest ${isDark ? 'text-white/20' : 'text-slate-400'}`}>
+                                            {new Date(log.date).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })} • {new Date(log.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
                                     </div>
                                 </div>
                             );

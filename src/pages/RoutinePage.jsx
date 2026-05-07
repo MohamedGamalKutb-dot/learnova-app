@@ -5,6 +5,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { defaultRoutine, timeOfDayLabels, timeOfDayLabelsAr, availableIcons } from '../data/routineData';
 import { Button, Card, CardBody, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Input } from '@heroui/react';
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 export default function RoutinePage() {
     const navigate = useNavigate();
@@ -94,7 +95,7 @@ export default function RoutinePage() {
                     <div className="flex flex-col">
                         <h1 className={`text-xl font-black transition-all duration-1000 leading-none ${isDark ? 'text-emerald-100' : 'text-emerald-900'} flex items-center gap-2`}>
                             <div className="w-8 h-8 overflow-hidden rounded-lg flex items-center justify-center">
-                                <img src="/icons/routine.png" alt="" className="w-full h-full object-cover" />
+                                <img src="/icons/routine.png" alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                             </div>
                             {isArabic ? 'الروتين اليومي' : 'Daily Routine'}
                         </h1>
@@ -169,10 +170,9 @@ export default function RoutinePage() {
                                 <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center text-4xl shrink-0 transition-all duration-500 overflow-hidden ${
                                     item.isCompleted ? 'bg-emerald-500 text-white rotate-12 scale-110' : (isDark ? 'bg-white/5' : 'bg-indigo-50/50')
                                 }`}>
-                                    {item.isCompleted ? <img src="/icons/quiz_correct.png" alt="" className="w-10 h-10 object-contain" /> : (
+                                    {item.isCompleted ? <FaCheckCircle className="w-10 h-10 text-white" /> : (
                                         <>
-                                            <img 
-                                                src={`/icons/${item.id.includes('custom_') ? item.iconId : `routine_${item.id}`}.png`} 
+                                            <img src={`/icons/${item.id.includes('custom_') ? item.iconId : `routine_${item.id}`}.png`} 
                                                 alt="" 
                                                 className="w-full h-full object-cover" 
                                                 onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
@@ -244,8 +244,7 @@ export default function RoutinePage() {
                                         {availableIcons.map(iconObj => (
                                             <Button key={iconObj.id} isIconOnly radius="xl" variant={newItem.iconId === iconObj.id ? "flat" : "bordered"} onPress={() => setNewItem(p => ({ ...p, iconId: iconObj.id, emoji: iconObj.emoji }))}
                                                 className={`h-12 w-12 p-1 overflow-hidden transition-all ${newItem.iconId === iconObj.id ? 'scale-110 bg-emerald-500/20 border-emerald-500' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`}`}>
-                                                <img 
-                                                    src={`/icons/${iconObj.id}.png`} 
+                                                <img src={`/icons/${iconObj.id}.png`} 
                                                     alt="" 
                                                     className="w-full h-full object-cover" 
                                                     onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}

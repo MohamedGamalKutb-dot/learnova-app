@@ -5,6 +5,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { allEmotions, getUpToLevel } from '../data/emotionData';
 import { Button, Card, CardBody, Navbar, Chip } from '@heroui/react';
+import { FaCheckCircle, FaTimesCircle, FaChartLine } from 'react-icons/fa';
 
 export default function EmotionsPage() {
     const navigate = useNavigate();
@@ -125,7 +126,7 @@ export default function EmotionsPage() {
                     <div className="flex flex-col">
                         <h1 className={`text-xl font-black leading-none ${isDark ? 'text-rose-100' : 'text-rose-900'} flex items-center gap-2`}>
                             <div className="w-8 h-8 overflow-hidden rounded-lg flex items-center justify-center">
-                                <img src="/icons/emotions.png" alt="" className="w-full h-full object-cover" />
+                                <img src="/icons/emotions.png" alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                             </div>
                             {isArabic ? 'مستكشف المشاعر' : 'Emotion Lab'}
                         </h1>
@@ -143,8 +144,7 @@ export default function EmotionsPage() {
                             <Card className={`w-full max-w-[600px] rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-2xl p-10 flex flex-col items-center ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/95 border-indigo-50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]'}`}>
                                 <CardBody className="items-center gap-6 p-0">
                                     <div className="w-32 h-32 animate-bounce mb-2 overflow-hidden flex items-center justify-center">
-                                        <img
-                                            src={`/icons/${accuracy >= 0.8 ? 'quiz_excellent.png' : accuracy >= 0.5 ? 'quiz_good.png' : 'quiz_try.png'}`}
+                                        <img src={`/icons/${accuracy  >= 0.8 ? 'quiz_excellent.png' : accuracy >= 0.5 ? 'quiz_good.png' : 'quiz_try.png'}`}
                                             alt=""
                                             className="w-full h-full object-cover"
                                             onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
@@ -157,17 +157,17 @@ export default function EmotionsPage() {
 
                                     <div className="grid grid-cols-3 gap-4 w-full my-6">
                                         <div className={`p-4 rounded-[25px] flex flex-col items-center border ${isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-100'}`}>
-                                            <div className="w-8 h-8 mb-2"><img src="/icons/quiz_correct.png" alt="Correct" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-2xl">✅</span></div>
+                                            <FaCheckCircle className="w-8 h-8 mb-2 text-emerald-500" />
                                             <span className="text-2xl font-black text-emerald-500">{correctAnswers}</span>
                                             <span className="text-[9px] font-black uppercase opacity-40">{isArabic ? 'صحيح' : 'CORRECT'}</span>
                                         </div>
                                         <div className={`p-4 rounded-[25px] flex flex-col items-center border ${isDark ? 'bg-rose-500/10 border-rose-500/20' : 'bg-rose-50 border-rose-100'}`}>
-                                            <div className="w-8 h-8 mb-2"><img src="/icons/quiz_wrong.png" alt="Wrong" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-2xl">❌</span></div>
+                                            <FaTimesCircle className="w-8 h-8 mb-2 text-rose-500" />
                                             <span className="text-2xl font-black text-rose-500">{totalAttempts - correctAnswers}</span>
                                             <span className="text-[9px] font-black uppercase opacity-40">{isArabic ? 'خاطئ' : 'WRONG'}</span>
                                         </div>
                                         <div className={`p-4 rounded-[25px] flex flex-col items-center border ${isDark ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'}`}>
-                                            <div className="w-8 h-8 mb-2"><img src="/icons/quiz_stats.png" alt="Stats" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-2xl">📈</span></div>
+                                            <FaChartLine className="w-8 h-8 mb-2 text-indigo-500" />
                                             <span className="text-2xl font-black text-indigo-500">{Math.round(accuracy * 100)}%</span>
                                             <span className="text-[9px] font-black uppercase opacity-40">{isArabic ? 'النسبة' : 'PERCENT'}</span>
                                         </div>
@@ -197,16 +197,19 @@ export default function EmotionsPage() {
                                     <h3 className="text-2xl font-black">{currentQuestionIdx + 1} <span className="text-indigo-500 text-sm">/ {quizQuestions.length}</span></h3>
                                 </div>
                                 <div className="flex gap-3">
-                                    <Chip variant="flat" className="h-10 px-4 bg-emerald-500/10 text-emerald-500 font-bold flex items-center gap-2"><img src="/icons/quiz_correct.png" className="w-4 h-4 inline-block object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} /><span style={{ display: 'none' }}>✅</span> {correctAnswers}</Chip>
-                                    <Chip variant="flat" className="h-10 px-4 bg-rose-500/10 text-rose-500 font-bold flex items-center gap-2"><img src="/icons/quiz_wrong.png" className="w-4 h-4 inline-block object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} /><span style={{ display: 'none' }}>❌</span> {totalAttempts - correctAnswers}</Chip>
+                                    <Chip variant="flat" className="h-10 px-4 bg-emerald-500/10 text-emerald-500 font-bold flex items-center gap-2">
+                                        <FaCheckCircle className="w-4 h-4" /> {correctAnswers}
+                                    </Chip>
+                                    <Chip variant="flat" className="h-10 px-4 bg-rose-500/10 text-rose-500 font-bold flex items-center gap-2">
+                                        <FaTimesCircle className="w-4 h-4" /> {totalAttempts - correctAnswers}
+                                    </Chip>
                                 </div>
                             </div>
 
                             <Card className={`rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-2xl shadow-indigo-500/5'}`}>
                                 <CardBody className="p-12 text-center flex flex-col items-center gap-6">
                                     <div className="w-[200px] h-[200px] transition-all duration-500 hover:scale-110 flex items-center justify-center overflow-hidden mx-auto">
-                                        <img
-                                            src={`/icons/emotion_${quizQuestions[currentQuestionIdx].answer.id}.png`}
+                                        <img src={`/icons/emotion_${quizQuestions[currentQuestionIdx].answer.id}.png`}
                                             alt=""
                                             className="w-full h-full object-cover"
                                             onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
@@ -237,8 +240,8 @@ export default function EmotionsPage() {
                                             className={`rounded-[35px] border transition-all duration-500 backdrop-blur-md w-full ${cardStyle} ${lastAnswerCorrect === null ? 'hover:scale-[1.01] hover:border-indigo-500/30' : 'cursor-default'}`}>
                                             <CardBody className="p-6 flex flex-row items-center gap-8 px-12">
                                                 <span className="flex-1 text-2xl font-black text-center">{isArabic ? option.nameAr : option.name}</span>
-                                                {lastAnswerCorrect !== null && isCorrect && <div className="w-8 h-8 absolute right-10 animate-appearance-in"><img src="/icons/quiz_correct.png" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-3xl">✅</span></div>}
-                                                {lastAnswerCorrect === false && isSelected && !isCorrect && <div className="w-8 h-8 absolute right-10 animate-appearance-in"><img src="/icons/quiz_wrong.png" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} /><span style={{ display: 'none' }} className="text-3xl">❌</span></div>}
+                                                {lastAnswerCorrect !== null && isCorrect && <FaCheckCircle className="w-8 h-8 absolute right-10 animate-appearance-in text-emerald-500" />}
+                                                {lastAnswerCorrect === false && isSelected && !isCorrect && <FaTimesCircle className="w-8 h-8 absolute right-10 animate-appearance-in text-rose-500" />}
                                             </CardBody>
                                         </Card>
                                     );
@@ -264,7 +267,7 @@ export default function EmotionsPage() {
                                 ))}
                                 <Button radius="full" size="lg" onPress={startQuiz} className="h-14 px-10 bg-indigo-500 text-white font-black text-xs uppercase tracking-widest shadow-xl ml-auto flex items-center gap-2">
                                     <div className="w-6 h-6 overflow-hidden rounded-md flex items-center justify-center">
-                                        <img src="/icons/games.png" alt="" className="w-full h-full object-cover" />
+                                        <img src="/icons/games.png" alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                     </div> {isArabic ? 'ابدأ الاختبار' : 'Start Quiz'}
                                 </Button>
                             </div>
@@ -274,8 +277,7 @@ export default function EmotionsPage() {
                                     className={`rounded-[60px] border transition-all duration-700 backdrop-blur-3xl p-12 overflow-hidden w-full ${isDark ? 'bg-white/[0.03] border-white/10 shadow-2xl' : 'bg-white border-indigo-100 shadow-xl'}`}>
                                     <CardBody className="items-center text-center gap-8 relative z-10">
                                         <div className="w-[300px] h-[300px] text-[180px] animate-float transition-all duration-700 group-hover:scale-110 overflow-hidden flex items-center justify-center">
-                                            <img
-                                                src={`/icons/emotion_${currentEmotion.id}.png`}
+                                            <img src={`/icons/emotion_${currentEmotion.id}.png`}
                                                 alt=""
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}

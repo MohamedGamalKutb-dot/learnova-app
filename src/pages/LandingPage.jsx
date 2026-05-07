@@ -5,6 +5,7 @@ import {
     Button, Card, CardBody, Chip, Divider, Navbar, NavbarBrand, NavbarContent, NavbarItem
 } from '@heroui/react';
 import { getLandingData } from '../data/landingData';
+import { FaGamepad, FaChartLine, FaComments, FaCalendarAlt, FaStethoscope, FaBookOpen } from 'react-icons/fa';
 
 export default function LandingPage() {
     const navigate = useNavigate();
@@ -42,7 +43,7 @@ export default function LandingPage() {
             >
                 <NavbarBrand className="gap-2.5 shrink-0 cursor-pointer" onClick={() => scrollTo('hero')}>
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-p600 to-a500 flex items-center justify-center shadow-[0_4px_12px_rgba(37,99,235,.25)] overflow-hidden">
-                        <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover" />
+                        <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                     </div>
                     <span className="text-[21px] font-extrabold tracking-tight bg-gradient-to-r from-p600 to-a500 bg-clip-text [-webkit-text-fill-color:transparent]">LearnNeur</span>
                 </NavbarBrand>
@@ -99,11 +100,10 @@ export default function LandingPage() {
                 
                 {/* Background Image Layer */}
                 <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                    <img 
-                        src="/images/autism_bg.png" 
+                    <img src="/images/autism_bg.png" 
                         alt="" 
                         className={`w-full h-full object-cover transition-opacity duration-1000 ${isDark ? 'opacity-[40] grayscale' : 'opacity-[40]'}`} 
-                    />
+                     loading="lazy" decoding="async"/>
                     <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-lbg-dark via-transparent to-transparent' : 'from-lsurf via-transparent to-transparent'}`} />
                 </div>
 
@@ -126,7 +126,7 @@ export default function LandingPage() {
                         <Card key={i} className={`${darkSurf} border ${darkBdr} ${darkShad} ${c.cls}`}>
                             <CardBody className="py-4 px-[18px] flex flex-row items-center gap-3.5">
                                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ${c.bg}`}>
-                                    {c.icon.includes('.png') ? <img src={c.icon} alt="" className="w-full h-full object-cover" /> : <span className="text-[22px]">{c.icon}</span>}
+                                    {c.icon.includes('.png') ? <img src={c.icon} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/> : <span className="text-[22px]">{c.icon}</span>}
                                 </div>
                                 <div className="flex-1">
                                     <div className={`text-[13px] font-bold ${darkTxt}`}>{c.t}</div>
@@ -154,7 +154,7 @@ export default function LandingPage() {
                             <div className={`absolute top-0 inset-x-0 h-1 rounded-t-2xl bg-gradient-to-r ${c.topC}`} />
                             <CardBody className="p-0 flex flex-col items-center">
                                 <div className={`w-[76px] h-[76px] rounded-[22px] flex items-center justify-center mb-5 overflow-hidden ${c.iconBg}`}>
-                                    <img src={c.icon} alt="" className="w-full h-full object-cover" />
+                                    <img src={c.icon} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                 </div>
                                 <h3 className={`text-xl font-bold mb-2 ${darkTxt}`}>{c.h}</h3>
                                 <p className={`${darkTxt2} text-sm leading-[1.65] mb-6`}>{c.p}</p>
@@ -169,11 +169,10 @@ export default function LandingPage() {
             <section id="about" className={`py-16 md:py-[88px] px-5 md:px-14 ${darkBg} relative overflow-hidden`}>
                 {/* Background Image Layer */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
-                    <img 
-                        src="/images/autism_bg.jpg" 
+                    <img src="/images/autism_bg.jpg" 
                         alt="" 
                         className={`w-full h-full object-cover transition-opacity duration-1000 ${isDark ? 'opacity-[0.60] grayscale' : 'opacity-[0.60]'}`} 
-                    />
+                     loading="lazy" decoding="async"/>
                     <div className={`absolute inset-0 bg-gradient-to-b ${isDark ? 'from-lbg-dark via-transparent to-lbg-dark' : 'from-lbg via-transparent to-lbg'}`} />
                 </div>
 
@@ -251,8 +250,19 @@ export default function LandingPage() {
                         <Card key={i} className={`group ${darkSurf} border ${darkBdr} transition-all duration-300 relative overflow-hidden hover:-translate-y-[5px] hover:shadow-[0_18px_44px_rgba(37,99,235,.10)]`}>
                             <div className="toolcard-bar absolute bottom-0 inset-x-0 h-[3px] bg-gradient-to-r from-p500 to-a500" />
                             <CardBody className="py-8 px-[26px]">
-                                <div className="w-16 h-16 mb-4 overflow-hidden flex items-center justify-center rounded-2xl">
-                                    {tool.icon ? <img src={tool.icon} alt="" className="w-full h-full object-cover" /> : <span className="text-4xl">{tool.emoji}</span>}
+                                <div className={`w-16 h-16 mb-4 flex items-center justify-center rounded-2xl shadow-lg shadow-p500/20 bg-gradient-to-br 
+                                    ${i === 0 ? 'from-p600 to-p400' : 
+                                      i === 1 ? 'from-a600 to-a400' : 
+                                      i === 2 ? 'from-emerald-600 to-emerald-400' : 
+                                      i === 3 ? 'from-orange-600 to-orange-400' : 
+                                      i === 4 ? 'from-violet-600 to-violet-400' : 
+                                      'from-pink-600 to-pink-400'}`}>
+                                    {i === 0 && <FaGamepad className="w-8 h-8 text-white" />}
+                                    {i === 1 && <FaChartLine className="w-8 h-8 text-white" />}
+                                    {i === 2 && <FaComments className="w-8 h-8 text-white" />}
+                                    {i === 3 && <FaCalendarAlt className="w-8 h-8 text-white" />}
+                                    {i === 4 && <FaStethoscope className="w-8 h-8 text-white" />}
+                                    {i === 5 && <FaBookOpen className="w-8 h-8 text-white" />}
                                 </div>
                                 <h3 className={`text-[17px] font-bold mb-2 ${darkTxt}`}>{tool.h}</h3>
                                 <p className={`${darkTxt2} text-sm leading-[1.7] m-0`}>{tool.p}</p>
@@ -277,7 +287,7 @@ export default function LandingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2.2fr_1fr_1fr_1fr] gap-10 mb-12">
                     <div>
                         <h3 className="text-[22px] font-extrabold bg-gradient-to-r from-p400 to-a400 bg-clip-text [-webkit-text-fill-color:transparent] mb-3 flex items-center gap-2">
-                            <img src="/icons/brain_logo.png" alt="" className="w-6 h-6 object-contain" /> LearnNeur
+                            <img src="/icons/brain_logo.png" alt="" className="w-6 h-6 object-contain"  loading="lazy" decoding="async"/> LearnNeur
                         </h3>
                         <p className="text-sm leading-[1.8] text-[#64748B] max-w-[280px]">{T.footdesc}</p>
                     </div>

@@ -88,7 +88,7 @@ export default function CalmingPage() {
                         <h1 className={`text-xl font-black leading-none ${isDark ? 'text-indigo-100' : 'text-indigo-900'} flex items-center gap-2`}>
                             <div className="w-8 h-8 rounded-full border overflow-hidden shrink-0">
                                 {currentChild?.avatar && (currentChild.avatar.startsWith('data:image') || currentChild.avatar.startsWith('http')) ? (
-                                    <img src={currentChild.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                    <img src={currentChild.avatar} alt="Avatar" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-indigo-500/20 text-xs">{currentChild?.avatar || '🧘'}</div>
                                 )}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input, Card, CardBody, Divider } from '@heroui/react';
+import { FaCheckCircle, FaTimesCircle, FaLink, FaUser, FaEnvelope, FaLock, FaPhone, FaClipboardCheck } from 'react-icons/fa';
 import GoogleAuthButton from '../components/GoogleAuthButton';
 import { getAuthData } from '../data/authData';
 
@@ -63,7 +64,7 @@ export default function SignupPage() {
         if (isSuccess) {
             return (
                 <div className="text-center py-10" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
-                    <div className="w-24 h-24 mb-4 mx-auto overflow-hidden"><img src="/icons/rewards.png" className="w-full h-full object-contain" /></div>
+                    <div className="w-24 h-24 mb-4 mx-auto overflow-hidden"><img src="/icons/rewards.png" className="w-full h-full object-contain"  loading="lazy" decoding="async" alt=""/></div>
                     <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-text-dark' : 'text-text'}`}>
                         {isArabic ? 'تم إنشاء الحساب بنجاح!' : 'Account Created Successfully!'}
                     </h2>
@@ -72,7 +73,7 @@ export default function SignupPage() {
                     </p>
                     <Button fullWidth radius="lg" className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-base py-4 shadow-[0_4px_16px_rgba(16,185,129,0.35)]"
                         onPress={() => navigate('/login')}
-                        startContent={<div className="w-6 h-6 overflow-hidden"><img src="/icons/quiz_excellent.png" className="w-full h-full object-contain" /></div>}>
+                        startContent={<FaCheckCircle className="w-6 h-6" />}>
                         {isArabic ? 'سجل دخولك الآن' : 'Log In Now'}
                     </Button>
                 </div>
@@ -164,22 +165,26 @@ export default function SignupPage() {
         <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
             {/* Left: Branding */}
             <div className="flex-[0_0_45%] hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-accent3 to-[#44B09E] to-[#3A9D8F] p-10 relative overflow-hidden">
-                <div className="absolute top-[10%] left-[10%] w-20 h-20 opacity-15 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}><img src="/icons/parent_icon.png" className="w-full h-full object-cover" /></div>
-                <div className="absolute bottom-[15%] right-[10%] w-16 h-16 opacity-[0.12] overflow-hidden" style={{ animation: 'float 7s ease-in-out infinite 1s' }}><img src="/icons/quiz_stats.png" className="w-full h-full object-cover" /></div>
-                <div className="absolute top-[60%] left-[5%] w-16 h-16 opacity-10 overflow-hidden" style={{ animation: 'float 8s ease-in-out infinite 2s' }}><img src="/icons/emotion_emo_love.png" className="w-full h-full object-cover" /></div>
-                <div className="w-32 h-32 mb-5 z-[1] overflow-hidden rounded-3xl shadow-2xl"><img src="/icons/parent_icon.png" className="w-full h-full object-cover" /></div>
+                <div className="absolute top-[10%] left-[10%] w-20 h-20 opacity-15 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}><img src="/icons/parent_icon.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="absolute bottom-[15%] right-[10%] w-16 h-16 opacity-[0.12] overflow-hidden" style={{ animation: 'float 7s ease-in-out infinite 1s' }}><img src="/icons/quiz_stats.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="absolute top-[60%] left-[5%] w-16 h-16 opacity-10 overflow-hidden" style={{ animation: 'float 8s ease-in-out infinite 2s' }}><img src="/icons/emotion_emo_love.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
+                <div className="w-32 h-32 mb-5 z-[1] overflow-hidden rounded-3xl shadow-2xl"><img src="/icons/parent_icon.png" className="w-full h-full object-cover"  loading="lazy" decoding="async" alt=""/></div>
                 <h2 className="text-white text-3xl font-extrabold text-center z-[1] mb-2.5">{isArabic ? 'إنشاء حساب ولي الأمر' : 'Create Parent Account'}</h2>
                 <p className="text-white/85 text-[15px] text-center z-[1] max-w-[320px] leading-relaxed">{isArabic ? 'اربط حسابك بطفلك وابدأ متابعة تقدمه اليومي' : 'Link your account to your child and start tracking daily progress'}</p>
                 <div className="mt-10 z-[1] flex flex-col gap-2">
-                    {stepLabels.map((label, i) => (
-                        <div key={i} className="flex items-center gap-2.5 transition-opacity duration-300" style={{ opacity: i <= step ? 1 : 0.4 }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden border border-white/20 backdrop-blur-sm"
-                                style={{ background: i < step ? 'rgba(255,255,255,0.3)' : i === step ? '#fff' : 'rgba(255,255,255,0.1)' }}>
-                                {i < step ? <span className="text-emerald-600 font-bold">✓</span> : <img src={stepIcons[i]} className="w-4 h-4 object-contain" />}
+                    {stepLabels.map((label, i) => {
+                        const stepIconsFa = [FaLink, FaUser, FaEnvelope, FaLock, FaPhone, FaClipboardCheck];
+                        const StepIcon = stepIconsFa[i];
+                        return (
+                            <div key={i} className="flex items-center gap-2.5 transition-opacity duration-300" style={{ opacity: i <= step ? 1 : 0.4 }}>
+                                <div className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden border border-white/20 backdrop-blur-sm"
+                                    style={{ background: i < step ? 'rgba(255,255,255,0.3)' : i === step ? '#fff' : 'rgba(255,255,255,0.1)' }}>
+                                    {i < step ? <span className="text-emerald-600 font-bold">✓</span> : <StepIcon className={`w-3.5 h-3.5 ${i === step ? 'text-accent3' : 'text-white'}`} />}
+                                </div>
+                                <span className={`text-white text-[13px] ${i === step ? 'font-bold' : ''}`}>{label}</span>
                             </div>
-                            <span className={`text-white text-[13px] ${i === step ? 'font-bold' : ''}`}>{label}</span>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

@@ -1,4 +1,5 @@
 import { Card, CardBody, Button, Textarea } from '@heroui/react';
+import { FaClipboardList, FaJournalWhills, FaTrash, FaInbox, FaBookOpen } from 'react-icons/fa';
 
 export default function SanctuaryJournalTab({
     isArabic, isDark, auraCard, SectionTitle, hero,
@@ -15,7 +16,7 @@ export default function SanctuaryJournalTab({
                 <div className="flex flex-col md:flex-row items-center gap-7 relative z-[1]">
                     <div className="w-[110px] h-[110px] rounded-[42px] bg-white/10 flex items-center justify-center backdrop-blur-3xl border-2 border-white/20 overflow-hidden shadow-2xl relative group-hover:scale-105 transition-transform duration-500">
                         {hero?.avatar && hero.avatar.length > 10 ? (
-                            <img src={hero.avatar} className="w-full h-full object-cover" alt={hero?.name} />
+                            <img src={hero.avatar} className="w-full h-full object-cover" alt={hero?.name}  loading="lazy" decoding="async"/>
                         ) : (
                             <span className="text-5xl leading-none select-none">{hero?.avatar || '👦'}</span>
                         )}
@@ -42,7 +43,7 @@ export default function SanctuaryJournalTab({
             {/* DAILY NOTES (Sanctuary Journal) */}
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                    <SectionTitle icon="/icons/sanctuary_journal.png" title={isArabic ? 'سجل السلوك' : 'Sanctuary Journal'} />
+                    <SectionTitle icon={<FaBookOpen className="text-blue-600" />} title={isArabic ? 'سجل السلوك' : 'Sanctuary Journal'} />
                     <Button size="md" radius="full" className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black px-8 shadow-[0_10px_25px_rgba(99,102,241,0.4)]" onPress={() => setShowNoteInput(!showNoteInput)}>
                         {isArabic ? '+ تدوين ملاحظة' : '+ New Entry'}
                     </Button>
@@ -69,15 +70,15 @@ export default function SanctuaryJournalTab({
                                 <CardBody className="p-8">
                                     <div className="flex justify-between items-start mb-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-2xl bg-indigo-500/10 flex items-center justify-center overflow-hidden">
-                                                <img src="/icons/journal_entry.png" alt="" className="w-full h-full object-cover" />
+                                            <div className="w-9 h-9 rounded-2xl bg-indigo-500/10 flex items-center justify-center overflow-hidden text-indigo-400">
+                                                <FaJournalWhills className="text-xl" />
                                             </div>
-                                            <span className={`text-[11px] uppercase font-black tracking-[0.2em] ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
-                                                {note.date || new Date().toLocaleDateString()}
+                                            <span className={`text-[11px] uppercase font-black tracking-[0.2em] ${isDark ? 'text-white/30' : 'text-slate-400'}`} dir="ltr">
+                                                {note.date ? `${new Date(note.date).getDate()}/${new Date(note.date).getMonth() + 1}/${new Date(note.date).getFullYear()}` : `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}
                                             </span>
                                         </div>
-                                        <Button isIconOnly size="sm" variant="light" radius="full" className="opacity-0 group-hover:opacity-100 transition-opacity" onPress={() => removeDailyNote(data.dailyNotes.length - 1 - idx)}>
-                                            <div className="w-5 h-5 overflow-hidden"><img src="/icons/quiz_wrong.png" className="w-full h-full object-contain" /></div>
+                                        <Button isIconOnly size="sm" variant="light" radius="full" className="opacity-0 group-hover:opacity-100 transition-opacity text-rose-500" onPress={() => removeDailyNote(data.dailyNotes.length - 1 - idx)}>
+                                            <FaTrash className="text-sm" />
                                         </Button>
                                     </div>
                                     <p className={`text-[17px] font-black m-0 leading-relaxed ${isDark ? 'text-indigo-100/90' : 'text-slate-700'}`}>{note.note}</p>
@@ -86,8 +87,8 @@ export default function SanctuaryJournalTab({
                         ))
                     ) : (
                         <div className={`text-center py-16 border-2 border-dashed rounded-[50px] ${isDark ? 'border-white/5 text-white/10' : 'border-slate-200 text-slate-300'}`}>
-                            <div className="w-20 h-20 mx-auto mb-4 opacity-40">
-                                <img src="/icons/empty_state.png" alt="" className="w-full h-full object-contain grayscale" />
+                            <div className="w-20 h-20 mx-auto mb-4 opacity-40 flex items-center justify-center">
+                                <FaInbox className="text-6xl text-slate-400" />
                             </div>
                             <p className="font-black text-xl tracking-tighter">{isArabic ? 'السجل فارغ اليوم' : 'The journal is quiet today'}</p>
                         </div>

@@ -14,6 +14,7 @@ import SupportCirclesTab from '../components/dashboard/SupportCirclesTab';
 import { defaultRoutine } from '../data/routineData';
 import { getDashboardData } from '../data/dashboardData';
 import { Button, Card, CardBody, Input, Chip, Avatar, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea, Progress } from '@heroui/react';
+import { FaChartLine, FaBookOpen, FaRobot, FaStethoscope, FaMapMarkerAlt } from 'react-icons/fa';
 
 export default function DashboardPage() {
     const navigate = useNavigate();
@@ -47,11 +48,11 @@ export default function DashboardPage() {
     const activeSidebarTab = (tab || 'sanctuary-journal').replace('-', '_');
 
     const sidebarTabs = [
-        { key: 'sanctuary_journal', label: isArabic ? 'اليوميات' : 'Sanctuary Journal', icon: '/icons/sanctuary_journal.png' },
-        { key: 'module_focus', label: isArabic ? 'تحليل الأداء' : 'Module Focus', icon: '/icons/quiz_stats.png' },
-        { key: 'assistant_aura', label: isArabic ? 'المساعد الذكي' : 'Assistant Aura', icon: '/icons/assistant_aura.png' },
-        { key: 'clinical_overview', label: isArabic ? 'النظرة الطبية' : 'Clinical Overview', icon: '/icons/doctor_consultation.png' },
-        { key: 'support_circles', label: isArabic ? 'دوائر الدعم' : 'Support Circles', icon: '/icons/support_circles.png' }
+        { key: 'sanctuary_journal', label: isArabic ? 'اليوميات' : 'Sanctuary Journal', icon: <FaBookOpen /> },
+        { key: 'module_focus', label: isArabic ? 'تحليل الأداء' : 'Module Focus', icon: <FaChartLine /> },
+        { key: 'assistant_aura', label: isArabic ? 'المساعد الذكي' : 'Assistant Aura', icon: <FaRobot /> },
+        { key: 'clinical_overview', label: isArabic ? 'النظرة الطبية' : 'Clinical Overview', icon: <FaStethoscope /> },
+        { key: 'support_circles', label: isArabic ? 'دوائر الدعم' : 'Support Circles', icon: <FaMapMarkerAlt className="text-blue-600" /> }
     ];
 
 
@@ -91,7 +92,7 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center mb-6">
             <h3 className={`text-[18px] font-black m-0 flex items-center gap-3 ${isDark ? 'text-white' : 'text-[#0C0D17]'}`}>
                 <span className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 text-xl shadow-inner overflow-hidden">
-                    {icon ? <img src={icon} alt="" className="w-full h-full object-cover" /> : emoji}
+                    {icon ? (typeof icon === 'string' ? <img src={icon} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/> : icon) : emoji}
                 </span>
                 {title}
             </h3>
@@ -172,7 +173,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm shrink-0 bg-white group-hover:scale-105 transition-transform">
                                 {currentParent?.avatar && currentParent.avatar.length > 10 ? (
-                                    <img src={currentParent.avatar} className="w-full h-full object-cover" alt="" />
+                                    <img src={currentParent.avatar} className="w-full h-full object-cover" alt=""  loading="lazy" decoding="async"/>
                                 ) : (
                                     <div className="w-full h-full bg-indigo-50 flex items-center justify-center text-xl">👨</div>
                                 )}
@@ -204,7 +205,7 @@ export default function DashboardPage() {
                                     )}
 
                                     <div className={`w-5 h-5 flex items-center justify-center transition-all duration-300 shrink-0 ${isActive ? 'scale-110 drop-shadow-md' : 'grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100'}`}>
-                                        <img src={tab.icon} alt="" className="w-full h-full object-contain" />
+                                        {typeof tab.icon === 'string' ? <img src={tab.icon} alt="" className="w-full h-full object-contain"  loading="lazy" decoding="async"/> : <span className="text-xl">{tab.icon}</span>}
                                     </div>
                                     <span className={`text-[14px] font-semibold tracking-wide ${isArabic ? 'text-right flex-1' : 'text-left flex-1'}`}>
                                         {tab.label}

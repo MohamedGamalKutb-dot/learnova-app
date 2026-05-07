@@ -43,7 +43,7 @@ export default function MainNavbar({ userType, onProfileClick }) {
         >
             <NavbarBrand className="gap-2.5 cursor-pointer" onClick={() => navigate(userType === 'child' ? '/child-home' : userType === 'parent' ? '/parent-dashboard' : '/doctor-dashboard')}>
                 <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-p600 to-a500 flex items-center justify-center shadow-[0_4px_12px_rgba(37,99,235,.25)] overflow-hidden">
-                    <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover" />
+                    <img src="/icons/brain_logo.png" alt="LearnNeur" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                 </div>
                 <span className={`text-xl font-extrabold tracking-tight bg-gradient-to-r ${isDark ? 'from-indigo-300 to-purple-300' : 'from-indigo-600 to-purple-600'} bg-clip-text text-transparent`}>LearnNeur</span>
             </NavbarBrand>

@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, Avatar } from '@heroui/react';
+import { FaClipboardList, FaCheckCircle } from 'react-icons/fa';
 
 export default function AssessmentTab({
     isArabic, isDark, accent,
@@ -9,11 +10,11 @@ export default function AssessmentTab({
     submitAssessment,
     hoveredCard, setHoveredCard, cardCls, patientBanner
 }) {
-    if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-[40px] mb-2">📋</div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
+    if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-5xl mb-4 opacity-20 flex justify-center"><FaClipboardList /></div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
     if (viewingAssessment) return (
         <div>
             <Button variant="light" size="sm" className="text-accent font-bold text-[13px] mb-4 p-0 min-w-0 h-auto" onPress={() => setViewingAssessment(null)}>← {isArabic ? 'عودة' : 'Back'}</Button>
-            <Card className={cardCls('score')} onMouseEnter={() => setHoveredCard('score')} onMouseLeave={() => setHoveredCard(null)}><CardBody className="text-center p-[22px]"><div className="text-[40px] font-extrabold text-accent">{viewingAssessment.score}%</div><div className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{new Date(viewingAssessment.date).toLocaleDateString()}</div></CardBody></Card>
+            <Card className={cardCls('score')} onMouseEnter={() => setHoveredCard('score')} onMouseLeave={() => setHoveredCard(null)}><CardBody className="text-center p-[22px]"><div className="text-[40px] font-extrabold text-accent">{viewingAssessment.score}%</div><div className={`text-xs ${isDark ? 'text-subtext-dark' : 'text-subtext'}`} dir="ltr">{new Date(viewingAssessment.date).getDate().toString().padStart(2, '0')} / {(new Date(viewingAssessment.date).getMonth() + 1).toString().padStart(2, '0')} / {new Date(viewingAssessment.date).getFullYear()}</div></CardBody></Card>
             {assessmentQuestions.map((q, i) => {
                 const ans = viewingAssessment.answers[q.id]; return (
                     <Card key={q.id} className={cardCls(null)}><CardBody className="p-4"><div className="flex gap-2"><span className="font-bold text-accent">{i + 1}.</span><span className={`text-sm ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? q.qAr : q.q}</span></div><div className="mt-2 ps-5 font-bold text-[13px]" style={{ color: ans === 'yes' ? '#10B981' : ans === 'no' ? '#EF4444' : '#F59E0B' }}>{ans === 'yes' ? (isArabic ? 'نعم ✓' : 'Yes ✓') : ans === 'no' ? (isArabic ? 'لا ✗' : 'No ✗') : (isArabic ? 'أحياناً ~' : 'Sometimes ~')}</div></CardBody></Card>
@@ -23,7 +24,7 @@ export default function AssessmentTab({
     );
     if (assessmentDone) {
         const last = selectedPatient.assessments?.length > 0 ? selectedPatient.assessments[selectedPatient.assessments.length - 1] : { score: 0 }; return (
-            <Card className={cardCls(null)}><CardBody className="text-center p-5"><div className="text-[60px] mb-2.5">✅</div><h2 className={`mb-2 font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تم حفظ التقييم!' : 'Assessment Saved!'}</h2><div className="text-[40px] font-extrabold text-accent">{last.score}%</div>
+            <Card className={cardCls(null)}><CardBody className="text-center p-5"><div className="text-6xl mb-4 text-emerald-500 flex justify-center"><FaCheckCircle /></div><h2 className={`mb-2 font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{isArabic ? 'تم حفظ التقييم!' : 'Assessment Saved!'}</h2><div className="text-[40px] font-extrabold text-accent">{last.score}%</div>
                 <Button radius="xl" size="lg" className="mt-5 bg-gradient-to-br from-accent to-[#4834D4] text-white font-bold" onPress={() => { setAssessmentDone(false); setAssessmentAnswers({}); }}>{isArabic ? 'تقييم جديد' : 'New Assessment'}</Button>
             </CardBody></Card>
         );
@@ -31,7 +32,7 @@ export default function AssessmentTab({
     return (
         <div>
             <div className={patientBanner}>
-                <Avatar 
+                <Avatar
                     size="sm"
                     radius="full"
                     src={selectedPatient.avatar?.length > 10 ? selectedPatient.avatar : undefined}
@@ -66,7 +67,7 @@ export default function AssessmentTab({
                         <Card key={idx} isPressable onPress={() => setViewingAssessment(ass)} className={`mb-2 transition-all duration-200 hover:border-accent/50 ${isDark ? 'bg-card-dark border-border-dark' : 'bg-card border-border'} border`}>
                             <CardBody className="p-3.5 flex flex-row items-center gap-3">
                                 <div className="w-11 h-11 rounded-xl flex items-center justify-center font-extrabold text-[13px] shrink-0" style={{ background: `${accent}12`, color: accent, border: `1px solid ${accent}20` }}>{ass.score}%</div>
-                                <div className="flex-1 text-left rtl:text-right"><div className={`font-semibold text-sm ${isDark ? 'text-text-dark' : 'text-text'}`}>{new Date(ass.date).toLocaleDateString()}</div><div className={`text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{new Date(ass.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></div>
+                                <div className="flex-1 text-left rtl:text-right"><div className={`font-semibold text-sm ${isDark ? 'text-text-dark' : 'text-text'}`} dir="ltr">{new Date(ass.date).getDate().toString().padStart(2, '0')} / {(new Date(ass.date).getMonth() + 1).toString().padStart(2, '0')} / {new Date(ass.date).getFullYear()}</div><div className={`text-[11px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{new Date(ass.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></div>
                                 <span className={`text-lg shrink-0 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>›</span>
                             </CardBody>
                         </Card>
