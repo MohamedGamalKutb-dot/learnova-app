@@ -12,6 +12,7 @@ import BehaviorTab from '../components/doctor/BehaviorTab';
 import ReportsTab from '../components/doctor/ReportsTab';
 
 export default function DoctorPage() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
     const { currentDoctor, childAccounts, findChildForDoctor, addPatientToDoctor, updateChildDiagnosis, isDoctorLoggedIn, logoutDoctor, updateDoctorProfile } = useAuth();
@@ -60,8 +61,25 @@ export default function DoctorPage() {
         <div className={`min-h-screen ${isArabic ? 'font-[Cairo,sans-serif]' : "font-[Inter,'Segoe_UI',sans-serif]"} ${isDark ? 'bg-bg-dark' : 'bg-bg'}`} dir={isArabic ? 'rtl' : 'ltr'}>
             <MainNavbar userType="doctor" />
 
+            {/* Mobile Sidebar Overlay */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 z-[39] bg-black/40 backdrop-blur-sm md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
+            {/* Mobile Hamburger Button */}
+            <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className={`fixed top-[84px] left-3 z-[45] md:hidden w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${isDark ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-accent text-white'}`}
+            >
+                {sidebarOpen ? <span className="text-base">✕</span> : <span className="text-base">☰</span>}
+            </button>
+
             <div className="flex relative pt-[72px]">
-                <main className={`flex-1 relative z-10 max-w-[1000px] mx-auto pl-[250px] md:pl-[270px] pr-6 py-8 pb-32 space-y-10`}>
+                <main className={`flex-1 relative z-10 w-full md:pl-[250px] lg:pl-[270px] px-4 sm:px-6 py-8 pb-32 max-w-full overflow-x-hidden`}>
+                    <div className="space-y-6 sm:space-y-10 mx-2 sm:mx-4 md:mx-6">
                     {activeSidebarTab === 'patients' && (
                         <PatientsTab
                             isArabic={isArabic} isDark={isDark} accent={accent}
@@ -100,9 +118,10 @@ export default function DoctorPage() {
                             hoveredCard={hoveredCard} setHoveredCard={setHoveredCard} cardCls={cardCls} subBg={subBg} patientBanner={patientBanner}
                         />
                     )}
+                    </div>
                 </main>
 
-                <aside className={`fixed left-0 top-[72px] bottom-0 w-[250px] md:w-[270px] flex flex-col py-6 z-40 border-r ${isDark ? 'bg-[#080912]/95 border-white/10' : 'bg-white/95 border-slate-200'} backdrop-blur-2xl overflow-y-auto scrollbar-hide shadow-[10px_0_30px_rgba(0,0,0,0.02)]`}>
+                <aside className={`fixed left-0 top-[72px] bottom-0 w-[270px] flex flex-col py-6 z-40 border-r transition-transform duration-300 ${isDark ? 'bg-[#080912]/98 border-white/10' : 'bg-white/98 border-slate-200'} backdrop-blur-2xl overflow-y-auto scrollbar-hide shadow-[10px_0_30px_rgba(0,0,0,0.08)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                     <div 
                         onClick={() => navigate('/doctor-dashboard/profile')}
                         className={`px-8 mb-8 pb-8 border-b cursor-pointer group transition-colors ${isDark ? 'border-white/5 hover:bg-white/5' : 'border-slate-100 hover:bg-slate-50'}`}

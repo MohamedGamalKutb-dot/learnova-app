@@ -100,18 +100,18 @@ export default function CalmingPage() {
                 </div>
             </nav>
 
-            <main className="relative max-w-[1300px] mx-auto px-8 pt-32 pb-20">
+            <main className="relative max-w-[1300px] mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-28 md:pt-32 pb-20">
                 <div className="flex flex-col items-center max-w-[700px] mx-auto space-y-10">
                     
                     {/* Breathing Card */}
-                    <Card className={`w-full rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-2xl p-8 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-indigo-500/5'}`}>
+                    <Card className={`w-full rounded-[35px] sm:rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-2xl p-4 sm:p-8 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-indigo-500/5'}`}>
                         <CardBody className="items-center text-center gap-10">
                             <header className="w-full flex justify-between items-center">
                                 <h3 className="text-sm font-black uppercase tracking-[0.3em] opacity-40">{isArabic ? 'تمرين التنفس' : 'BREATHING'}</h3>
                                 <Chip variant="flat" color="secondary" className="font-bold">{isBreathing ? (isArabic ? 'نشط' : 'ACTIVE') : (isArabic ? 'جاهز' : 'READY')}</Chip>
                             </header>
 
-                            <div className="relative w-64 h-64 flex items-center justify-center">
+                            <div className="relative w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center">
                                 <div className="absolute inset-0 rounded-full blur-[40px] transition-all duration-[4000ms]" 
                                     style={{ 
                                         background: `radial-gradient(circle, ${breathColor}40, transparent)`,
@@ -119,7 +119,7 @@ export default function CalmingPage() {
                                     }} 
                                 />
                                 
-                                <div className={`relative w-48 h-48 rounded-full border-4 flex flex-col items-center justify-center transition-all duration-[4000ms] shadow-2xl ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-indigo-100'}`}
+                                <div className={`relative w-36 h-36 sm:w-48 sm:h-48 rounded-full border-4 flex flex-col items-center justify-center transition-all duration-[4000ms] shadow-2xl ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-indigo-100'}`}
                                     style={{ transform: `scale(${breathScale})`, borderColor: isBreathing ? breathColor : 'transparent' }}>
                                     <div className="text-4xl animate-float">{isBreathing ? (breathPhase === 'in' ? '☁️' : breathPhase === 'out' ? '🍃' : '✨') : '🧘'}</div>
                                 </div>
@@ -137,7 +137,7 @@ export default function CalmingPage() {
                     </Card>
 
                     {/* Session Timer Card */}
-                    <Card className={`w-full rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-xl p-8 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-indigo-500/5'}`}>
+                    <Card className={`w-full rounded-[35px] sm:rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-xl p-4 sm:p-8 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-indigo-500/5'}`}>
                         <CardBody className="items-center text-center gap-6">
                             <h3 className="text-sm font-black uppercase tracking-[0.3em] opacity-40">{isArabic ? 'مؤقت الجلسة' : 'SESSION TIMER'}</h3>
                             

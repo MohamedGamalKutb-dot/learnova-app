@@ -10,7 +10,7 @@ export default function SanctuaryJournalTab({
     return (
         <>
             {/* CHILD SUMMARY HEADER (Aura Signature Hero) */}
-            <div className={`relative px-8 py-10 rounded-[50px] border overflow-hidden transition-all duration-700 ${isDark ? 'bg-gradient-to-br from-indigo-950/40 via-[#080912] to-purple-950/40 border-white/10' : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-200'} shadow-2xl group`}>
+            <div className={`relative px-5 sm:px-8 py-6 sm:py-10 rounded-[35px] sm:rounded-[50px] border overflow-hidden transition-all duration-700 ${isDark ? 'bg-gradient-to-br from-indigo-950/40 via-[#080912] to-purple-950/40 border-white/10' : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-200'} shadow-2xl group`}>
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] group-hover:bg-indigo-500/20 transition-all duration-1000" />
 
                 <div className="flex flex-col md:flex-row items-center gap-7 relative z-[1]">
@@ -44,14 +44,14 @@ export default function SanctuaryJournalTab({
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <SectionTitle icon={<FaBookOpen className="text-blue-600" />} title={isArabic ? 'سجل السلوك' : 'Sanctuary Journal'} />
-                    <Button size="md" radius="full" className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black px-8 shadow-[0_10px_25px_rgba(99,102,241,0.4)]" onPress={() => setShowNoteInput(!showNoteInput)}>
+                    <Button size="sm" radius="full" className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black px-4 sm:px-8 shadow-[0_10px_25px_rgba(99,102,241,0.4)] text-[11px] sm:text-sm" onPress={() => setShowNoteInput(!showNoteInput)}>
                         {isArabic ? '+ تدوين ملاحظة' : '+ New Entry'}
                     </Button>
                 </div>
 
                 {showNoteInput && (
                     <Card className={`rounded-[45px] border animate-in slide-in-from-top-4 duration-500 ${auraCard}`}>
-                        <CardBody className="p-8">
+                        <CardBody className="p-5 sm:p-8">
                             <Textarea variant="flat" placeholder={isArabic ? 'كيف كان يوم بطلك؟ شاركنا ملاحظاتك...' : 'Record today\'s observations or milestones...'}
                                 value={noteText} onChange={e => setNoteText(e.target.value)} size="lg" radius="3xl"
                                 className="text-lg font-bold" classNames={{ input: isDark ? 'text-white' : 'text-slate-800', inputWrapper: 'bg-white/5 group-data-[focus=true]:bg-white/10 border-white/5' }} />
@@ -67,7 +67,7 @@ export default function SanctuaryJournalTab({
                     {data?.dailyNotes && data.dailyNotes.length > 0 ? (
                         [...data.dailyNotes].reverse().map((note, idx) => (
                             <Card key={idx} className={`rounded-[40px] border group transition-all duration-500 hover:border-white/20 ${auraCard}`}>
-                                <CardBody className="p-8">
+                                <CardBody className="p-5 sm:p-8">
                                     <div className="flex justify-between items-start mb-3">
                                         <div className="flex items-center gap-3">
                                             <div className="w-9 h-9 rounded-2xl bg-indigo-500/10 flex items-center justify-center overflow-hidden text-indigo-400">

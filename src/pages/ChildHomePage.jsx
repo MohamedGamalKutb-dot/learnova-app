@@ -57,23 +57,23 @@ export default function ChildHomePage() {
 
             <MainNavbar userType="child" />
 
-            <main className="relative max-w-[1300px] mx-auto px-8 pt-32 pb-20">
+            <main className="relative max-w-[1300px] mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-28 md:pt-32 pb-20">
                 
                 {/* HERO GREETING */}
-                <header className="mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
+                <header className="mb-10 sm:mb-14 md:mb-16 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-5">
                     <div className="space-y-3">
                         <div className={`flex items-center gap-3 font-black tracking-[0.3em] uppercase text-[10px] transition-colors duration-1000 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
                             <span className={`w-12 h-[1px] transition-colors duration-1000 ${isDark ? 'bg-indigo-500/50' : 'bg-indigo-300'}`} />
                             {isArabic ? 'تم تفعيل النظام' : 'System Online'}
                         </div>
-                        <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-none">
+                        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-none">
                             {isArabic ? `أهلاً، ${currentChild.name}` : `Hey, ${currentChild.name}`} 
                             <span className="text-indigo-500 animate-pulse">.</span>
                         </h1>
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 shrink-0">
                        
-                        <div className={`px-8 py-5 rounded-[32px] backdrop-blur-2xl border flex flex-col items-center min-w-[140px] shadow-2xl transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-indigo-100'}`}>
+                        <div className={`px-5 sm:px-8 py-4 sm:py-5 rounded-[24px] sm:rounded-[32px] backdrop-blur-2xl border flex flex-col items-center min-w-[110px] sm:min-w-[140px] shadow-2xl transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-indigo-100'}`}>
                             <span className={`text-3xl font-black ${isDark ? 'text-purple-300' : 'text-purple-600'}`}>{routineCompletion}%</span>
                             <span className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">{isArabic ? 'الروتين اليومي' : 'Daily Routine'}</span>
                         </div>
@@ -83,7 +83,7 @@ export default function ChildHomePage() {
                 {/* ZEN BANNER (CALMING ZONE) */}
                 <div 
                     onClick={() => navigate('/calming')}
-                    className={`group relative mb-16 cursor-pointer overflow-hidden rounded-[50px] border h-56 md:h-72 flex items-center transition-all duration-700 shadow-2xl ${isDark ? 'border-white/10 hover:border-indigo-500/40' : 'border-indigo-100 hover:border-indigo-300'}`}
+                    className={`group relative mb-10 sm:mb-16 cursor-pointer overflow-hidden rounded-[30px] sm:rounded-[50px] border h-40 sm:h-56 md:h-72 flex items-center transition-all duration-700 shadow-2xl ${isDark ? 'border-white/10 hover:border-indigo-500/40' : 'border-indigo-100 hover:border-indigo-300'}`}
                 >
                     <div className={`absolute inset-0 z-10 transition-all duration-1000 ${isDark ? 'bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-transparent' : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent'}`} />
                     {/* Animated aura */}
@@ -91,17 +91,17 @@ export default function ChildHomePage() {
                         <div className={`absolute top-0 right-0 w-[70%] h-full rounded-full blur-[100px] animate-pulse transition-colors duration-1000 ${isDark ? 'bg-indigo-600/20' : 'bg-indigo-400/30'}`} />
                     </div>
 
-                    <div className="relative z-20 px-12 md:px-20 flex items-center gap-10 w-full">
-                        <div className={`w-28 h-28 md:w-36 md:h-36 rounded-full border flex items-center justify-center text-7xl shadow-2xl animate-float backdrop-blur-3xl transition-all duration-500 overflow-hidden ${isDark ? 'bg-white/10 border-white/20' : 'bg-white/90 border-indigo-200 shadow-indigo-500/10'}`}>
+                    <div className="relative z-20 px-6 sm:px-12 md:px-20 flex items-center gap-5 sm:gap-10 w-full">
+                        <div className={`w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-full border flex items-center justify-center text-7xl shadow-2xl animate-float backdrop-blur-3xl transition-all duration-500 overflow-hidden shrink-0 ${isDark ? 'bg-white/10 border-white/20' : 'bg-white/90 border-indigo-200 shadow-indigo-500/10'}`}>
                             {currentChild.avatar && (currentChild.avatar.startsWith('data:image') || currentChild.avatar.startsWith('http')) ? (
                                 <img src={currentChild.avatar} alt="Avatar" className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                             ) : (
                                 <img src="/icons/emotion_emo_calm.png" alt="Zen" className="w-[70%] h-[70%] object-contain opacity-80"  loading="lazy" decoding="async"/>
                             )}
                         </div>
-                        <div className="flex-1">
-                            <h2 className={`text-3xl md:text-5xl font-black mb-3 tracking-tighter ${isDark ? 'text-white' : 'text-indigo-900'}`}>{isArabic ? 'مساحة الهدوء' : 'The Zen Sanctuary'}</h2>
-                            <p className={`font-bold text-lg max-w-[500px] leading-relaxed transition-colors duration-1000 ${isDark ? 'text-indigo-200/60' : 'text-indigo-600/60'}`}>
+                        <div className="flex-1 min-w-0">
+                            <h2 className={`text-2xl sm:text-3xl md:text-5xl font-black mb-2 sm:mb-3 tracking-tighter ${isDark ? 'text-white' : 'text-indigo-900'}`}>{isArabic ? 'مساحة الهدوء' : 'The Zen Sanctuary'}</h2>
+                            <p className={`font-bold text-sm sm:text-lg max-w-[500px] leading-relaxed transition-colors duration-1000 line-clamp-2 sm:line-clamp-none ${isDark ? 'text-indigo-200/60' : 'text-indigo-600/60'}`}>
                                 {isArabic ? 'استرخِ في عالم من السكينة والتمارين المصممة خصيصاً لمساعدتك على التركيز.' : 'Reconnect with your inner peace in a world designed for ultimate calm and focus.'}
                             </p>
                         </div>
@@ -112,7 +112,7 @@ export default function ChildHomePage() {
                 </div>
 
                 {/* EDITORIAL MODULE GRID */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-10">
                     {modules.map((mod) => {
                         const isHovered = hoveredModule === mod.key;
                         return (
@@ -122,20 +122,20 @@ export default function ChildHomePage() {
                                 onPress={() => mod.path === 'modal' ? onOpen() : navigate(mod.path)}
                                 onMouseEnter={() => setHoveredModule(mod.key)}
                                 onMouseLeave={() => setHoveredModule(null)}
-                                className={`group relative h-[320px] rounded-[60px] border overflow-hidden transition-all duration-700 hover:translate-y-[-12px] shadow-2xl backdrop-blur-3xl ${isDark ? 'bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20' : 'bg-white/80 border-indigo-100 hover:bg-white hover:border-indigo-300'}`}
+                                className={`group relative h-[220px] sm:h-[280px] md:h-[320px] rounded-[35px] sm:rounded-[50px] md:rounded-[60px] border overflow-hidden transition-all duration-700 hover:translate-y-[-8px] sm:hover:translate-y-[-12px] shadow-2xl backdrop-blur-3xl ${isDark ? 'bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20' : 'bg-white/80 border-indigo-100 hover:bg-white hover:border-indigo-300'}`}
                             >
                                 {/* Glow layer */}
                                 <div className={`absolute top-0 left-0 w-full h-full bg-gradient-to-br ${mod.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
                                 
-                                <CardBody className="relative z-10 p-12 flex flex-col justify-between h-full">
-                                    <div className={`w-24 h-24 rounded-[32px] border flex items-center justify-center transition-all duration-700 backdrop-blur-2xl overflow-hidden ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/90 border-indigo-100'} ${isHovered ? 'scale-110 rotate-6 shadow-xl' : ''}`}>
+                                <CardBody className="relative z-10 p-5 sm:p-8 md:p-12 flex flex-col justify-between h-full">
+                                    <div className={`w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-[20px] sm:rounded-[28px] md:rounded-[32px] border flex items-center justify-center transition-all duration-700 backdrop-blur-2xl overflow-hidden ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/90 border-indigo-100'} ${isHovered ? 'scale-110 rotate-6 shadow-xl' : ''}`}>
                                         <div className={`absolute inset-0 rounded-[32px] opacity-20 blur-2xl transition-opacity duration-700 ${isHovered ? 'opacity-50' : 'opacity-0'}`} style={{ backgroundColor: mod.color }} />
                                         <img src={mod.icon} alt={mod.key} className="relative z-10 w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                     </div>
                                     
-                                    <div className="space-y-2">
-                                        <div className={`text-[10px] uppercase tracking-[0.4em] font-black transition-colors duration-1000 ${isDark ? 'opacity-30 text-white' : 'opacity-50 text-indigo-900'}`}>{mod.key}</div>
-                                        <h3 className={`text-3xl font-black tracking-tight group-hover:translate-x-2 transition-transform duration-500 ${isDark ? 'text-white/90 group-hover:text-white' : 'text-indigo-900'}`}>{isArabic ? labels[mod.key].ar : labels[mod.key].en}</h3>
+                                    <div className="space-y-1 sm:space-y-2">
+                                        <div className={`text-[8px] sm:text-[10px] uppercase tracking-[0.4em] font-black transition-colors duration-1000 ${isDark ? 'opacity-30 text-white' : 'opacity-50 text-indigo-900'}`}>{mod.key}</div>
+                                        <h3 className={`text-xl sm:text-2xl md:text-3xl font-black tracking-tight group-hover:translate-x-2 transition-transform duration-500 ${isDark ? 'text-white/90 group-hover:text-white' : 'text-indigo-900'}`}>{isArabic ? labels[mod.key].ar : labels[mod.key].en}</h3>
                                     </div>
                                 </CardBody>
                             </Card>

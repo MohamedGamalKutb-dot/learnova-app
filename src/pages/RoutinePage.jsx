@@ -107,13 +107,13 @@ export default function RoutinePage() {
                 </div>
             </nav>
 
-            <main className="relative max-w-[1300px] mx-auto px-8 pt-32 pb-32">
+            <main className="relative max-w-[1300px] mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-28 md:pt-32 pb-32">
                 <p className={`text-center text-[10px] font-black uppercase tracking-[0.4em] mb-8 opacity-40`}>{todDisplay}</p>
 
                 {/* PROGRESS CARD - FULL WIDTH OF CONTAINER */}
                 <div className="w-full mb-10">
-                    <Card className={`relative overflow-hidden rounded-[40px] border transition-all duration-700 backdrop-blur-3xl shadow-2xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-100'}`}>
-                        <CardBody className="p-10">
+                    <Card className={`relative overflow-hidden rounded-[30px] sm:rounded-[40px] border transition-all duration-700 backdrop-blur-3xl shadow-2xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-100'}`}>
+                        <CardBody className="p-6 sm:p-10">
                             <div className="flex justify-between items-end mb-6 px-2">
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">{isArabic ? 'إنجازك اليوم' : "TODAY'S VIBE"}</span>
@@ -166,8 +166,8 @@ export default function RoutinePage() {
                             style={{ 
                                 animation: `fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.05}s both`
                             }}>
-                            <CardBody className="p-6 flex flex-row items-center gap-8">
-                                <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center text-4xl shrink-0 transition-all duration-500 overflow-hidden ${
+                            <CardBody className="p-4 sm:p-5 md:p-6 flex flex-row items-center gap-4 sm:gap-8">
+                                <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-[24px] flex items-center justify-center text-4xl shrink-0 transition-all duration-500 overflow-hidden ${
                                     item.isCompleted ? 'bg-emerald-500 text-white rotate-12 scale-110' : (isDark ? 'bg-white/5' : 'bg-indigo-50/50')
                                 }`}>
                                     {item.isCompleted ? <FaCheckCircle className="w-10 h-10 text-white" /> : (
@@ -182,7 +182,7 @@ export default function RoutinePage() {
                                     )}
                                 </div>
                                 <div className="flex-1 text-left rtl:text-right">
-                                    <div className={`text-2xl font-black tracking-tight transition-all ${item.isCompleted ? 'opacity-40 line-through' : ''}`}>
+                                    <div className={`text-lg sm:text-2xl font-black tracking-tight transition-all ${item.isCompleted ? 'opacity-40 line-through' : ''}`}>
                                         {isArabic ? item.titleAr : item.title}
                                     </div>
                                     {item.startTime && (

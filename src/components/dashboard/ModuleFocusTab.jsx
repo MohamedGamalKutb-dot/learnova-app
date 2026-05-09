@@ -12,7 +12,7 @@ export default function ModuleFocusTab({
             {/* PROGRESS GRID (Luminescent Rings) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className={`rounded-[45px] border ${auraCard}`}>
-                    <CardBody className="p-8">
+                    <CardBody className="p-5 sm:p-8">
                         <SectionTitle icon="/icons/daily_rhythm.png" title={isArabic ? 'الروتين اليومي' : 'Daily Rhythm'} badge={todayKey} badgeColor="#4ECDC4" />
                         <div className="flex items-center gap-7">
                             <div className="relative w-28 h-28 flex items-center justify-center">
@@ -33,7 +33,7 @@ export default function ModuleFocusTab({
                 </Card>
 
                 <Card className={`rounded-[45px] border ${auraCard}`}>
-                    <CardBody className="p-8">
+                    <CardBody className="p-5 sm:p-8">
                         <SectionTitle icon="/icons/emotion_mastery.png" title={isArabic ? 'نمو المشاعر' : 'Emotion Mastery'} badge={isArabic ? 'أسبوعي' : 'Weekly'} badgeColor="#FF6584" />
                         <div className="flex items-center gap-7">
                             <div className="relative w-28 h-28 flex items-center justify-center">
@@ -63,7 +63,7 @@ export default function ModuleFocusTab({
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {Object.entries(data?.moduleUsage || {}).map(([mod, count]) => (
                         <Card key={mod} className={`group rounded-[38px] border ${auraCard} hover:border-[#A8B4FF]/40 transition-all duration-500`}>
-                            <CardBody className="p-7 text-center">
+                            <CardBody className="p-4 sm:p-7 text-center">
                                 <div className="w-14 h-14 rounded-3xl bg-white/5 border border-white/5 mx-auto mb-4 flex items-center justify-center text-3xl group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-500 shadow-inner">
                                     {moduleEmojis[mod].includes('.png') ? <img src={moduleEmojis[mod]} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async"/> : moduleEmojis[mod]}
                                 </div>
@@ -78,7 +78,7 @@ export default function ModuleFocusTab({
             {/* SMART RECOMMENDATIONS (Aura Floating Tips) */}
             <Card className={`rounded-[50px] border shadow-2xl relative overflow-hidden ${isDark ? 'bg-indigo-500/5 border-indigo-400/20' : 'bg-indigo-50 border-indigo-100'}`}>
                 <div className="absolute top-0 right-0 p-12 bg-indigo-500/5 rounded-full blur-[50px] -mr-12 -mt-12" />
-                <CardBody className="p-10">
+                <CardBody className="p-5 sm:p-10">
                     <SectionTitle icon="/icons/brain_logo.png" title={isArabic ? 'توصيات ذكية' : 'Assistant Insights'} />
                     <div className="space-y-4">
                         {recommendations.map((rec, i) => (

@@ -135,7 +135,7 @@ export default function EmotionsPage() {
                 </div>
             </nav>
 
-            <main className="relative max-w-[1300px] mx-auto px-8 pt-32 pb-20">
+            <main className="relative max-w-[1300px] mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-28 md:pt-32 pb-20">
                 <div className="space-y-10 w-full text-center">
 
                     {isQuizMode && quizFinished ? (
@@ -207,8 +207,8 @@ export default function EmotionsPage() {
                             </div>
 
                             <Card className={`rounded-[50px] border transition-all duration-700 backdrop-blur-3xl shadow-xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white/80 border-indigo-50 shadow-2xl shadow-indigo-500/5'}`}>
-                                <CardBody className="p-12 text-center flex flex-col items-center gap-6">
-                                    <div className="w-[200px] h-[200px] transition-all duration-500 hover:scale-110 flex items-center justify-center overflow-hidden mx-auto">
+                                <CardBody className="p-8 sm:p-12 text-center flex flex-col items-center gap-6">
+                                    <div className="w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] transition-all duration-500 hover:scale-110 flex items-center justify-center overflow-hidden mx-auto">
                                         <img src={`/icons/emotion_${quizQuestions[currentQuestionIdx].answer.id}.png`}
                                             alt=""
                                             className="w-full h-full object-cover"
@@ -274,9 +274,9 @@ export default function EmotionsPage() {
 
                             <div className="relative group">
                                 <Card isPressable onPress={() => speak(isArabic ? currentEmotion.nameAr : currentEmotion.name)}
-                                    className={`rounded-[60px] border transition-all duration-700 backdrop-blur-3xl p-12 overflow-hidden w-full ${isDark ? 'bg-white/[0.03] border-white/10 shadow-2xl' : 'bg-white border-indigo-100 shadow-xl'}`}>
-                                    <CardBody className="items-center text-center gap-8 relative z-10">
-                                        <div className="w-[300px] h-[300px] text-[180px] animate-float transition-all duration-700 group-hover:scale-110 overflow-hidden flex items-center justify-center">
+                                    className={`rounded-[40px] sm:rounded-[60px] border transition-all duration-700 backdrop-blur-3xl p-6 sm:p-12 overflow-hidden w-full ${isDark ? 'bg-white/[0.03] border-white/10 shadow-2xl' : 'bg-white border-indigo-100 shadow-xl'}`}>
+                                    <CardBody className="items-center text-center gap-4 sm:gap-8 relative z-10">
+                                        <div className="w-[180px] h-[180px] sm:w-[240px] sm:h-[240px] md:w-[300px] md:h-[300px] text-[180px] animate-float transition-all duration-700 group-hover:scale-110 overflow-hidden flex items-center justify-center">
                                             <img src={`/icons/emotion_${currentEmotion.id}.png`}
                                                 alt=""
                                                 className="w-full h-full object-cover"
@@ -284,9 +284,9 @@ export default function EmotionsPage() {
                                             />
                                             <span style={{ display: 'none' }} className="w-full h-full items-center justify-center">{currentEmotion.emoji}</span>
                                         </div>
-                                        <div className="space-y-4">
-                                            <h2 className="text-6xl font-black tracking-tighter">{isArabic ? currentEmotion.nameAr : currentEmotion.name}</h2>
-                                            <p className="text-xl font-bold opacity-60 max-w-[600px] leading-relaxed mx-auto">
+                                        <div className="space-y-2 sm:space-y-4">
+                                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter">{isArabic ? currentEmotion.nameAr : currentEmotion.name}</h2>
+                                            <p className="text-base sm:text-xl font-bold opacity-60 max-w-[600px] leading-relaxed mx-auto">
                                                 {isArabic ? currentEmotion.descriptionAr : currentEmotion.description}
                                             </p>
                                         </div>
@@ -296,11 +296,11 @@ export default function EmotionsPage() {
                                     </CardBody>
                                 </Card>
 
-                                <div className="absolute top-1/2 -translate-y-1/2 -left-10 z-20">
-                                    <Button isIconOnly radius="full" size="lg" onPress={prevEmotion} className="w-16 h-16 bg-white/10 backdrop-blur-2xl border border-white/20 text-3xl shadow-2xl">←</Button>
+                                <div className="absolute top-1/2 -translate-y-1/2 left-0 sm:-left-10 z-20">
+                                    <Button isIconOnly radius="full" size="lg" onPress={prevEmotion} className="w-10 h-10 sm:w-16 sm:h-16 bg-white/10 backdrop-blur-2xl border border-white/20 text-2xl sm:text-3xl shadow-2xl">←</Button>
                                 </div>
-                                <div className="absolute top-1/2 -translate-y-1/2 -right-10 z-20">
-                                    <Button isIconOnly radius="full" size="lg" onPress={nextEmotion} className="w-16 h-16 bg-white/10 backdrop-blur-2xl border border-white/20 text-3xl shadow-2xl">→</Button>
+                                <div className="absolute top-1/2 -translate-y-1/2 right-0 sm:-right-10 z-20">
+                                    <Button isIconOnly radius="full" size="lg" onPress={nextEmotion} className="w-10 h-10 sm:w-16 sm:h-16 bg-white/10 backdrop-blur-2xl border border-white/20 text-2xl sm:text-3xl shadow-2xl">→</Button>
                                 </div>
                             </div>
 

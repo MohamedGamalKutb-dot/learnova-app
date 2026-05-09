@@ -9,11 +9,11 @@ export default function ClinicalOverviewTab({
     return (
         <Card className={`rounded-[50px] border relative overflow-hidden group ${auraCard}`}>
             <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-[40px] -ml-12 -mt-12" />
-            <CardBody className="p-10">
+            <CardBody className="p-5 sm:p-10">
                 <SectionTitle icon="/icons/doctor_consultation.png" title={isArabic ? 'التقرير الطبي' : 'Clinical Overview'} />
 
                 {/* Aura Tabs */}
-                <div className="flex gap-2 mb-8 p-1.5 rounded-[28px] bg-white/5 border border-white/5">
+                <div className="flex gap-2 mb-6 sm:mb-8 p-1.5 rounded-[28px] bg-white/5 border border-white/5 overflow-x-auto no-scrollbar">
                     {[
                         { key: 'general', label: isArabic ? 'نظرة عامة' : 'General', icon: '/icons/tab_general.png' },
                         { key: 'assessments', label: isArabic ? 'التقييمات' : 'Assessments', icon: '/icons/quiz_stats.png' },
@@ -22,7 +22,7 @@ export default function ClinicalOverviewTab({
                         <Button
                             key={tab.key}
                             onPress={() => { setActiveReportTab(tab.key); setViewingAssessment(null); }}
-                            className={`flex-1 h-12 rounded-[22px] font-black text-[13px] transition-all duration-500 ${activeReportTab === tab.key ? 'bg-indigo-500 text-white shadow-lg' : isDark ? 'text-white/40 hover:text-white/60' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`flex-1 min-w-max h-10 sm:h-12 rounded-[22px] font-black text-[11px] sm:text-[13px] px-3 sm:px-4 transition-all duration-500 ${activeReportTab === tab.key ? 'bg-indigo-500 text-white shadow-lg' : isDark ? 'text-white/40 hover:text-white/60' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <div className="w-5 h-5 me-2 overflow-hidden flex items-center justify-center">
                                 <img src={tab.icon} alt="" className="w-full h-full object-contain"  loading="lazy" decoding="async"/>

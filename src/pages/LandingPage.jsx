@@ -109,7 +109,7 @@ export default function LandingPage() {
 
                 <div className="relative z-10 max-w-[600px]">
                     <Chip variant="bordered" className={`${tagBg} text-p600 font-semibold mb-7 border`}>{T.heroPill}</Chip>
-                    <h1 className={`text-[clamp(28px,4.5vw,60px)] font-extrabold leading-[1.12] tracking-tight mb-5 ${darkTxt}`}>
+                    <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.12] ${darkTxt}`}>
                         {T.heroH1a}<br />{T.heroH1b}<span className="bg-gradient-to-br from-p600 to-a500 bg-clip-text [-webkit-text-fill-color:transparent]">LearnNeur</span>
                     </h1>
                     <p className={`text-[15px] md:text-[17px] ${darkTxt2} leading-[1.8] mb-10 max-w-[520px]`}>{T.heroSub}</p>
@@ -178,15 +178,15 @@ export default function LandingPage() {
 
                 <div className="relative z-10 text-center mb-10 md:mb-14">
                     <Chip variant="bordered" size="sm" className={`${tagBg} text-p600 text-[11px] font-bold tracking-[1.2px] uppercase mb-3.5 border`}>{T.aitag}</Chip>
-                    <h2 className={`text-[clamp(24px,3vw,40px)] font-extrabold tracking-tight leading-[1.2] ${darkTxt}`}>{T.aih2}</h2>
+                    <h2 className="text-[clamp(24px,3vw,40px)] font-extrabold tracking-tight leading-[1.2] text-[#0C1A2E]">{T.aih2}</h2>
                     <div className="w-14 h-1 rounded-sm bg-gradient-to-r from-p600 to-a500 mx-auto mt-4" />
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
                     <div>
-                        <h2 className={`text-[clamp(20px,2.5vw,34px)] font-extrabold tracking-tight mb-2 ${darkTxt}`}>{T.aiTitle}</h2>
+                        <h2 className="text-[clamp(20px,2.5vw,34px)] font-extrabold tracking-tight mb-2 text-slate-900 dark:text-white">{T.aiTitle}</h2>
                         <div className="w-12 h-1 rounded-sm bg-gradient-to-r from-p600 to-a500 my-3" />
-                        <p className={`${darkTxt2} text-[15px] leading-[1.85] mb-3.5`}>{T.aip1}</p>
-                        <p className={`${darkTxt2} text-[15px] leading-[1.85] mb-3.5`}>{T.aip2}</p>
+                        <p className="text-slate-800 text-[15px] leading-[1.85] mb-3.5 font-medium">{T.aip1}</p>
+                        <p className="text-slate-800 text-[15px] leading-[1.85] mb-3.5 font-medium">{T.aip2}</p>
                         <div className="grid grid-cols-2 gap-3.5 mt-7">
                             {T.stats.map((s, i) => (
                                 <Card key={i} className={`${darkSurf} border ${darkBdr}`}>
@@ -245,7 +245,7 @@ export default function LandingPage() {
                     <p className={`${darkTxt2} text-base mt-2.5 leading-[1.7] max-w-[540px] mx-auto`}>{T.tlsub}</p>
                     <div className="w-14 h-1 rounded-sm bg-gradient-to-r from-p600 to-a500 mx-auto mt-4" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                     {T.tools.map((tool, i) => (
                         <Card key={i} className={`group ${darkSurf} border ${darkBdr} transition-all duration-300 relative overflow-hidden hover:-translate-y-[5px] hover:shadow-[0_18px_44px_rgba(37,99,235,.10)]`}>
                             <div className="toolcard-bar absolute bottom-0 inset-x-0 h-[3px] bg-gradient-to-r from-p500 to-a500" />

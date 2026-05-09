@@ -14,9 +14,10 @@ import SupportCirclesTab from '../components/dashboard/SupportCirclesTab';
 import { defaultRoutine } from '../data/routineData';
 import { getDashboardData } from '../data/dashboardData';
 import { Button, Card, CardBody, Input, Chip, Avatar, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea, Progress } from '@heroui/react';
-import { FaChartLine, FaBookOpen, FaRobot, FaStethoscope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaChartLine, FaBookOpen, FaRobot, FaStethoscope, FaMapMarkerAlt, FaBars, FaTimes } from 'react-icons/fa';
 
 export default function DashboardPage() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
     const { currentChild, linkedChild, currentParent, updateParentProfile, logoutParent } = useAuth();
@@ -117,9 +118,26 @@ export default function DashboardPage() {
 
             <MainNavbar userType="parent" />
 
+            {/* Mobile Sidebar Overlay */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 z-[39] bg-black/40 backdrop-blur-sm md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
+            {/* Mobile Hamburger Button */}
+            <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className={`fixed top-[84px] left-3 z-[45] md:hidden w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${isDark ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-indigo-600 text-white'}`}
+            >
+                {sidebarOpen ? <span className="text-base">✕</span> : <span className="text-base">☰</span>}
+            </button>
+
             {/* MAIN CONTENT WITH SIDEBAR */}
             <div className="flex relative pt-[72px]">
-                <main className={`flex-1 relative z-10 max-w-[1000px] mx-auto pl-[250px] md:pl-[270px] pr-6 py-8 pb-32 space-y-10`}>
+                <main className={`flex-1 relative z-10 w-full md:pl-[250px] lg:pl-[270px] px-4 sm:px-6 py-8 pb-32 max-w-full overflow-x-hidden`}>
+                    <div className="space-y-6 sm:space-y-10 mx-2 sm:mx-4 md:mx-6">
 
                     {activeSidebarTab === 'sanctuary_journal' && (
                         <SanctuaryJournalTab
@@ -161,9 +179,10 @@ export default function DashboardPage() {
                         />
                     )}
 
+                    </div>
                 </main>
 
-                <aside className={`fixed left-0 top-[72px] bottom-0 w-[250px] md:w-[270px] flex flex-col py-6 z-40 border-r ${isDark ? 'bg-[#080912]/95 border-white/10' : 'bg-white/95 border-slate-200'} backdrop-blur-2xl overflow-y-auto scrollbar-hide shadow-[10px_0_30px_rgba(0,0,0,0.02)]`}>
+                <aside className={`fixed left-0 top-[72px] bottom-0 w-[270px] flex flex-col py-6 z-40 border-r transition-transform duration-300 ${isDark ? 'bg-[#080912]/98 border-white/10' : 'bg-white/98 border-slate-200'} backdrop-blur-2xl overflow-y-auto scrollbar-hide shadow-[10px_0_30px_rgba(0,0,0,0.08)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
 
                     {/* Profile Header in Sidebar (matching the image) - Made Clickable to open settings/profile */}
                     <div 
