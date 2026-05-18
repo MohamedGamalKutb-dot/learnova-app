@@ -16,7 +16,7 @@ export default function DoctorPage() {
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
     const { currentDoctor, childAccounts, findChildForDoctor, addPatientToDoctor, updateChildDiagnosis, isDoctorLoggedIn, logoutDoctor, updateDoctorProfile } = useAuth();
-    useEffect(() => { if (!isDoctorLoggedIn) navigate('/doctor-auth'); }, [isDoctorLoggedIn, navigate]);
+    useEffect(() => { if (!isDoctorLoggedIn) navigate('/doctor-login'); }, [isDoctorLoggedIn, navigate]);
 
     const { behaviorTypes, assessmentQuestions, tabsList } = getDoctorData(isArabic);
     const tabIcons = {

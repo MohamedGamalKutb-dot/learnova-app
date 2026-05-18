@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AppProvider } from './context/AppContext';
 import { DataProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
@@ -8,16 +9,14 @@ import LandingPage from './pages/LandingPage';
 import ChoicePage from './pages/ChoicePage';
 import ChildHomePage from './pages/ChildHomePage';
 import ChildLoginPage from './pages/ChildLoginPage';
-import ChildSignupPage from './pages/ChildSignupPage';
 import PecsPage from './pages/PecsPage';
 import EmotionsPage from './pages/EmotionsPage';
 import RoutinePage from './pages/RoutinePage';
 import CalmingPage from './pages/CalmingPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import DoctorAuthPage from './pages/DoctorAuthPage';
+import ParentLoginPage from './pages/ParentLoginPage';
+import DoctorLoginPage from './pages/DoctorLoginPage';
 import DoctorPage from './pages/DoctorPage';
 import SettingsPage from './pages/SettingsPage';
 import ParentProfilePage from './pages/ParentProfilePage';
@@ -30,6 +29,7 @@ function App() {
       <AppProvider>
         <AuthProvider>
           <DataProvider>
+            <Toaster position="top-center" reverseOrder={false} toastOptions={{ duration: 4000, style: { fontFamily: 'inherit' } }} />
             <Routes>
               {/* ===== صفحات عامة ===== */}
               <Route path="/" element={<LandingPage />} />
@@ -43,26 +43,31 @@ function App() {
               } />
               <Route path="/child-signup" element={
                 <GuestRoute role="child">
-                  <ChildSignupPage />
+                  <ChildLoginPage initialIsLogin={false} />
                 </GuestRoute>
               } />
 
               {/* ===== صفحات تسجيل دخول ولي الأمر (للضيوف فقط - لو مسجل دخول يروح dashboard) ===== */}
-              <Route path="/login" element={
+              <Route path="/parent-login" element={
                 <GuestRoute role="parent">
-                  <LoginPage />
+                  <ParentLoginPage />
                 </GuestRoute>
               } />
-              <Route path="/signup" element={
+              <Route path="/parent-signup" element={
                 <GuestRoute role="parent">
-                  <SignupPage />
+                  <ParentLoginPage initialIsLogin={false} />
                 </GuestRoute>
               } />
 
-              {/* ===== صفحة تسجيل دخول الدكتور (للضيوف فقط - لو مسجل دخول يروح doctor-dashboard) ===== */}
-              <Route path="/doctor-auth" element={
+              {/* ===== صفحات تسجيل دخول الدكتور (للضيوف فقط - لو مسجل دخول يروح doctor-dashboard) ===== */}
+              <Route path="/doctor-login" element={
                 <GuestRoute role="doctor">
-                  <DoctorAuthPage />
+                  <DoctorLoginPage />
+                </GuestRoute>
+              } />
+              <Route path="/doctor-signup" element={
+                <GuestRoute role="doctor">
+                  <DoctorLoginPage initialIsLogin={false} />
                 </GuestRoute>
               } />
 
@@ -95,7 +100,7 @@ function App() {
 
               {/* ===== صفحات ولي الأمر (محمية - لازم يكون ولي الأمر مسجل دخول) ===== */}
               <Route path="/parent-dashboard/:tab?" element={
-                <ProtectedRoute role="parent" redirectTo="/login">
+                <ProtectedRoute role="parent" redirectTo="/parent-login">
                   <DashboardPage />
                 </ProtectedRoute>
               } />
@@ -105,24 +110,20 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/parent-dashboard/profile" element={
-                <ProtectedRoute role="parent" redirectTo="/login">
+                <ProtectedRoute role="parent" redirectTo="/parent-login">
                   <ParentProfilePage />
                 </ProtectedRoute>
               } />
-              <Route path="/settings" element={
-                <ProtectedRoute redirectTo="/choice">
-                  <SettingsPage />
-                </ProtectedRoute>
-              } />
+              <Route path="/settings" element={<SettingsPage />} />
 
               {/* ===== صفحات الدكتور (محمية - لازم يكون الدكتور مسجل دخول) ===== */}
                <Route path="/doctor-dashboard/:tab?" element={
-                <ProtectedRoute role="doctor" redirectTo="/doctor-auth">
+                <ProtectedRoute role="doctor" redirectTo="/doctor-login">
                   <DoctorPage />
                 </ProtectedRoute>
               } />
               <Route path="/doctor-dashboard/profile" element={
-                <ProtectedRoute role="doctor" redirectTo="/doctor-auth">
+                <ProtectedRoute role="doctor" redirectTo="/doctor-login">
                   <DoctorProfilePage />
                 </ProtectedRoute>
               } />

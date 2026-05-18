@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
 const DataContext = createContext(null);
@@ -59,10 +60,12 @@ function getTodayKey() {
 }
 
 export function DataProvider({ children }) {
-    const { currentChild, isChildLoggedIn, isParentLoggedIn, linkedChild } = useAuth();
+    const { currentChild, isParentLoggedIn, linkedChild } = useAuth();
+    const location = useLocation();
     
     // Determine which child we are tracking for
-    const activeChildId = currentChild?.childId || linkedChild?.childId || null;
+    const isParentPath = location.pathname.includes('/parent-dashboard');
+    const activeChildId = isParentPath ? (linkedChild?.childId || currentChild?.childId || null) : (currentChild?.childId || linkedChild?.childId || null);
 
     const [data, setData] = useState(() => loadChildSpecificData(activeChildId));
     const [lastChildId, setLastChildId] = useState(activeChildId);

@@ -57,6 +57,27 @@ export function AuthProvider({ children }) {
     const [currentParent, setCurrentParent] = useState(() => {
         try { const s = localStorage.getItem(CURRENT_PARENT_KEY); return s ? JSON.parse(s) : null; } catch { return null; }
     });
+    const [parentActiveChildId, setParentActiveChildId] = useState(() => {
+        try {
+            const active = localStorage.getItem('learnova_v2_parent_active_child');
+            if (active) return active;
+            const s = localStorage.getItem(CURRENT_PARENT_KEY);
+            if (s) {
+                const parsed = JSON.parse(s);
+                const ids = parsed.childIds || (parsed.childId ? [parsed.childId] : []);
+                return ids[0] || null;
+            }
+        } catch { return null; }
+        return null;
+    });
+
+    useEffect(() => {
+        if (parentActiveChildId) {
+            localStorage.setItem('learnova_v2_parent_active_child', parentActiveChildId);
+        } else {
+            localStorage.removeItem('learnova_v2_parent_active_child');
+        }
+    }, [parentActiveChildId]);
     const [doctorAccounts, setDoctorAccounts] = useState(loadDoctors);
     const [currentDoctor, setCurrentDoctor] = useState(() => {
         try { const s = localStorage.getItem(CURRENT_DOCTOR_KEY); return s ? JSON.parse(s) : null; } catch { return null; }
@@ -170,15 +191,11 @@ export function AuthProvider({ children }) {
     }, [currentChild]);
 
     // ============ PARENT MANAGEMENT ============
-    const registerParent = useCallback(({ name, email, password, phone, childId }) => {
+    const registerParent = useCallback(({ name, email, password, phone }) => {
         const existingParents = loadParents();
         if (existingParents.find(p => p.email.toLowerCase() === email.toLowerCase())) {
             return { success: false, error: 'email_exists' };
         }
-        const normInputId = normalizeId(childId);
-        const existingChildren = loadChildren();
-        const linkedChild = existingChildren.find(c => normalizeId(c.childId) === normInputId);
-        if (!linkedChild) return { success: false, error: 'child_not_found' };
 
         const parent = {
             id: `P-${Date.now()}`,
@@ -186,8 +203,7 @@ export function AuthProvider({ children }) {
             email: email.toLowerCase(),
             password,
             phone,
-            childId: linkedChild.childId,
-            childName: linkedChild.name,
+            childIds: [],
             avatar: '👤',
             createdAt: new Date().toISOString(),
         };
@@ -202,17 +218,85 @@ export function AuthProvider({ children }) {
         const parent = freshParents.find(p => p.email.toLowerCase() === email.toLowerCase());
         if (!parent) return { success: false, error: 'not_found' };
         if (parent.password !== password) return { success: false, error: 'wrong_password' };
+
         setParentAccounts(freshParents);
         setChildAccounts(loadChildren());
         setCurrentParent(parent);
         localStorage.setItem(CURRENT_PARENT_KEY, JSON.stringify(parent));
+
+        const ids = parent.childIds || (parent.childId ? [parent.childId] : []);
+        const savedActive = localStorage.getItem('learnova_v2_parent_active_child');
+        if (savedActive && ids.includes(savedActive)) {
+            setParentActiveChildId(savedActive);
+        } else {
+            setParentActiveChildId(ids[0] || null);
+        }
         return { success: true };
     }, []);
 
     const logoutParent = useCallback(() => {
         setCurrentParent(null);
+        setParentActiveChildId(null);
         localStorage.removeItem(CURRENT_PARENT_KEY);
+        localStorage.removeItem('learnova_v2_parent_active_child');
     }, []);
+
+    const addChildToParent = useCallback((childId) => {
+        if (!currentParent) return { success: false, error: 'no_parent' };
+        const existingParents = loadParents();
+        const normInputId = normalizeId(childId);
+        const existingChildren = loadChildren();
+        const linkedChild = existingChildren.find(c => normalizeId(c.childId) === normInputId);
+        if (!linkedChild) return { success: false, error: 'child_not_found' };
+
+        const updated = existingParents.map(p => {
+            if (p.id === currentParent.id) {
+                const childIds = p.childIds || (p.childId ? [p.childId] : []);
+                if (childIds.includes(linkedChild.childId)) return p;
+                return { ...p, childIds: [...childIds, linkedChild.childId] };
+            }
+            return p;
+        });
+
+        const updatedParent = updated.find(p => p.id === currentParent.id);
+        const wasAdded = (updatedParent.childIds || []).length > ((currentParent.childIds || (currentParent.childId ? [currentParent.childId] : [])).length);
+
+        if (wasAdded) {
+            saveParents(updated);
+            setParentAccounts(updated);
+            setCurrentParent(updatedParent);
+            localStorage.setItem(CURRENT_PARENT_KEY, JSON.stringify(updatedParent));
+            if (!parentActiveChildId) {
+                setParentActiveChildId(linkedChild.childId);
+            }
+            return { success: true, childName: linkedChild.name };
+        }
+        return { success: false, error: 'already_exists' };
+    }, [currentParent, parentActiveChildId]);
+
+    const removeChildFromParent = useCallback((childId) => {
+        if (!currentParent) return { success: false, error: 'no_parent' };
+        const existingParents = loadParents();
+        
+        const updated = existingParents.map(p => {
+            if (p.id === currentParent.id) {
+                const childIds = p.childIds || (p.childId ? [p.childId] : []);
+                return { ...p, childIds: childIds.filter(id => id !== childId) };
+            }
+            return p;
+        });
+
+        const updatedParent = updated.find(p => p.id === currentParent.id);
+        saveParents(updated);
+        setParentAccounts(updated);
+        setCurrentParent(updatedParent);
+        localStorage.setItem(CURRENT_PARENT_KEY, JSON.stringify(updatedParent));
+        
+        if (parentActiveChildId === childId) {
+            setParentActiveChildId(updatedParent.childIds?.[0] || null);
+        }
+        return { success: true };
+    }, [currentParent, parentActiveChildId]);
 
     const updateParentProfile = useCallback((updates) => {
         if (!currentParent) return;
@@ -258,7 +342,11 @@ export function AuthProvider({ children }) {
         return existing.find(c => normalizeId(c.childId) === normId) || null;
     }, []);
 
-    const linkedChild = currentParent ? childAccounts.find(c => normalizeId(c.childId) === normalizeId(currentParent.childId)) : null;
+    const linkedChild = currentParent
+        ? (childAccounts.find(c => normalizeId(c.childId) === normalizeId(parentActiveChildId)) ||
+           childAccounts.find(c => (currentParent.childIds || []).includes(c.childId)) ||
+           childAccounts.find(c => normalizeId(c.childId) === normalizeId(currentParent.childId)))
+        : null;
 
     const updateChildRoutine = useCallback((childId, dateKey, tasksStatus) => {
         const existing = loadChildren();
@@ -326,6 +414,7 @@ export function AuthProvider({ children }) {
         const doctor = existing.find(d => d.email.toLowerCase() === email.toLowerCase());
         if (!doctor) return { success: false, error: 'not_found' };
         if (doctor.password !== password) return { success: false, error: 'wrong_password' };
+
         setCurrentDoctor(doctor);
         localStorage.setItem(CURRENT_DOCTOR_KEY, JSON.stringify(doctor));
         return { success: true };
@@ -380,6 +469,7 @@ export function AuthProvider({ children }) {
             registerChild, loginChild, logoutChild, updateChildProfile, updateChildRoutine, updateChildEmotionStats,
             currentParent, parentAccounts,
             registerParent, loginParent, logoutParent, updateParentProfile,
+            parentActiveChildId, setParentActiveChildId, addChildToParent, removeChildFromParent,
             getChildById, linkedChild,
             findChildForDoctor, updateChildDiagnosis, addPatientToDoctor,
             doctorAccounts, currentDoctor, registerDoctor, loginDoctor, logoutDoctor, updateDoctorProfile,

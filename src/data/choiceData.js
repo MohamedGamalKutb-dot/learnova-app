@@ -45,7 +45,7 @@ export const getChoiceData = (isArabic) => {
             bubbleCls: 'bg-gradient-to-br from-emerald-100 to-emerald-200 shadow-[0_8px_24px_rgba(16,185,129,.15)]',
             dotCls: 'bg-emerald-100 text-emerald-600',
             btnGrad: 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-[0_6px_20px_rgba(16,185,129,.28)] hover:shadow-[0_10px_28px_rgba(16,185,129,.38)]',
-            loginPath: '/login',
+            loginPath: '/parent-login',
             badgeText: isArabic ? 'الأكثر استخداماً' : 'Most Used',
         },
         {
@@ -64,7 +64,7 @@ export const getChoiceData = (isArabic) => {
             bubbleCls: 'bg-gradient-to-br from-violet-100 to-violet-200 shadow-[0_8px_24px_rgba(139,92,246,.15)]',
             dotCls: 'bg-violet-100 text-violet-600',
             btnGrad: 'bg-gradient-to-br from-violet-500 to-violet-600 shadow-[0_6px_20px_rgba(139,92,246,.28)] hover:shadow-[0_10px_28_rgba(139,92,246,.38)]',
-            loginPath: '/doctor-auth',
+            loginPath: '/doctor-login',
         },
     ];
 

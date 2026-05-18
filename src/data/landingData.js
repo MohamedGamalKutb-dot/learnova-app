@@ -72,8 +72,8 @@ export const getLandingData = (isArabic, navigate) => {
         fc2h: isArabic ? 'الحسابات' : 'Accounts',
         fc2: [
             { t: isArabic ? 'دخول الطفل' : 'Child Login', p: '/child-login' },
-            { t: isArabic ? 'دخول ولي الأمر' : 'Parent Login', p: '/login' },
-            { t: isArabic ? 'دخول الطبيب' : 'Doctor Login', p: '/doctor-auth' },
+            { t: isArabic ? 'دخول ولي الأمر' : 'Parent Login', p: '/parent-login' },
+            { t: isArabic ? 'دخول الطبيب' : 'Doctor Login', p: '/doctor-login' },
             { t: isArabic ? 'إنشاء حساب' : 'Create Account', p: '/choice' },
         ],
         fc3h: isArabic ? 'تواصل' : 'Contact',
@@ -87,8 +87,8 @@ export const getLandingData = (isArabic, navigate) => {
     const navIds = ['hero', 'about', 'login', 'tools', 'footer'];
     const loginCards = [
         { icon: '/icons/child.png', h: T.lc1h, p: T.lc1p, btn: T.lc1btn, topC: 'from-p500 to-a500', iconBg: 'bg-gradient-to-br from-p100 to-p200', btnBg: 'bg-gradient-to-br from-p500 to-a500', path: '/child-login' },
-        { icon: '/icons/parent_icon.png', h: T.lc2h, p: T.lc2p, btn: T.lc2btn, topC: 'from-emerald-500 to-p500', iconBg: 'bg-gradient-to-br from-emerald-100 to-emerald-200', btnBg: 'bg-gradient-to-br from-emerald-500 to-emerald-600', path: '/login' },
-        { icon: '/icons/doctor_icon.png', h: T.lc3h, p: T.lc3p, btn: T.lc3btn, topC: 'from-violet-500 to-p500', iconBg: 'bg-gradient-to-br from-violet-100 to-violet-200', btnBg: 'bg-gradient-to-br from-violet-500 to-violet-600', path: '/doctor-auth' },
+        { icon: '/icons/parent_icon.png', h: T.lc2h, p: T.lc2p, btn: T.lc2btn, topC: 'from-emerald-500 to-p500', iconBg: 'bg-gradient-to-br from-emerald-100 to-emerald-200', btnBg: 'bg-gradient-to-br from-emerald-500 to-emerald-600', path: '/parent-login' },
+        { icon: '/icons/doctor_icon.png', h: T.lc3h, p: T.lc3p, btn: T.lc3btn, topC: 'from-violet-500 to-p500', iconBg: 'bg-gradient-to-br from-violet-100 to-violet-200', btnBg: 'bg-gradient-to-br from-violet-500 to-violet-600', path: '/doctor-login' },
     ];
     const heroCards = [
         { icon: '/icons/child.png', bg: 'bg-gradient-to-br from-p100 to-p200', t: T.hc1t, s: T.hc1s, cls: 'hcard-1' },

@@ -55,7 +55,7 @@ export default function ChoicePage() {
                         <Card key={card.id} isPressable onPress={() => navigate(card.loginPath)} className={`${darkSurf} border-2 ${card.borderCls} rounded-3xl p-8 text-center transition-all hover:-translate-y-2 group shadow-sm hover:shadow-xl`}>
                             <CardBody className="p-0 flex flex-col items-center">
                                 <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 overflow-hidden ${card.bubbleCls}`}>
-                                    <img src={card.id === 'doctor' ? '/icons/doctor_consultation.png' : card.icon} alt={card.title} className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
+                                    <img src={card.icon} alt={card.title} className="w-full h-full object-cover"  loading="lazy" decoding="async"/>
                                 </div>
                                 <div className={`text-xl font-extrabold mb-2 ${darkTxt}`}>{card.title}</div>
                                 <div className={`${darkTxt2} text-sm mb-6`}>{card.desc}</div>

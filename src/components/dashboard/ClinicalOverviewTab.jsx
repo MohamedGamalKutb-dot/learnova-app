@@ -63,16 +63,16 @@ export default function ClinicalOverviewTab({
                                     <div className="p-8 rounded-[40px] bg-white/5 border border-white/10 text-center flex flex-col justify-center">
                                         <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">{isArabic ? 'التاريخ' : 'Date'}</p>
                                         <p className="text-lg font-black text-white" dir="ltr">
-                                            {activeUser.createdAt ? `${new Date(viewingAssessment.date).getDate().toString().padStart(2, '0')} / ${(new Date(viewingAssessment.date).getMonth() + 1).toString().padStart(2, '0')} / ${new Date(viewingAssessment.date).getFullYear()}` : '--'}
+                                            {viewingAssessment.date ? `${new Date(viewingAssessment.date).getDate().toString().padStart(2, '0')} / ${(new Date(viewingAssessment.date).getMonth() + 1).toString().padStart(2, '0')} / ${new Date(viewingAssessment.date).getFullYear()}` : '--'}
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {(!currentChild?.assessments || currentChild?.assessments?.length === 0) ? (
+                                {(!hero?.assessments || hero?.assessments?.length === 0) ? (
                                     <p className="text-center py-10 text-white/20 font-black italic">{isArabic ? 'لم يتم إجراء تقييمات' : 'No assessments logged'}</p>
-                                ) : ([...(currentChild?.assessments || [])].reverse().map((ass, idx) => (
+                                ) : ([...(hero?.assessments || [])].reverse().map((ass, idx) => (
                                     <div key={idx} onClick={() => setViewingAssessment(ass)} className="flex items-center gap-5 p-6 rounded-[35px] border border-white/5 bg-white/5 hover:bg-white/10 hover:border-indigo-400/40 cursor-pointer transition-all duration-500">
                                         <div className="w-16 h-16 rounded-[24px] bg-indigo-500 shadow-lg shadow-indigo-500/20 flex items-center justify-center text-xl font-black text-white">{ass.score}%</div>
                                         <div className="flex-1">
@@ -91,9 +91,9 @@ export default function ClinicalOverviewTab({
 
                 {activeReportTab === 'behavior' && (
                     <div className="space-y-4 animate-in fade-in duration-500">
-                        {(!currentChild?.behaviorLogs || (currentChild?.behaviorLogs?.length || 0) === 0) ? (
+                        {(!hero?.behaviorLogs || (hero?.behaviorLogs?.length || 0) === 0) ? (
                             <p className="text-center py-10 text-white/20 font-black italic">{isArabic ? 'السجل نظيف' : 'Behavior logs are clear'}</p>
-                        ) : (Array.isArray(currentChild?.behaviorLogs) ? [...currentChild.behaviorLogs].reverse().map((log, idx) => {
+                        ) : (Array.isArray(hero?.behaviorLogs) ? [...hero.behaviorLogs].reverse().map((log, idx) => {
                             const bt = behaviorTypes.find(b => b.key === log.type);
                             return (
                                 <div key={idx} className={`p-6 rounded-[40px] border transition-colors flex gap-6 ${isDark ? 'border-white/5 bg-white/5 group-hover:bg-white/10' : 'border-slate-200 bg-white group-hover:bg-slate-50'}`}>
