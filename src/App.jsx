@@ -3,25 +3,39 @@ import { Toaster } from 'react-hot-toast';
 import { AppProvider } from './context/AppContext';
 import { DataProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import GuestRoute from './components/GuestRoute';
-import LandingPage from './pages/LandingPage';
-import ChoicePage from './pages/ChoicePage';
-import ChildHomePage from './pages/ChildHomePage';
-import ChildLoginPage from './pages/ChildLoginPage';
-import PecsPage from './pages/PecsPage';
-import EmotionsPage from './pages/EmotionsPage';
-import RoutinePage from './pages/RoutinePage';
-import CalmingPage from './pages/CalmingPage';
-import DashboardPage from './pages/DashboardPage';
-import ProfilePage from './pages/ProfilePage';
-import ParentLoginPage from './pages/ParentLoginPage';
-import DoctorLoginPage from './pages/DoctorLoginPage';
-import DoctorPage from './pages/DoctorPage';
-import SettingsPage from './pages/SettingsPage';
-import ParentProfilePage from './pages/ParentProfilePage';
-import DoctorProfilePage from './pages/DoctorProfilePage';
-import NotFoundPage from './pages/NotFoundPage';
+
+// ── Shared Components ──────────────────────────────────────────────────────────
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import GuestRoute from './components/GuestRoute/GuestRoute';
+
+// ── Pages ──────────────────────────────────────────────────────────────────────
+import LandingPage from './pages/landing/LandingPage';
+import ChoicePage from './pages/choice/ChoicePage';
+
+// Auth
+import ChildLoginPage from './pages/auth/child-login/ChildLoginPage';
+import ParentLoginPage from './pages/auth/parent-login/ParentLoginPage';
+import DoctorLoginPage from './pages/auth/doctor-login/DoctorLoginPage';
+
+// Child
+import ChildHomePage from './pages/child-home/ChildHomePage';
+import PecsPage from './pages/pecs/PecsPage';
+import EmotionsPage from './pages/emotions/EmotionsPage';
+import RoutinePage from './pages/routine/RoutinePage';
+import CalmingPage from './pages/calming/CalmingPage';
+import ProfilePage from './pages/profile/ProfilePage';
+
+// Parent
+import DashboardPage from './pages/parent-dashboard/DashboardPage';
+import ParentProfilePage from './pages/parent-profile/ParentProfilePage';
+
+// Doctor
+import DoctorPage from './pages/doctor-dashboard/DoctorPage';
+import DoctorProfilePage from './pages/doctor-profile/DoctorProfilePage';
+
+// Misc
+import SettingsPage from './pages/settings/SettingsPage';
+import NotFoundPage from './pages/not-found/NotFoundPage';
 
 function App() {
   return (
@@ -35,7 +49,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/choice" element={<ChoicePage />} />
 
-              {/* ===== صفحات تسجيل دخول الطفل (للضيوف فقط - لو مسجل دخول يروح child-home) ===== */}
+              {/* ===== صفحات تسجيل دخول الطفل (للضيوف فقط) ===== */}
               <Route path="/child-login" element={
                 <GuestRoute role="child">
                   <ChildLoginPage />
@@ -47,7 +61,7 @@ function App() {
                 </GuestRoute>
               } />
 
-              {/* ===== صفحات تسجيل دخول ولي الأمر (للضيوف فقط - لو مسجل دخول يروح dashboard) ===== */}
+              {/* ===== صفحات تسجيل دخول ولي الأمر (للضيوف فقط) ===== */}
               <Route path="/parent-login" element={
                 <GuestRoute role="parent">
                   <ParentLoginPage />
@@ -59,7 +73,7 @@ function App() {
                 </GuestRoute>
               } />
 
-              {/* ===== صفحات تسجيل دخول الدكتور (للضيوف فقط - لو مسجل دخول يروح doctor-dashboard) ===== */}
+              {/* ===== صفحات تسجيل دخول الدكتور (للضيوف فقط) ===== */}
               <Route path="/doctor-login" element={
                 <GuestRoute role="doctor">
                   <DoctorLoginPage />
@@ -71,7 +85,7 @@ function App() {
                 </GuestRoute>
               } />
 
-              {/* ===== صفحات الطفل (محمية - لازم يكون الطفل مسجل دخول) ===== */}
+              {/* ===== صفحات الطفل (محمية) ===== */}
               <Route path="/child-home" element={
                 <ProtectedRoute role="child" redirectTo="/child-login">
                   <ChildHomePage />
@@ -97,16 +111,16 @@ function App() {
                   <CalmingPage />
                 </ProtectedRoute>
               } />
+              <Route path="/profile" element={
+                <ProtectedRoute role="child" redirectTo="/child-login">
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
 
-              {/* ===== صفحات ولي الأمر (محمية - لازم يكون ولي الأمر مسجل دخول) ===== */}
+              {/* ===== صفحات ولي الأمر (محمية) ===== */}
               <Route path="/parent-dashboard/:tab?" element={
                 <ProtectedRoute role="parent" redirectTo="/parent-login">
                   <DashboardPage />
-                </ProtectedRoute>
-              } />
-               <Route path="/profile" element={
-                <ProtectedRoute role="child" redirectTo="/child-login">
-                  <ProfilePage />
                 </ProtectedRoute>
               } />
               <Route path="/parent-dashboard/profile" element={
@@ -114,10 +128,9 @@ function App() {
                   <ParentProfilePage />
                 </ProtectedRoute>
               } />
-              <Route path="/settings" element={<SettingsPage />} />
 
-              {/* ===== صفحات الدكتور (محمية - لازم يكون الدكتور مسجل دخول) ===== */}
-               <Route path="/doctor-dashboard/:tab?" element={
+              {/* ===== صفحات الدكتور (محمية) ===== */}
+              <Route path="/doctor-dashboard/:tab?" element={
                 <ProtectedRoute role="doctor" redirectTo="/doctor-login">
                   <DoctorPage />
                 </ProtectedRoute>
@@ -127,6 +140,8 @@ function App() {
                   <DoctorProfilePage />
                 </ProtectedRoute>
               } />
+
+              <Route path="/settings" element={<SettingsPage />} />
 
               {/* ===== صفحة 404 ===== */}
               <Route path="*" element={<NotFoundPage />} />
