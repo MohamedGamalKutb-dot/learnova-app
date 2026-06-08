@@ -4,7 +4,7 @@ export default function ClinicalOverviewTab({
     isArabic, isDark, auraCard, SectionTitle,
     activeReportTab, setActiveReportTab,
     viewingAssessment, setViewingAssessment,
-    hero, currentChild, behaviorTypes
+    hero, behaviorTypes
 }) {
     return (
         <Card className={`rounded-[50px] border relative overflow-hidden group ${auraCard}`}>

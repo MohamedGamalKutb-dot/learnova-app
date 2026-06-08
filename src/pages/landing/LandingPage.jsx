@@ -1,15 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+// Safelist: from-violet-100 to-violet-200 from-violet-500 to-violet-600 from-emerald-100 to-emerald-200 from-emerald-500 to-emerald-600 from-p100 to-p200 from-p500 to-a500 bg-gradient-to-br text-white
 import { useState } from 'react';
 import {
-    Button, Card, CardBody, Chip, Divider, Navbar, NavbarBrand, NavbarContent, NavbarItem
+    Button, Card, CardBody, Chip, Divider, Navbar, NavbarBrand, NavbarContent, NavbarItem, Spinner
 } from '@heroui/react';
-import { getLandingData } from '../../data/landingData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 import { FaGamepad, FaChartLine, FaComments, FaCalendarAlt, FaStethoscope, FaBookOpen } from 'react-icons/fa';
 
 export default function LandingPage() {
     const navigate = useNavigate();
-    const { isDark, isArabic, toggleTheme, toggleLanguage } = useApp();
+    const { isDark, isArabic } = useApp();
     const [menuOpen, setMenuOpen] = useState(false);
 
     const scrollTo = (id) => {
@@ -18,7 +19,11 @@ export default function LandingPage() {
         setMenuOpen(false);
     };
 
-    const { T, navIds, loginCards, heroCards } = getLandingData(isArabic);
+    const { appData } = useGlobalData();
+
+    if (!appData) return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" color="primary" /></div>;
+
+    const { T, navIds, loginCards, heroCards } = appData[isArabic ? 'ar' : 'en'].landingData;
 
     const darkBg = isDark ? 'bg-lbg-dark' : 'bg-lbg';
     const darkBg2 = isDark ? 'bg-lbg2-dark' : 'bg-lbg2';

@@ -2,13 +2,13 @@ import { Button, Card, CardBody, Avatar } from '@heroui/react';
 import { FaTheaterMasks, FaPen, FaChartBar } from 'react-icons/fa';
 
 export default function BehaviorTab({
-    isArabic, isDark, accent,
+    isArabic, isDark,
     selectedPatient, behaviorTypes,
     behaviorType, setBehaviorType,
     behaviorIntensity, setBehaviorIntensity,
     behaviorNote, setBehaviorNote,
     addBehaviorLog,
-    hoveredCard, setHoveredCard, cardCls, inputCls, patientBanner
+    setHoveredCard, cardCls, inputCls, patientBanner
 }) {
     if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-5xl mb-4 opacity-20 flex justify-center"><FaTheaterMasks /></div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
     return (

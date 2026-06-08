@@ -2,7 +2,7 @@
 // Uses Google Gemini API (Free tier: 15 requests/minute)
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
 
 // System prompts for different modes
 const PARENT_SYSTEM_PROMPT_AR = `أنت مساعد ذكي متخصص في التوحد واسمك "المساعد الذكي للتوحد" في تطبيق LearNeur.
@@ -37,6 +37,33 @@ Your core rules:
 9. Keep responses moderate length (3-8 lines) and organized.
 10. If asked about the app: it has PECS (picture communication), Emotions, Daily Routine, Calming Zone, and Dashboard sections.
 11. Do not respond to any inappropriate or harmful content.`;
+
+const DOCTOR_SYSTEM_PROMPT_AR = `أنت مساعد طبي ذكي متخصص في التوحد واسمك "المساعد الذكي للتوحد" في تطبيق LearNeur.
+أنت تتحدث مع طبيب أو أخصائي تخاطب وتعديل سلوك يتابع أطفالاً مصابين بالتوحد.
+
+قواعدك الأساسية:
+1. أنت مساعد طبي محترف - تحدث بلغة مهنية وعلمية دقيقة.
+2. قدم تحليلات واستنتاجات بناءً على البيانات التي يشاركها الطبيب.
+3. استخدم اللغة العربية الطبية السليمة مع تبسيط بعض المصطلحات إذا لزم الأمر.
+4. اقترح استراتيجيات تدخل مبكر (Early Intervention) وخطط تعديل سلوك (Behavior Intervention Plans).
+5. إذا سألك الطبيب عن أحدث الدراسات أو الأساليب، قدم ملخصات دقيقة.
+6. لا تقم بتشخيص الحالات بنفسك، بل ساعد الطبيب في تنظيم ملاحظاته.
+7. ردودك تكون مركزة ومنظمة في نقاط (Bullet points).
+8. تجنب الإيموجي الكثيرة واستخدم أسلوباً رسمياً.
+9. لا ترد على أي سؤال خارج الإطار الطبي أو العلمي المتصل بالتوحد.`;
+
+const DOCTOR_SYSTEM_PROMPT_EN = `You are an intelligent medical autism assistant named "Autism AI Assistant" in the LearNeur app.
+You are talking to a doctor, speech therapist, or behavior analyst who monitors children with autism.
+
+Your core rules:
+1. You are a professional medical assistant - speak using accurate professional and scientific language.
+2. Provide analyses and insights based on the data the doctor shares.
+3. Suggest Early Intervention strategies and Behavior Intervention Plans (BIP).
+4. If asked about recent studies or methods, provide accurate summaries.
+5. Do not diagnose cases yourself; rather, help the doctor organize their observations.
+6. Keep your responses focused, concise, and organized in bullet points.
+7. Avoid excessive emojis and maintain a formal tone.
+8. Do not respond to any questions outside the medical/scientific scope of autism.`;
 
 const CHILD_SYSTEM_PROMPT_AR = `أنت صديق روبوت لطيف اسمك "صديقي الروبوت" 🤖 في تطبيق LearNeur.
 أنت تتحدث مع طفل صغير عنده توحد.
@@ -84,11 +111,14 @@ export async function getGeminiResponse(userMessage, chatHistory = [], mode = 'p
     }
 
     const isChild = mode === 'child';
+    const isDoctor = mode === 'doctor';
 
     // Select system prompt
     let systemPrompt;
     if (isChild) {
         systemPrompt = isArabic ? CHILD_SYSTEM_PROMPT_AR : CHILD_SYSTEM_PROMPT_EN;
+    } else if (isDoctor) {
+        systemPrompt = isArabic ? DOCTOR_SYSTEM_PROMPT_AR : DOCTOR_SYSTEM_PROMPT_EN;
     } else {
         systemPrompt = isArabic ? PARENT_SYSTEM_PROMPT_AR : PARENT_SYSTEM_PROMPT_EN;
     }
@@ -97,34 +127,60 @@ export async function getGeminiResponse(userMessage, chatHistory = [], mode = 'p
     const recentHistory = chatHistory.slice(-10);
     const contents = [];
 
-    // Add system instruction via first user turn
+    // Gemini API requires STRICT alternating roles (user, model, user, model).
+    // The new system instructions feature in Gemini 1.5 is better, but since we are sending it as a user message:
+    
+    // 1. System Prompt (User)
     contents.push({
         role: 'user',
         parts: [{ text: systemPrompt + '\n\n---\nالآن ابدأ المحادثة. رد على الرسالة التالية:' }]
     });
+
+    // 2. Initial Model Acknowledgement (Model)
+    let welcomeTextAr = 'أهلاً بك! 👋 أنا المساعد الذكي للتوحد. كيف أقدر أساعدك؟';
+    let welcomeTextEn = 'Hello! 👋 I\'m the Autism AI Assistant. How can I help you?';
+    if (isChild) {
+        welcomeTextAr = 'أهلاً يا بطل! 👋 أنا صاحبك الروبوت 🤖 اتكلم معايا!';
+        welcomeTextEn = 'Hey Hero! 👋 I\'m your robot buddy 🤖 Talk to me!';
+    } else if (isDoctor) {
+        welcomeTextAr = 'أهلاً بك يا دكتور. أنا مساعدك الذكي لتحليل سلوكيات التوحد. كيف يمكنني مساعدتك في تقييم مرضاك اليوم؟';
+        welcomeTextEn = 'Hello Doctor. I am your AI assistant for autism behavior analysis. How can I assist you with your patients today?';
+    }
+
     contents.push({
         role: 'model',
-        parts: [{
-            text: isArabic
-                ? (isChild ? 'أهلاً يا بطل! 👋 أنا صاحبك الروبوت 🤖 اتكلم معايا!' : 'أهلاً بك! 👋 أنا المساعد الذكي للتوحد. كيف أقدر أساعدك؟')
-                : (isChild ? 'Hey Hero! 👋 I\'m your robot buddy 🤖 Talk to me!' : 'Hello! 👋 I\'m the Autism AI Assistant. How can I help you?')
-        }]
+        parts: [{ text: isArabic ? welcomeTextAr : welcomeTextEn }]
     });
 
-    // Add chat history for context
+    // 3. Process History to Ensure Alternation
+    let lastRole = 'model'; // The last message we pushed was 'model'
+
     recentHistory.forEach(msg => {
-        if (msg.sender === 'user') {
-            contents.push({ role: 'user', parts: [{ text: msg.text }] });
-        } else if (msg.sender === 'bot' && msg.text) {
-            contents.push({ role: 'model', parts: [{ text: msg.text }] });
+        // Skip the very first initial message from the bot to avoid double 'model' roles at the start
+        if (msg.id === 1 && msg.sender === 'bot') return;
+        
+        // Skip empty messages
+        if (!msg.text || !msg.text.trim()) return;
+
+        const role = msg.sender === 'user' ? 'user' : 'model';
+
+        // If the role is the same as the last one, combine them instead of pushing a new one!
+        if (role === lastRole) {
+            contents[contents.length - 1].parts[0].text += '\n\n' + msg.text;
+        } else {
+            contents.push({ role, parts: [{ text: msg.text }] });
+            lastRole = role;
         }
     });
 
-    // Add current message
-    contents.push({
-        role: 'user',
-        parts: [{ text: userMessage }]
-    });
+    // We don't add `userMessage` here again because `chatHistory` already contains it!
+    // In AutismSupportBot.jsx: `getGeminiResponse(textToSend, [...messages, userMsg], mode, isArabic)`
+    // So `recentHistory` already has the latest `userMsg` at the end.
+    
+    // Ensure the last message is a 'user' message so the 'model' can reply
+    if (contents[contents.length - 1].role !== 'user') {
+        contents.push({ role: 'user', parts: [{ text: 'استمر' }] }); // Fallback if somehow history ended with model
+    }
 
     try {
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
@@ -135,8 +191,7 @@ export async function getGeminiResponse(userMessage, chatHistory = [], mode = 'p
                 generationConfig: {
                     temperature: isChild ? 0.8 : 0.7,
                     topP: 0.9,
-                    topK: 40,
-                    maxOutputTokens: isChild ? 200 : 500,
+                    topK: 40
                 },
                 safetySettings: [
                     { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },

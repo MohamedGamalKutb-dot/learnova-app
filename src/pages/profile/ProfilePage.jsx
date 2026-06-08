@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { Button, Card, CardBody, Input, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, Textarea } from '@heroui/react';
-import { getProfileData } from '../../data/profileData';
+import { Button, Card, CardBody, Input, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, Textarea, Spinner } from '@heroui/react';
+import { useGlobalData } from '../../context/GlobalDataContext';
+import { toast } from 'react-hot-toast';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -18,11 +19,12 @@ export default function ProfilePage() {
     const [editingField, setEditingField] = useState(null);
     const [editValue, setEditValue] = useState('');
 
-    const accent = '#6C63FF';
 
     // Determine user session
     const activeUser = currentChild || currentParent || currentDoctor;
     const userRole = currentChild ? 'child' : currentParent ? 'parent' : currentDoctor ? 'doctor' : null;
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const { profile } = useGlobalData();
 
     if (!activeUser) {
         return (
@@ -60,28 +62,52 @@ export default function ProfilePage() {
         updateChildProfile({ sensoryPreferences: prefs.includes(pref) ? prefs.filter(p => p !== pref) : [...prefs, pref] });
     };
 
-    const handleLogout = () => {
+    const handleLogout = () => { // eslint-disable-line no-unused-vars
         if (userRole === 'child') logoutChild();
         else if (userRole === 'parent') logoutParent();
         else if (userRole === 'doctor') logoutDoctor();
         navigate('/');
     };
 
-    const { sensoryOptions, avatarOptions } = getProfileData(isArabic);
+    const sensoryOptions = profile?.sensoryOptions || [];
+    const avatarOptions = profile?.avatarOptions || [];
 
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            updateChildProfile({ avatar: reader.result }); // Save Base64 string
-            setShowAvatarPicker(false);
+        const doUpload = async () => {
+            setIsUploadingAvatar(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+                
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const json = await res.json();
+                if (json.secure_url) {
+                    await updateChildProfile({ avatar: json.secure_url });
+                    setShowAvatarPicker(false);
+                    return json.secure_url;
+                } else {
+                    throw new Error("Failed to upload image");
+                }
+            } finally {
+                setIsUploadingAvatar(false);
+            }
         };
-        reader.readAsDataURL(file);
+
+        toast.promise(doUpload(), {
+            loading: isArabic ? 'جاري رفع الصورة...' : 'Uploading image...',
+            success: isArabic ? 'تم تحديث الصورة بنجاح!' : 'Avatar updated successfully!',
+            error: isArabic ? 'حدث خطأ أثناء الرفع' : 'Failed to upload image'
+        });
     };
 
-    const renderAvatar = (avatar) => {
+    const renderAvatar = (avatar) => { // eslint-disable-line no-unused-vars
         if (!avatar) return '👤';
         const isImage = avatar.startsWith('data:image') || avatar.startsWith('http');
         if (isImage) {
@@ -244,7 +270,7 @@ export default function ProfilePage() {
                                         <Button key={opt.key} radius="full" variant={active ? 'flat' : 'bordered'} color={active ? 'primary' : 'default'}
                                             className={`font-black text-[12px] tracking-tight h-12 px-6 transition-all duration-500 ${active ? 'scale-105 shadow-indigo-500/10' : `opacity-40 ${isDark ? 'border-white/10' : 'border-indigo-100'}`}`}
                                             onPress={() => togglePref(opt.key)}>
-                                            <div className="w-5 h-5 me-2 overflow-hidden rounded-md"><img src={opt.emoji} className="w-full h-full object-cover" alt=""  loading="lazy" decoding="async"/></div> {opt.label}
+                                            <div className="w-5 h-5 me-2 overflow-hidden rounded-md"><img src={opt.emoji} className="w-full h-full object-cover" alt=""  loading="lazy" decoding="async"/></div> {isArabic ? opt.labelAr : opt.labelEn}
                                         </Button>
                                     );
                                 })}
@@ -309,7 +335,8 @@ export default function ProfilePage() {
                                     <div className="mb-6">
                                         <Button fullWidth radius="full" className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black h-14 shadow-xl shadow-indigo-500/20"
                                             onPress={() => document.getElementById('avatar-upload').click()}
-                                            startContent={<span className="text-xl">📸</span>}>
+                                            isLoading={isUploadingAvatar}
+                                            startContent={!isUploadingAvatar && <span className="text-xl">📸</span>}>
                                             {isArabic ? 'رفع صورة حقيقية' : 'UPLOAD PHOTO'}
                                         </Button>
                                     </div>

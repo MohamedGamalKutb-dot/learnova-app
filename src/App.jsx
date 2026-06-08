@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { AppProvider } from './context/AppContext';
 import { DataProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
-
+import { GlobalDataProvider } from './context/GlobalDataContext';
 // ── Shared Components ──────────────────────────────────────────────────────────
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import GuestRoute from './components/GuestRoute/GuestRoute';
@@ -41,9 +41,10 @@ function App() {
   return (
     <BrowserRouter>
       <AppProvider>
-        <AuthProvider>
-          <DataProvider>
-            <Toaster position="top-center" reverseOrder={false} toastOptions={{ duration: 4000, style: { fontFamily: 'inherit' } }} />
+        <GlobalDataProvider>
+          <AuthProvider>
+            <DataProvider>
+              <Toaster position="top-center" reverseOrder={false} toastOptions={{ duration: 4000, style: { fontFamily: 'inherit' } }} />
             <Routes>
               {/* ===== صفحات عامة ===== */}
               <Route path="/" element={<LandingPage />} />
@@ -146,8 +147,9 @@ function App() {
               {/* ===== صفحة 404 ===== */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
-          </DataProvider>
-        </AuthProvider>
+            </DataProvider>
+          </AuthProvider>
+        </GlobalDataProvider>
       </AppProvider>
     </BrowserRouter>
   );

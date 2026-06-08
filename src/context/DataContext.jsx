@@ -1,17 +1,34 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 const DataContext = createContext(null);
 
 const BASE_STORAGE_KEY = 'learnova_data_';
 
-function loadChildSpecificData(childId) {
+function loadChildSpecificData(childId, fallbackStats = null) {
     if (!childId) return getDefaultData();
+    let localData = null;
     try {
         const saved = localStorage.getItem(BASE_STORAGE_KEY + childId);
-        if (saved) return JSON.parse(saved);
-    } catch (e) { /* ignore */ }
+        if (saved) localData = JSON.parse(saved);
+    } catch { /* ignore */ }
+
+    // If Firestore has newer data (or local has none), use Firestore data
+    if (fallbackStats && Object.keys(fallbackStats).length > 0) {
+        const localTime = localData?.lastActivity ? new Date(localData.lastActivity).getTime() : 0;
+        const fallbackTime = fallbackStats.lastActivity ? new Date(fallbackStats.lastActivity).getTime() : 0;
+        
+        if (!localData || fallbackTime > localTime) {
+            const merged = { ...getDefaultData(), ...fallbackStats };
+            saveChildSpecificData(childId, merged);
+            return merged;
+        }
+    }
+
+    if (localData) return localData;
     return getDefaultData();
 }
 
@@ -51,7 +68,7 @@ function saveChildSpecificData(childId, data) {
     if (!childId) return;
     try {
         localStorage.setItem(BASE_STORAGE_KEY + childId, JSON.stringify(data));
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
 }
 
 function getTodayKey() {
@@ -60,20 +77,26 @@ function getTodayKey() {
 }
 
 export function DataProvider({ children }) {
-    const { currentChild, isParentLoggedIn, linkedChild } = useAuth();
+    const { currentChild, linkedChild } = useAuth();
     const location = useLocation();
     
     // Determine which child we are tracking for
     const isParentPath = location.pathname.includes('/parent-dashboard');
-    const activeChildId = isParentPath ? (linkedChild?.childId || currentChild?.childId || null) : (currentChild?.childId || linkedChild?.childId || null);
+    const activeChild = isParentPath ? (linkedChild || currentChild || null) : (currentChild || linkedChild || null);
+    const activeChildId = activeChild?.childId || null;
 
-    const [data, setData] = useState(() => loadChildSpecificData(activeChildId));
+    const [data, setData] = useState(() => loadChildSpecificData(activeChildId, activeChild?.stats));
     const [lastChildId, setLastChildId] = useState(activeChildId);
+    
+    const activeChildRef = useRef(activeChild);
+    useEffect(() => {
+        activeChildRef.current = activeChild;
+    }, [activeChild]);
 
     // Immediate state update if activeChildId changes during render (to avoid stale data)
     if (activeChildId !== lastChildId) {
         setLastChildId(activeChildId);
-        setData(loadChildSpecificData(activeChildId));
+        setData(loadChildSpecificData(activeChildId, activeChild?.stats));
     }
 
     // Reload data when active child changes or when external storage updates (Sync)
@@ -89,7 +112,7 @@ export function DataProvider({ children }) {
         window.addEventListener('storage', handleStorageChange);
 
         const interval = setInterval(() => {
-            const freshData = loadChildSpecificData(activeChildId);
+            const freshData = loadChildSpecificData(activeChildId, activeChildRef.current?.stats);
             if (JSON.stringify(freshData) !== JSON.stringify(data)) {
                 setData(freshData);
             }
@@ -101,6 +124,8 @@ export function DataProvider({ children }) {
         };
     }, [activeChildId, data]);
 
+    // Global data is now handled by GlobalDataContext.
+
     const updateData = useCallback((updater) => {
         if (!activeChildId) return;
 
@@ -108,6 +133,14 @@ export function DataProvider({ children }) {
             const updated = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
             updated.lastActivity = new Date().toISOString();
             saveChildSpecificData(activeChildId, updated);
+            
+            // Sync stats to Firestore child document
+            const childRef = doc(db, 'children', activeChildId);
+            updateDoc(childRef, {
+                stats: updated,
+                updatedAt: new Date().toISOString()
+            }).catch(err => console.error("Firestore stats update error:", err));
+
             return updated;
         });
     }, [activeChildId]);
@@ -156,7 +189,7 @@ export function DataProvider({ children }) {
             const todayKey = getTodayKey();
             const newHistory = [{
                 date: new Date().toLocaleDateString(),
-                score: scorePct,
+                score: scorePct ?? null,
                 correct: isCorrect ? 1 : 0
             }, ...(prev.emotionQuizHistory || [])].slice(0, 5);
 

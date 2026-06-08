@@ -19,7 +19,6 @@ export default function ParentLoginPage({ initialIsLogin = true }) {
         if (location.pathname.includes('/parent-login')) return true;
         return initialIsLogin;
     });
-    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', confirmPassword: '', gender: 'Male' });
     const [loading, setLoading] = useState(false);
 
@@ -61,7 +60,7 @@ export default function ParentLoginPage({ initialIsLogin = true }) {
                 return;
             }
 
-            const res = loginParent(formData.email.trim(), formData.password);
+            const res = await loginParent(formData.email.trim(), formData.password);
             if (res.success) {
                 toast.success(isArabic ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
                 navigate('/parent-dashboard');
@@ -97,7 +96,7 @@ export default function ParentLoginPage({ initialIsLogin = true }) {
                 return;
             }
 
-            const res = registerParent(formData);
+            const res = await registerParent(formData);
             if (res.success) {
                 toast.success(isArabic ? 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' : 'Account created successfully! You can now log in.');
                 setIsLogin(true);
@@ -110,7 +109,6 @@ export default function ParentLoginPage({ initialIsLogin = true }) {
         setLoading(false);
     };
 
-    const inputWrapperCls = `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
 
     return (
         <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>

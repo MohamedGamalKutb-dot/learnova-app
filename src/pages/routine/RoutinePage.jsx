@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
-import { defaultRoutine, timeOfDayLabels, timeOfDayLabelsAr, availableIcons } from '../../data/routineData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 import { Button, Card, CardBody, Navbar, NavbarContent, NavbarItem, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Input } from '@heroui/react';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
@@ -13,28 +13,34 @@ export default function RoutinePage() {
     const { trackRoutineToggle } = useData();
     const { currentChild, updateChildRoutine, updateChildProfile } = useAuth();
 
+    const { routine, isLoading } = useGlobalData();
+    const { defaultRoutine, timeOfDayLabels, timeOfDayLabelsAr, availableIcons } = routine;
+
     const todayKey = new Date().toLocaleDateString('en-CA');
-    const [items, setItems] = useState(() => {
-        const history = currentChild?.routineHistory || {};
-        const todayData = history[todayKey] || {};
-        return defaultRoutine.map(r => ({ ...r, isCompleted: todayData[r.id] || false }));
-    });
+    const [items, setItems] = useState([]);
     const [selectedTime, setSelectedTime] = useState('morning');
     const [showAddModal, setShowAddModal] = useState(false);
     const [newItem, setNewItem] = useState({ title: '', titleAr: '', iconId: 'routine_wake_up', timeOfDay: 'morning', startTime: '' });
     const [hoveredItem, setHoveredItem] = useState(null);
+
+    // Initialize items from Firebase data — items are later mutated by toggleComplete/resetDay
+    useEffect(() => {
+        if (!isLoading && defaultRoutine) {
+            const history = currentChild?.routineHistory || {};
+            const todayData = history[todayKey] || {};
+            const customItems = currentChild?.customRoutineItems || [];
+            const allTasks = [...defaultRoutine, ...customItems];
+            setItems(allTasks.map(r => ({ ...r, isCompleted: todayData[r.id] || false }))); // eslint-disable-line react-hooks/set-state-in-effect
+        }
+    }, [isLoading, defaultRoutine, currentChild, todayKey]);
 
     const filteredItems = items.filter(i => i.timeOfDay === selectedTime);
     const completedCount = items.filter(i => i.isCompleted).length;
     const totalCount = items.length;
     const progress = totalCount > 0 ? completedCount / totalCount : 0;
 
-    useEffect(() => {
-        if (currentChild) {
-            // Update Global Stats for HomePage
-            trackRoutineToggle(completedCount, totalCount);
-        }
-    }, [items, currentChild?.childId, todayKey, completedCount, totalCount, trackRoutineToggle]);
+    // Removed useEffect that called trackRoutineToggle on items change to prevent infinite loop.
+    // Tracking is handled inside toggleComplete and resetDay.
 
     const toggleComplete = (id) => {
         const newItems = items.map(i => i.id === id ? { ...i, isCompleted: !i.isCompleted } : i);
@@ -48,7 +54,7 @@ export default function RoutinePage() {
         }
     };
 
-    const resetDay = () => { 
+    const resetDay = () => { // eslint-disable-line no-unused-vars
         const cleared = items.map(i => ({ ...i, isCompleted: false }));
         setItems(cleared); 
         if (currentChild) {
@@ -75,6 +81,10 @@ export default function RoutinePage() {
 
     const historyEntries = Object.entries(currentChild?.routineHistory || {}).sort((a, b) => new Date(b[0]) - new Date(a[0])).slice(0, 5);
     const todDisplay = new Date().toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
 
     return (
         <div className={`min-h-screen selection:bg-indigo-500/30 transition-all duration-1000 ${isArabic ? 'font-[Cairo,sans-serif]' : 'font-[Plus_Jakarta_Sans,sans-serif]'} ${isDark ? 'bg-[#0C0D17] text-slate-200' : 'bg-[#F5F8FF] text-slate-800'} overflow-x-hidden`} dir={isArabic ? 'rtl' : 'ltr'}>

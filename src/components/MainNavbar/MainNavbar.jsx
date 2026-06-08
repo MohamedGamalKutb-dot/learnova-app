@@ -3,9 +3,9 @@ import { useApp } from '../../context/AppContext';
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar, Button } from '@heroui/react';
 import { useAuth } from '../../context/AuthContext';
 
-export default function MainNavbar({ userType, onProfileClick }) {
+export default function MainNavbar({ userType }) {
     const navigate = useNavigate();
-    const { isDark, isArabic, toggleTheme, toggleLanguage } = useApp();
+    const { isDark, isArabic } = useApp();
     const { currentChild, currentParent, currentDoctor, logoutChild, logoutParent, logoutDoctor } = useAuth();
 
     let user = null;

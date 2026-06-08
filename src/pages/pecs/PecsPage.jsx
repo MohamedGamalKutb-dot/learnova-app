@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
-import { categories, categoryIcons, categoryLabels, categoryLabelsAr, getItemsByCategory } from '../../data/pecsData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 import { Button, Card, CardBody, Chip } from '@heroui/react';
 
 export default function PecsPage() {
@@ -11,6 +11,12 @@ export default function PecsPage() {
     const { isDark, isArabic } = useApp();
     const { currentChild } = useAuth();
     const { trackPecsTap, trackPecsSentence } = useData();
+    const { pecs, isLoading } = useGlobalData();
+    const { items: allItems, categories, categoryIcons, categoryLabels, categoryLabelsAr } = pecs;
+
+    const getItemsByCategory = useCallback((category) => {
+        return allItems.filter(item => item.category === category);
+    }, [allItems]);
 
     const storageKey = currentChild ? `pecs_sentence_${currentChild.childId}` : 'pecs_sentence_guest';
 
@@ -53,6 +59,10 @@ export default function PecsPage() {
             speechSynthesis.speak(u);
         }
     }, [sentence, isArabic, trackPecsSentence]);
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
 
     return (
         <div className={`min-h-screen selection:bg-indigo-500/30 transition-all duration-1000 ${isArabic ? 'font-[Cairo,sans-serif]' : 'font-[Plus_Jakarta_Sans,sans-serif]'} ${isDark ? 'bg-[#0C0D17] text-slate-200' : 'bg-[#F5F8FF] text-slate-800'} overflow-x-hidden`} dir={isArabic ? 'rtl' : 'ltr'}>

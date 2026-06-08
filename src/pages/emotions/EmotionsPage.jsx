@@ -1,11 +1,35 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
-import { allEmotions, getUpToLevel } from '../../data/emotionData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 import { Button, Card, CardBody, Navbar, Chip } from '@heroui/react';
 import { FaCheckCircle, FaTimesCircle, FaChartLine } from 'react-icons/fa';
+
+function HistorySection({ entries, isDark, isArabic }) {
+    return (
+        <div className="space-y-6 w-full max-w-[600px] mx-auto">
+            <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.4em] opacity-30 text-center">
+                {isArabic ? 'سجل الأداء السابق' : 'PREVIOUS PERFORMANCE'}
+            </h3>
+            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar px-2 justify-center">
+                {entries.map(([date, stats]) => {
+                    const pct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+                    return (
+                        <Card key={date} className={`min-w-[140px] rounded-[30px] border transition-all duration-700 backdrop-blur-3xl ${isDark ? 'bg-white/[0.02] border-white/5 shadow-xl' : 'bg-white shadow-md border-indigo-50'}`}>
+                            <CardBody className="p-6 flex flex-col items-center gap-1">
+                                <span className="text-[9px] font-black opacity-30 uppercase tracking-widest">{date.split('-').slice(1).reverse().join('/')}</span>
+                                <span className={`text-2xl font-black ${pct >= 80 ? 'text-emerald-500' : 'text-amber-500'}`}>{pct}%</span>
+                                <span className="text-[8px] font-black tracking-widest opacity-40 uppercase">{stats.correct}/{stats.total}</span>
+                            </CardBody>
+                        </Card>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
 
 export default function EmotionsPage() {
     const navigate = useNavigate();
@@ -24,8 +48,9 @@ export default function EmotionsPage() {
     const [selectedOptionId, setSelectedOptionId] = useState(null);
     const [quizFinished, setQuizFinished] = useState(false);
 
-    const emotions = getUpToLevel(currentLevel);
-    const currentEmotion = emotions[currentIndex] || emotions[0];
+    const { emotions: { allEmotions = [] }, isLoading } = useGlobalData();
+    const emotions = allEmotions.filter(e => e.difficultyLevel <= currentLevel);
+    const currentEmotion = emotions[currentIndex] || emotions[0] || {};
     const historyEntries = Object.entries(currentChild?.emotionHistory || {}).sort((a, b) => new Date(b[0]) - new Date(a[0])).slice(0, 5);
 
     const speak = useCallback((t) => {
@@ -87,27 +112,9 @@ export default function EmotionsPage() {
 
     const accuracy = totalAttempts > 0 ? correctAnswers / totalAttempts : 0;
 
-    const HistorySection = ({ entries }) => (
-        <div className="space-y-6 w-full max-w-[600px] mx-auto">
-            <h3 className={`px-4 text-[10px] font-black uppercase tracking-[0.4em] opacity-30 text-center`}>
-                {isArabic ? 'سجل الأداء السابق' : 'PREVIOUS PERFORMANCE'}
-            </h3>
-            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar px-2 justify-center">
-                {entries.map(([date, stats]) => {
-                    const pct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-                    return (
-                        <Card key={date} className={`min-w-[140px] rounded-[30px] border transition-all duration-700 backdrop-blur-3xl ${isDark ? 'bg-white/[0.02] border-white/5 shadow-xl' : 'bg-white shadow-md border-indigo-50'}`}>
-                            <CardBody className="p-6 flex flex-col items-center gap-1">
-                                <span className="text-[9px] font-black opacity-30 uppercase tracking-widest">{date.split('-').slice(1).reverse().join('/')}</span>
-                                <span className={`text-2xl font-black ${pct >= 80 ? 'text-emerald-500' : 'text-amber-500'}`}>{pct}%</span>
-                                <span className="text-[8px] font-black tracking-widest opacity-40 uppercase">{stats.correct}/{stats.total}</span>
-                            </CardBody>
-                        </Card>
-                    );
-                })}
-            </div>
-        </div>
-    );
+    if (isLoading || allEmotions.length === 0) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
 
     return (
         <div className={`min-h-screen selection:bg-indigo-500/30 transition-all duration-1000 ${isArabic ? 'font-[Cairo,sans-serif]' : 'font-[Plus_Jakarta_Sans,sans-serif]'} ${isDark ? 'bg-[#0C0D17] text-slate-200' : 'bg-[#F5F8FF] text-slate-800'} overflow-x-hidden`} dir={isArabic ? 'rtl' : 'ltr'}>
@@ -186,7 +193,7 @@ export default function EmotionsPage() {
 
                             {/* Previous Results shown below the card */}
                             {historyEntries.length > 0 && (
-                                <HistorySection entries={historyEntries} />
+                                <HistorySection entries={historyEntries} isDark={isDark} isArabic={isArabic} />
                             )}
                         </div>
                     ) : isQuizMode ? (
@@ -234,8 +241,8 @@ export default function EmotionsPage() {
 
                                     return (
                                         <Card
-                                            key={option.id + Math.random()}
-                                            isPressable={lastAnswerCorrect === null}
+                                            key={option.id}
+                                            isPressable
                                             onPress={() => answerQuiz(option.id)}
                                             className={`rounded-[35px] border transition-all duration-500 backdrop-blur-md w-full ${cardStyle} ${lastAnswerCorrect === null ? 'hover:scale-[1.01] hover:border-indigo-500/30' : 'cursor-default'}`}>
                                             <CardBody className="p-6 flex flex-row items-center gap-8 px-12">
@@ -305,7 +312,7 @@ export default function EmotionsPage() {
                             </div>
 
                             {historyEntries.length > 0 && (
-                                <HistorySection entries={historyEntries} />
+                                <HistorySection entries={historyEntries} isDark={isDark} isArabic={isArabic} />
                             )}
                         </div>
                     )}

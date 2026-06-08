@@ -1,13 +1,16 @@
-import { Button, Card, CardBody, Avatar } from '@heroui/react';
-import { FaInbox, FaStethoscope, FaNotesMedical } from 'react-icons/fa';
+import { useState } from 'react';
+import { Button, Card, CardBody, Avatar, Spinner } from '@heroui/react';
+import { FaInbox, FaStethoscope, FaNotesMedical, FaTrash } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 
 export default function PatientsTab({
     isArabic, isDark, accent,
     myPatients, selectedPatient, setSelectedPatient,
-    setShowAddModal, updatePatientData,
-    hoveredCard, setHoveredCard,
-    cardCls, inputCls
+    setShowAddModal, updatePatientData, removePatientFromDoctor,
+    setHoveredCard,
+    cardCls, inputCls, isAdding
 }) {
+    const [isDeleting, setIsDeleting] = useState(false);
     return (
         <div>
             <div className="flex justify-between items-center mb-4">
@@ -47,6 +50,12 @@ export default function PatientsTab({
                     </Card>
                 ))
             )}
+            {isAdding && (
+                <div className="flex justify-center py-4">
+                    <Spinner size="lg" color="secondary" />
+                </div>
+            )}
+            
             {selectedPatient && (
                 <Card className={`${cardCls('details')} mt-5 !border-accent/20`} onMouseEnter={() => setHoveredCard('details')} onMouseLeave={() => setHoveredCard(null)}>
                     <CardBody className="p-[22px]">
@@ -58,10 +67,31 @@ export default function PatientsTab({
                                 name={selectedPatient.avatar?.length <= 2 ? selectedPatient.avatar : undefined}
                                 style={{ background: `linear-gradient(135deg, ${accent}15, #4ECDC415)` }}
                             />
-                            <div>
+                            <div className="flex-1">
                                 <h2 className={`m-0 text-xl font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>{selectedPatient.name}</h2>
                                 <p className={`mt-0.5 text-[13px] ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{isArabic ? 'كود الطفل' : 'Child Code'}: <span className={`font-mono font-semibold py-0.5 px-2 rounded-md ${isDark ? 'bg-border-dark text-text-dark' : 'bg-gray-100 text-text'}`}>{selectedPatient.childId}</span></p>
                             </div>
+                            <Button 
+                                isIconOnly 
+                                color="danger" 
+                                variant="light" 
+                                radius="lg"
+                                isLoading={isDeleting}
+                                onPress={async () => {
+                                    setIsDeleting(true);
+                                    const promise = removePatientFromDoctor(selectedPatient.childId);
+                                    toast.promise(promise, {
+                                        loading: isArabic ? 'جاري إزالة المريض...' : 'Removing patient...',
+                                        success: isArabic ? 'تم إزالة المريض بنجاح' : 'Patient removed successfully',
+                                        error: isArabic ? 'حدث خطأ أثناء الإزالة' : 'Error removing patient'
+                                    });
+                                    await promise;
+                                    setSelectedPatient(null);
+                                    setIsDeleting(false);
+                                }}
+                            >
+                                {!isDeleting && <FaTrash className="text-danger" />}
+                            </Button>
                         </div>
                         <h4 className={`mb-2.5 text-sm font-bold flex items-center gap-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>
                             <FaStethoscope className="text-accent" />

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
-import { autismKnowledgeBase, defaultResponse, searchFallback } from '../../data/autismKnowledgeBase';
-import { childBotData, childDefaultResponse, childFallbackResponse } from '../../data/childBotData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 import { getGeminiResponse, isGeminiAvailable } from '../../api/geminiAI';
 
 const normalize = (text) => text.toLowerCase().replace(/[ًٌٍَُِّْ]/g, '').replace(/[أإآ]/g, 'ا').replace(/[ة]/g, 'ه').replace(/[ى]/g, 'ي').trim();
@@ -9,9 +8,23 @@ const normalize = (text) => text.toLowerCase().replace(/[ًٌٍَُِّْ]/g, ''
 export default function AutismSupportBot({ mode = 'parent' }) {
     const { isDark, isArabic } = useApp();
     const isChild = mode === 'child';
-    const knowledgeBase = isChild ? childBotData : autismKnowledgeBase;
-    const initialText = isChild ? (isArabic ? childDefaultResponse.ar : childDefaultResponse.en) : (isArabic ? defaultResponse.ar : defaultResponse.en);
-    const fallbackText = isChild ? (isArabic ? childFallbackResponse.ar : childFallbackResponse.en) : (isArabic ? searchFallback.ar : searchFallback.en);
+    const isDoctor = mode === 'doctor';
+    const { kb, childBot } = useGlobalData();
+    const { autismKnowledgeBase, defaultResponse, searchFallback } = kb || {};
+    const { childBotData, childDefaultResponse, childFallbackResponse } = childBot || {};
+
+    const knowledgeBase = isChild ? (childBotData || []) : (autismKnowledgeBase || []);
+    
+    let initialText = '';
+    if (isChild) {
+        initialText = isArabic ? childDefaultResponse?.ar : childDefaultResponse?.en;
+    } else if (isDoctor) {
+        initialText = isArabic ? 'أهلاً بك يا دكتور. كيف يمكنني مساعدتك في تحليل السلوكيات أو التخطيط للعلاج اليوم؟' : 'Hello Doctor. How can I assist you with behavior analysis or treatment planning today?';
+    } else {
+        initialText = isArabic ? defaultResponse?.ar : defaultResponse?.en;
+    }
+
+    const fallbackText = isChild ? (isArabic ? childFallbackResponse?.ar : childFallbackResponse?.en) : (isArabic ? searchFallback?.ar : searchFallback?.en);
     const aiActiveText = isGeminiAvailable();
     const accent = isChild ? '#FF6584' : '#6C63FF';
 

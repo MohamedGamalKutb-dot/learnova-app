@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useData } from '../../context/DataContext';
@@ -12,10 +12,9 @@ import ModuleFocusTab from './_components/ModuleFocusTab/ModuleFocusTab';
 import ClinicalOverviewTab from './_components/ClinicalOverviewTab/ClinicalOverviewTab';
 import AssistantAuraTab from './_components/AssistantAuraTab/AssistantAuraTab';
 import SupportCirclesTab from './_components/SupportCirclesTab/SupportCirclesTab';
-import { defaultRoutine } from '../../data/routineData';
-import { getDashboardData } from '../../data/dashboardData';
-import { Button, Card, CardBody, Input, Chip, Avatar, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea, Progress } from '@heroui/react';
-import { FaChartLine, FaBookOpen, FaRobot, FaStethoscope, FaMapMarkerAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { useGlobalData } from '../../context/GlobalDataContext';
+import { Button, Card, CardBody, Input, Chip, Avatar, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Textarea, Progress, Spinner } from '@heroui/react';
+import { FaChartLine, FaBookOpen, FaRobot, FaStethoscope, FaMapMarkerAlt, FaBars, FaTimes, FaTrash } from 'react-icons/fa';
 
 export default function DashboardPage() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -27,7 +26,6 @@ export default function DashboardPage() {
         linkedChild, 
         currentParent, 
         childAccounts, 
-        parentActiveChildId, 
         setParentActiveChildId, 
         addChildToParent, 
         removeChildFromParent,
@@ -36,6 +34,7 @@ export default function DashboardPage() {
 
     const [showAddChildModal, setShowAddChildModal] = useState(false);
     const [newChildId, setNewChildId] = useState('');
+    const [deletingChildId, setDeletingChildId] = useState(null);
 
     const normalizeId = (id) => id ? id.toUpperCase().trim() : '';
 
@@ -46,33 +45,32 @@ export default function DashboardPage() {
         );
     }, [childAccounts, currentParent]);
 
-    const handleLinkChild = () => {
+    const handleLinkChild = async () => {
         if (!newChildId.trim()) return;
-        const res = addChildToParent(newChildId.trim());
-        if (res.success) {
-            toast.success(isArabic ? `تم ربط الطفل ${res.childName} بنجاح!` : `Successfully linked child ${res.childName}!`);
-            setNewChildId('');
-            setShowAddChildModal(false);
-        } else {
-            if (res.error === 'child_not_found') {
-                toast.error(isArabic ? 'كود الطفل غير صحيح أو غير موجود' : 'Child code not found');
-            } else if (res.error === 'already_exists') {
-                toast.error(isArabic ? 'هذا الطفل مرتبط بالفعل بحسابك' : 'This child is already linked to your account');
-            } else {
-                toast.error(isArabic ? 'حدث خطأ ما' : 'An error occurred');
-            }
-        }
+        const promise = addChildToParent(newChildId.trim());
+        toast.promise(promise, {
+            loading: isArabic ? 'جاري إضافة الطفل...' : 'Adding child...',
+            success: (res) => {
+                if (res.success) {
+                    setNewChildId('');
+                    setShowAddChildModal(false);
+                    return isArabic ? `تم ربط الطفل ${res.childName} بنجاح!` : `Successfully linked child ${res.childName}!`;
+                } else {
+                    if (res.error === 'child_not_found') throw new Error(isArabic ? 'كود الطفل غير صحيح أو غير موجود' : 'Child code not found');
+                    if (res.error === 'already_exists') throw new Error(isArabic ? 'هذا الطفل مرتبط بالفعل بحسابك' : 'This child is already linked to your account');
+                    throw new Error(isArabic ? 'حدث خطأ ما' : 'An error occurred');
+                }
+            },
+            error: (err) => err.message
+        });
     };
 
     // Ensure hero object is always defined to avoid repeated null checks
     const hero = linkedChild || currentChild || { name: '', age: 0, gender: '', childId: '', routineHistory: {}, emotionHistory: {} };
 
-    const { data, emotionAccuracy, routineCompletion, mostUsedWords, addDailyNote, removeDailyNote, resetAllData } = useData();
+    const { data, addDailyNote, removeDailyNote } = useData();
+    const { routine: { defaultRoutine }, isLoading, appData } = useGlobalData();
 
-    const accent = '#6C63FF';
-    const colors = { chart1: '#6C63FF', chart2: '#FF6584', chart3: '#4ECDC4', chart4: '#F59E0B' };
-    const totalUsage = useMemo(() => Object.values(data?.moduleUsage || {}).reduce((a, b) => a + (Number(b) || 0), 0), [data]);
-    const maxWeekly = useMemo(() => Math.max(...Object.values(data?.weeklyUsage || { Sat: 0, Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0 }), 1), [data]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -80,7 +78,7 @@ export default function DashboardPage() {
 
     const [showNoteInput, setShowNoteInput] = useState(false);
     const [noteText, setNoteText] = useState('');
-    const [hoveredCard, setHoveredCard] = useState(null);
+    const [hoveredCard, setHoveredCard] = useState(null); // eslint-disable-line no-unused-vars
     const [activeReportTab, setActiveReportTab] = useState('general');
     const [viewingAssessment, setViewingAssessment] = useState(null);
 
@@ -97,13 +95,17 @@ export default function DashboardPage() {
 
     const handleAddNote = () => { if (!noteText.trim()) return; addDailyNote(noteText); setNoteText(''); setShowNoteInput(false); };
 
-    const { moduleNames, moduleEmojis, behaviorTypes } = getDashboardData(isArabic);
+    if (!appData) return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" /></div>;
+    const { moduleNames, moduleEmojis, behaviorTypes } = appData[isArabic ? 'ar' : 'en'].dashboardData;
 
     const todayKey = new Date().toLocaleDateString('en-CA');
     const routineHistory = hero?.routineHistory || {};
     const todayTasks = routineHistory[todayKey] || {};
     const todayCompletedCount = Object.values(todayTasks).filter(v => v === true).length;
-    const totalRoutineTasks = defaultRoutine?.length || 1;
+    const customRoutineItems = hero?.customRoutineItems || [];
+    let totalRoutineTasks = (defaultRoutine?.length || 0) + customRoutineItems.length;
+    if (totalRoutineTasks === 0) totalRoutineTasks = 1;
+    if (todayCompletedCount > totalRoutineTasks) totalRoutineTasks = todayCompletedCount;
     const todayRoutinePct = Math.round((todayCompletedCount / totalRoutineTasks) * 100);
 
     const emotionHistory = hero?.emotionHistory || {};
@@ -141,6 +143,30 @@ export default function DashboardPage() {
             )}
         </div>
     );
+
+    // If global data is still loading from Firebase, show a beautifully animated loading screen
+    if (isLoading) {
+        return (
+            <div className={`min-h-screen relative flex items-center justify-center ${isArabic ? 'font-[Cairo,sans-serif]' : "font-['Plus_Jakarta_Sans',sans-serif]"} ${auraBg} transition-colors duration-1000`} dir={isArabic ? 'rtl' : 'ltr'}>
+                {isDark && (
+                    <div className="fixed inset-0 pointer-events-none overflow-hidden select-none">
+                        <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] rounded-full bg-indigo-500/15 blur-[130px] animate-pulse" />
+                        <div className="absolute bottom-[-5%] left-[-10%] w-[600px] h-[600px] rounded-full bg-purple-500/10 blur-[110px]" />
+                    </div>
+                )}
+                <MainNavbar userType="parent" />
+                <div className="flex flex-col items-center z-10 pt-[72px]">
+                    <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
+                    <h2 className={`text-2xl font-black ${isDark ? 'text-white' : 'text-[#0C0D17]'}`}>
+                        {isArabic ? 'جاري تحميل البيانات...' : 'Loading Data...'}
+                    </h2>
+                    <p className={`text-sm mt-2 opacity-60 ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>
+                        {isArabic ? 'يرجى الانتظار قليلاً' : 'Please wait a moment'}
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     // If the parent has no children yet, show the premium fallback screen
     if (parentChildren.length === 0) {
@@ -236,7 +262,7 @@ export default function DashboardPage() {
                             isArabic={isArabic} isDark={isDark} auraCard={auraCard} SectionTitle={SectionTitle}
                             activeReportTab={activeReportTab} setActiveReportTab={setActiveReportTab}
                             viewingAssessment={viewingAssessment} setViewingAssessment={setViewingAssessment}
-                            hero={hero} currentChild={currentChild} behaviorTypes={behaviorTypes}
+                            hero={hero} behaviorTypes={behaviorTypes}
                         />
                     )}
 
@@ -324,6 +350,23 @@ export default function DashboardPage() {
                                             <div className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{c.childId}</div>
                                         </div>
                                         {isActive && <div className="text-emerald-500 text-sm">●</div>}
+                                        <button
+                                            className="min-w-0 w-8 h-8 opacity-60 hover:opacity-100 flex items-center justify-center text-danger rounded-full hover:bg-danger/10 transition-colors"
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                setDeletingChildId(c.childId);
+                                                const promise = removeChildFromParent(c.childId);
+                                                toast.promise(promise, {
+                                                    loading: isArabic ? 'جاري إزالة الطفل...' : 'Removing child...',
+                                                    success: isArabic ? 'تم إزالة الطفل بنجاح' : 'Child removed successfully',
+                                                    error: isArabic ? 'حدث خطأ أثناء الإزالة' : 'Error removing child'
+                                                });
+                                                await promise;
+                                                setDeletingChildId(null);
+                                            }}
+                                        >
+                                            {deletingChildId === c.childId ? <Spinner size="sm" color="danger" /> : <FaTrash size={12} />}
+                                        </button>
                                     </div>
                                 );
                             })}

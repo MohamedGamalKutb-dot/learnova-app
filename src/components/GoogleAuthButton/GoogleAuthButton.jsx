@@ -36,7 +36,7 @@ export default function GoogleAuthButton({ role, mode, onSuccess, text }) {
         setError('');
         setLoading(true);
 
-        setTimeout(() => {
+        setTimeout(async () => {
             if (step === 1) {
                 if (!email.trim() || !email.includes('@')) {
                     setError(isArabic ? 'أدخل إيميل جوجل صحيح' : 'Enter a valid Google email');
@@ -59,9 +59,9 @@ export default function GoogleAuthButton({ role, mode, onSuccess, text }) {
                 
                 if (mode === 'login') {
                     let result;
-                    if (role === 'child') result = loginChild(email.trim(), password);
-                    else if (role === 'parent') result = loginParent(email.trim(), password);
-                    else if (role === 'doctor') result = loginDoctor(email.trim(), password);
+                    if (role === 'child') result = await loginChild(email.trim(), password);
+                    else if (role === 'parent') result = await loginParent(email.trim(), password);
+                    else if (role === 'doctor') result = await loginDoctor(email.trim(), password);
 
                     if (result?.success) {
                         handleClose();
@@ -76,22 +76,22 @@ export default function GoogleAuthButton({ role, mode, onSuccess, text }) {
                 // Signup mode
                 let result;
                 if (role === 'child') {
-                    result = registerChild({ name: nameFromEmail, age: 8, email: email.trim(), password: password, gender: 'Male', avatar: '👦' });
+                    result = await registerChild({ name: nameFromEmail, age: 8, email: email.trim(), password: password, gender: 'Male', avatar: '👦' });
                 } else if (role === 'parent') {
                     if (!childId.trim()) {
                         setError(isArabic ? 'أدخل كود الطفل (LN-XXXXXX)' : 'Enter child code (LN-XXXXXX)');
                         setLoading(false);
                         return;
                     }
-                    const childObj = getChildById(childId.trim());
+                    const childObj = await getChildById(childId.trim());
                     if (!childObj) {
                         setError(isArabic ? 'كود الطفل غير موجود' : 'Child code not found');
                         setLoading(false);
                         return;
                     }
-                    result = registerParent({ name: nameFromEmail, email: email.trim(), password: password, phone: '', childId: childId.trim() });
+                    result = await registerParent({ name: nameFromEmail, email: email.trim(), password: password, phone: '', childId: childId.trim() });
                 } else if (role === 'doctor') {
-                    result = registerDoctor({ name: nameFromEmail, email: email.trim(), password: password, phone: '', age: '', gender: 'Male' });
+                    result = await registerDoctor({ name: nameFromEmail, email: email.trim(), password: password, phone: '', age: '', gender: 'Male' });
                 }
 
                 if (result?.success) {

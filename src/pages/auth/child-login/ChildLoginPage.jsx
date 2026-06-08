@@ -5,7 +5,6 @@ import { useAuth } from '../../../context/AuthContext';
 import { Button, Divider } from '@heroui/react';
 import { toast } from 'react-hot-toast';
 import GoogleAuthButton from '../../../components/GoogleAuthButton/GoogleAuthButton';
-import { getAuthData } from '../../../data/authData';
 import SharedAuthForm from '../../../components/SharedAuthForm/SharedAuthForm';
 
 export default function ChildLoginPage({ initialIsLogin = true }) {
@@ -54,7 +53,7 @@ export default function ChildLoginPage({ initialIsLogin = true }) {
                 toast.error(isArabic ? 'أدخل كلمة المرور' : 'Enter your password'); setLoading(false); return;
             }
             
-            const result = loginChild(formData.email.trim(), formData.password);
+            const result = await loginChild(formData.email.trim(), formData.password);
             if (result.success) {
                 toast.success(isArabic ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
                 navigate('/child-home');
@@ -70,7 +69,7 @@ export default function ChildLoginPage({ initialIsLogin = true }) {
             if (formData.password.length < 6) { toast.error(isArabic ? 'كلمة المرور 6 أحرف على الأقل' : 'Password must be at least 6 characters'); setLoading(false); return; }
             if (formData.password !== formData.confirmPassword) { toast.error(isArabic ? 'كلمة المرور غير متطابقة' : 'Passwords do not match'); setLoading(false); return; }
 
-            const result = registerChild({ ...formData, avatar: '👦' });
+            const result = await registerChild({ ...formData, avatar: '👦' });
             if (result.success) {
                 toast.success(isArabic ? 'تم إنشاء الحساب بنجاح!' : 'Account Created Successfully!');
                 navigator.clipboard?.writeText(result.childId);

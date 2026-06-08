@@ -8,7 +8,7 @@ export default function AssessmentTab({
     assessmentDone, setAssessmentDone,
     assessmentQuestions, assessmentAnswers, setAssessmentAnswers,
     submitAssessment,
-    hoveredCard, setHoveredCard, cardCls, patientBanner
+    setHoveredCard, cardCls, patientBanner
 }) {
     if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-5xl mb-4 opacity-20 flex justify-center"><FaClipboardList /></div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
     if (viewingAssessment) return (

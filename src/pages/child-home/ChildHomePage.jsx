@@ -25,8 +25,8 @@ const labels = {
 
 export default function ChildHomePage() {
     const navigate = useNavigate();
-    const { isDark, isArabic, toggleTheme, toggleLanguage } = useApp();
-    const { currentChild, logoutChild } = useAuth();
+    const { isDark, isArabic } = useApp();
+    const { currentChild } = useAuth();
     const { routineCompletion } = useData();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [hoveredModule, setHoveredModule] = useState(null);

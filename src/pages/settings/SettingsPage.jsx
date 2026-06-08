@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 export default function SettingsPage() {
     const navigate = useNavigate();
     const { isDark, isArabic, toggleTheme, toggleLanguage } = useApp();
-    const { currentChild, currentParent, currentDoctor } = useAuth();
+    useAuth(); // Auth context is mounted but no specific user data is needed
 
     const t = {
         title: isArabic ? 'الإعدادات' : 'Settings',

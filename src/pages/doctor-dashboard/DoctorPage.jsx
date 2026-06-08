@@ -2,28 +2,31 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 import { Button, Card, CardBody, Input, Modal, ModalContent, ModalBody, ModalHeader, ModalFooter, Avatar } from '@heroui/react';
-import { FaUsers, FaClipboardList, FaTheaterMasks, FaFileAlt, FaSearch, FaUserPlus } from 'react-icons/fa';
+import { FaUsers, FaClipboardList, FaTheaterMasks, FaFileAlt, FaSearch, FaUserPlus, FaRobot } from 'react-icons/fa';
 import MainNavbar from '../../components/MainNavbar/MainNavbar';
-import { getDoctorData } from '../../data/doctorData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 import PatientsTab from './_components/PatientsTab/PatientsTab';
 import AssessmentTab from './_components/AssessmentTab/AssessmentTab';
 import BehaviorTab from './_components/BehaviorTab/BehaviorTab';
 import ReportsTab from './_components/ReportsTab/ReportsTab';
+import AutismSupportBot from '../../components/AutismSupportBot/AutismSupportBot';
 
 export default function DoctorPage() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigate = useNavigate();
     const { isDark, isArabic } = useApp();
-    const { currentDoctor, childAccounts, findChildForDoctor, addPatientToDoctor, updateChildDiagnosis, isDoctorLoggedIn, logoutDoctor, updateDoctorProfile } = useAuth();
+    const { currentDoctor, childAccounts, findChildForDoctor, addPatientToDoctor, updateChildDiagnosis, isDoctorLoggedIn, removePatientFromDoctor } = useAuth();
+    const { isLoading, appData } = useGlobalData();
     useEffect(() => { if (!isDoctorLoggedIn) navigate('/doctor-login'); }, [isDoctorLoggedIn, navigate]);
 
-    const { behaviorTypes, assessmentQuestions, tabsList } = getDoctorData(isArabic);
     const tabIcons = {
         patients: <FaUsers />,
         assessment: <FaClipboardList />,
         behavior: <FaTheaterMasks />,
-        reports: <FaFileAlt />
+        reports: <FaFileAlt />,
+        ai_assistant: <FaRobot />
     };
 
     const myPatients = childAccounts.filter(c => currentDoctor?.patientIds?.some(id => id.toUpperCase() === c.childId.toUpperCase()));
@@ -34,6 +37,8 @@ export default function DoctorPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResult, setSearchResult] = useState(null);
     const [searchError, setSearchError] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
     const [assessmentAnswers, setAssessmentAnswers] = useState({});
     const [assessmentDone, setAssessmentDone] = useState(false);
     const [behaviorNote, setBehaviorNote] = useState('');
@@ -42,20 +47,76 @@ export default function DoctorPage() {
     const [viewingAssessment, setViewingAssessment] = useState(null);
     const [hoveredCard, setHoveredCard] = useState(null);
 
+    if (!appData) return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
+    const { behaviorTypes, assessmentQuestions, tabsList: apiTabsList } = appData[isArabic ? 'ar' : 'en'].doctorData;
+    
+    const tabsList = [...apiTabsList];
+    if (!tabsList.find(t => t.key === 'ai_assistant')) {
+        tabsList.push({
+            key: 'ai_assistant',
+            label: 'AI Assistant',
+            labelAr: 'المساعد الذكي',
+            emoji: '🤖'
+        });
+    }
+
     const accent = '#6C63FF';
     const updatePatientData = (pid, updates) => { updateChildDiagnosis(pid, updates); if (selectedPatient?.childId === pid) setSelectedPatient({ ...selectedPatient, ...updates }); };
-    const handleSearch = () => { setSearchError(''); setSearchResult(null); if (!searchQuery.trim()) return; const child = findChildForDoctor(searchQuery.trim()); child ? setSearchResult(child) : setSearchError(isArabic ? 'لم يتم العثور على طفل' : 'No child found'); };
-    const handleAddPatient = () => { if (!searchResult) return; const res = addPatientToDoctor(searchResult.childId); if (res.success) { setShowAddModal(false); setSearchQuery(''); setSearchResult(null); } else setSearchError(isArabic ? 'المريض موجود بالفعل' : 'Patient already added'); };
+    const handleSearch = async () => { setSearchError(''); setSearchResult(null); if (!searchQuery.trim()) return; setIsSearching(true); const child = await findChildForDoctor(searchQuery.trim()); setIsSearching(false); child ? setSearchResult(child) : setSearchError(isArabic ? 'لم يتم العثور على طفل' : 'No child found'); };
+    const handleAddPatient = async () => { 
+        if (!searchResult) return; 
+        setIsAdding(true); 
+        const promise = addPatientToDoctor(searchResult.childId);
+        toast.promise(promise, {
+            loading: isArabic ? 'جاري إضافة المريض...' : 'Adding patient...',
+            success: (res) => {
+                setIsAdding(false);
+                if (res.success) { 
+                    setShowAddModal(false); 
+                    setSearchQuery(''); 
+                    setSearchResult(null);
+                    return isArabic ? 'تم إضافة المريض بنجاح' : 'Patient added successfully';
+                } else {
+                    setSearchError(isArabic ? 'المريض موجود بالفعل' : 'Patient already added');
+                    throw new Error(isArabic ? 'المريض موجود بالفعل' : 'Patient already added');
+                }
+            },
+            error: (err) => err.message
+        });
+    };
     const submitAssessment = () => { if (!selectedPatient) return; const yesCount = Object.values(assessmentAnswers).filter(v => v === 'yes').length; const score = Math.round((yesCount / assessmentQuestions.length) * 100); const r = { date: new Date().toISOString(), score, answers: assessmentAnswers, totalQuestions: assessmentQuestions.length }; updatePatientData(selectedPatient.childId, { assessments: [...(selectedPatient.assessments || []), r] }); setAssessmentDone(true); };
     const addBehaviorLog = () => { if (!selectedPatient || !behaviorNote) return; const log = { type: behaviorType, note: behaviorNote, intensity: behaviorIntensity, date: new Date().toISOString(), emoji: behaviorTypes.find(b => b.key === behaviorType)?.emoji || '📝' }; updatePatientData(selectedPatient.childId, { behaviorLogs: [...(selectedPatient.behaviorLogs || []), log] }); setBehaviorNote(''); };
     
 
 
     const cardCls = (hk) => `rounded-[18px] mb-4 border transition-all duration-300 ${isDark ? 'bg-card-dark' : 'bg-card'} ${hoveredCard === hk ? 'border-accent/40 shadow-[0_8px_28px_rgba(108,99,255,0.06)]' : `${isDark ? 'border-border-dark' : 'border-border'} ${isDark ? '' : 'shadow-[0_2px_10px_rgba(0,0,0,0.03)]'}`}`;
-    const navBtnCls = `text-base ${isDark ? 'bg-card-dark border-border-dark text-text-dark' : 'bg-card border-border text-text'} border`;
     const inputCls = `w-full py-3 px-3.5 rounded-xl text-sm border-[1.5px] outline-none font-[Inter,sans-serif] transition-all duration-300 box-border focus:border-accent ${isDark ? 'bg-bg-dark text-text-dark border-border-dark' : 'bg-[#F9FAFB] text-text border-border'}`;
     const subBg = isDark ? 'bg-bg-dark' : 'bg-[#F9FAFB]';
     const patientBanner = `mb-4 p-4 rounded-[14px] flex items-center gap-2.5 border border-accent/[0.07] ${isDark ? 'bg-accent/[0.03]' : 'bg-accent/[0.04]'}`;
+
+    // If global data is still loading, show a beautifully animated loading screen
+    if (isLoading) {
+        return (
+            <div className={`min-h-screen relative flex items-center justify-center ${isArabic ? 'font-[Cairo,sans-serif]' : "font-[Inter,'Segoe_UI',sans-serif]"} ${isDark ? 'bg-bg-dark' : 'bg-bg'} transition-colors duration-1000`} dir={isArabic ? 'rtl' : 'ltr'}>
+                {isDark && (
+                    <div className="fixed inset-0 pointer-events-none overflow-hidden select-none">
+                        <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] rounded-full bg-accent/10 blur-[130px] animate-pulse" />
+                        <div className="absolute bottom-[-5%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#4834D4]/10 blur-[110px]" />
+                    </div>
+                )}
+                <MainNavbar userType="doctor" />
+                <div className="flex flex-col items-center z-10 pt-[72px]">
+                    <div className="w-16 h-16 border-4 border-indigo-200 border-t-[#6C63FF] rounded-full animate-spin mb-6"></div>
+                    <h2 className={`text-2xl font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                        {isArabic ? 'جاري تحميل بيانات مرضاك...' : 'Loading Patients Data...'}
+                    </h2>
+                    <p className={`text-sm mt-2 opacity-60 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+                        {isArabic ? 'يرجى الانتظار قليلاً' : 'Please wait a moment'}
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen ${isArabic ? 'font-[Cairo,sans-serif]' : "font-[Inter,'Segoe_UI',sans-serif]"} ${isDark ? 'bg-bg-dark' : 'bg-bg'}`} dir={isArabic ? 'rtl' : 'ltr'}>
@@ -84,9 +145,9 @@ export default function DoctorPage() {
                         <PatientsTab
                             isArabic={isArabic} isDark={isDark} accent={accent}
                             myPatients={myPatients} selectedPatient={selectedPatient} setSelectedPatient={setSelectedPatient}
-                            setShowAddModal={setShowAddModal} updatePatientData={updatePatientData}
+                            setShowAddModal={setShowAddModal} updatePatientData={updatePatientData} removePatientFromDoctor={removePatientFromDoctor}
                             hoveredCard={hoveredCard} setHoveredCard={setHoveredCard}
-                            cardCls={cardCls} inputCls={inputCls}
+                            cardCls={cardCls} inputCls={inputCls} isAdding={isAdding}
                         />
                     )}
                     {activeSidebarTab === 'assessment' && (
@@ -117,6 +178,11 @@ export default function DoctorPage() {
                             selectedPatient={selectedPatient}
                             hoveredCard={hoveredCard} setHoveredCard={setHoveredCard} cardCls={cardCls} subBg={subBg} patientBanner={patientBanner}
                         />
+                    )}
+                    {activeSidebarTab === 'ai_assistant' && (
+                        <div className="h-[75vh] md:h-[80vh] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-white/10">
+                            <AutismSupportBot mode="doctor" />
+                        </div>
                     )}
                     </div>
                 </main>
@@ -192,8 +258,8 @@ export default function DoctorPage() {
                                             value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
                                             placeholder="LN-XXXXXX or 01xxxxxxx" className="flex-1"
                                             classNames={{ inputWrapper: `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'} focus-within:!border-accent` }} />
-                                        <Button isIconOnly radius="lg" className="bg-gradient-to-br from-accent to-[#4834D4] text-white shadow-[0_2px_8px_rgba(108,99,255,0.2)] text-base flex items-center justify-center" onPress={handleSearch}>
-                                            <FaSearch className="text-sm" />
+                                        <Button isIconOnly radius="lg" isLoading={isSearching} className="bg-gradient-to-br from-accent to-[#4834D4] text-white shadow-[0_2px_8px_rgba(108,99,255,0.2)] text-base flex items-center justify-center" onPress={handleSearch}>
+                                            {!isSearching && <FaSearch className="text-sm" />}
                                         </Button>
                                     </div>
                                     {searchError && <div className="text-red-500 text-xs mt-2">⚠️ {searchError}</div>}
@@ -208,7 +274,10 @@ export default function DoctorPage() {
                                         />
                                         <div className={`font-bold text-lg mt-1.5 ${isDark ? 'text-text-dark' : 'text-text'}`}>{searchResult.name}</div>
                                         <div className={`text-[13px] mt-0.5 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>{searchResult.age} {isArabic ? 'سنوات' : 'Years'} • {searchResult.gender}</div>
-                                        <Button fullWidth radius="lg" className="mt-3.5 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold shadow-[0_4px_12px_rgba(16,185,129,0.25)]" onPress={handleAddPatient}>✅ {isArabic ? 'إضافة للقائمة' : 'Add to My List'}</Button>
+                                        <Button fullWidth radius="lg" isLoading={isAdding} className="mt-3.5 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold shadow-[0_4px_12px_rgba(16,185,129,0.25)]" onPress={handleAddPatient}>
+                                            {!isAdding && "✅ "}
+                                            {isArabic ? 'إضافة للقائمة' : 'Add to My List'}
+                                        </Button>
                                     </div>
                                 )}
                             </ModalBody>

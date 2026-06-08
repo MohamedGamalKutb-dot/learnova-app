@@ -1,28 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { useAuth } from '../../context/AuthContext';
-import { useState, useMemo } from 'react';
-import {
-    Button, Card, CardBody, CardFooter, Chip, Divider, Input,
-    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
-    Navbar, NavbarBrand, NavbarContent, NavbarItem,
-    useDisclosure
-} from '@heroui/react';
+import { Button, Card, CardBody, Chip, Navbar, NavbarBrand, NavbarContent, NavbarItem } from '@heroui/react';
 
-import { getChoiceData } from '../../data/choiceData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 
 export default function ChoicePage() {
     const navigate = useNavigate();
-    const { isDark, isArabic, toggleTheme, toggleLanguage } = useApp();
+    const { isDark, isArabic } = useApp();
+    const { appData } = useGlobalData();
 
     const darkBg = isDark ? 'bg-lbg-dark' : 'bg-lbg';
     const darkSurf = isDark ? 'bg-lsurf-dark' : 'bg-lsurf';
     const darkTxt = isDark ? 'text-ltxt-dark' : 'text-ltxt';
     const darkTxt2 = isDark ? 'text-ltxt2-dark' : 'text-ltxt2';
-    const darkBdr = isDark ? 'border-lbdr-dark' : 'border-lbdr';
     const tagBg = isDark ? 'bg-lbg2-dark border-lbdr-dark' : 'bg-p50 border-p200';
 
-    const { T, cards } = getChoiceData(isArabic);
+    if (!appData) return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
+
+    const { T, cards } = appData[isArabic ? 'ar' : 'en'].choiceData;
 
     return (
         <div className={`font-jakarta min-h-screen flex flex-col ${darkBg} ${darkTxt} transition-colors duration-300`} dir={isArabic ? 'rtl' : 'ltr'}>
@@ -51,7 +46,7 @@ export default function ChoicePage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-[920px]">
-                    {cards.map((card, idx) => (
+                    {cards.map((card) => (
                         <Card key={card.id} isPressable onPress={() => navigate(card.loginPath)} className={`${darkSurf} border-2 ${card.borderCls} rounded-3xl p-8 text-center transition-all hover:-translate-y-2 group shadow-sm hover:shadow-xl`}>
                             <CardBody className="p-0 flex flex-col items-center">
                                 <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 overflow-hidden ${card.bubbleCls}`}>

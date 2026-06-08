@@ -2,8 +2,9 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { Button, Card, CardBody, Input, Avatar } from '@heroui/react';
+import { Button, Card, CardBody, Input, Avatar, Spinner } from '@heroui/react';
 import MainNavbar from '../../components/MainNavbar/MainNavbar';
+import { toast } from 'react-hot-toast';
 
 export default function DoctorProfilePage() {
     const navigate = useNavigate();
@@ -18,16 +19,42 @@ export default function DoctorProfilePage() {
         avatar: currentDoctor?.avatar || '🩺'
     });
 
+    const [isUploading, setIsUploading] = useState(false);
+
     if (!currentDoctor) return null;
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setEditData(prev => ({ ...prev, avatar: reader.result }));
+
+        const doUpload = async () => {
+            setIsUploading(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+                
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const json = await res.json();
+                if (json.secure_url) {
+                    setEditData(prev => ({ ...prev, avatar: json.secure_url }));
+                    return json.secure_url;
+                } else {
+                    throw new Error("Failed to upload image");
+                }
+            } finally {
+                setIsUploading(false);
+            }
         };
-        reader.readAsDataURL(file);
+
+        toast.promise(doUpload(), {
+            loading: isArabic ? 'جاري رفع الصورة...' : 'Uploading image...',
+            success: isArabic ? 'تم الرفع بنجاح!' : 'Uploaded successfully!',
+            error: isArabic ? 'فشل الرفع' : 'Upload failed'
+        });
     };
 
     const handleSave = () => {
@@ -72,10 +99,14 @@ export default function DoctorProfilePage() {
                                             radius="none"
                                         />
                                         <div className="absolute inset-0 bg-emerald-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                                            <span className="text-white font-black text-xs tracking-widest uppercase">{isArabic ? 'تعديل' : 'Modify'}</span>
+                                            {isUploading ? (
+                                                <Spinner color="white" />
+                                            ) : (
+                                                <span className="text-white font-black text-xs tracking-widest uppercase">{isArabic ? 'تعديل' : 'Modify'}</span>
+                                            )}
                                         </div>
                                     </div>
-                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
                                 </div>
                                 <h2 className="mt-8 text-2xl font-black">{editData.name}</h2>
                                 <p className="text-xs font-bold opacity-40 uppercase tracking-widest mt-2">{editData.specialty}</p>

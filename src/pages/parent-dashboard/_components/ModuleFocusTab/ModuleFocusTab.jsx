@@ -61,7 +61,9 @@ export default function ModuleFocusTab({
             <div className="space-y-6">
                 <SectionTitle emoji={<FaChartLine />} title={isArabic ? 'تحليل الأداء' : 'Module Focus'} badge={isArabic ? 'شامل' : 'Overall'} badgeColor={auraAccent} />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.entries(data?.moduleUsage || {}).map(([mod, count]) => (
+                    {['pecs', 'emotions', 'routine', 'calming'].map((mod) => {
+                        const count = data?.moduleUsage?.[mod] || 0;
+                        return (
                         <Card key={mod} className={`group rounded-[38px] border ${auraCard} hover:border-[#A8B4FF]/40 transition-all duration-500`}>
                             <CardBody className="p-4 sm:p-7 text-center">
                                 <div className="w-14 h-14 rounded-3xl bg-white/5 border border-white/5 mx-auto mb-4 flex items-center justify-center text-3xl group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-500 shadow-inner">
@@ -71,7 +73,8 @@ export default function ModuleFocusTab({
                                 <div className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-800'}`}>{count}</div>
                             </CardBody>
                         </Card>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

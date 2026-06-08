@@ -4,7 +4,7 @@ import { FaFileAlt, FaChartBar, FaClipboardList, FaStethoscope } from 'react-ico
 export default function ReportsTab({
     isArabic, isDark, accent,
     selectedPatient,
-    hoveredCard, setHoveredCard, cardCls, subBg, patientBanner
+    setHoveredCard, cardCls, subBg, patientBanner
 }) {
     if (!selectedPatient) return <Card className={cardCls(null)}><CardBody className={`text-center p-8 ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}><div className="text-5xl mb-4 opacity-20 flex justify-center"><FaFileAlt /></div>{isArabic ? 'اختر مريضاً أولاً' : 'Select a patient first'}</CardBody></Card>;
     const logs = selectedPatient.behaviorLogs || []; const assessments = selectedPatient.assessments || [];

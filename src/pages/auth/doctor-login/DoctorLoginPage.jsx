@@ -6,7 +6,7 @@ import { Button, Input, Chip, Divider } from '@heroui/react';
 import { toast } from 'react-hot-toast';
 import GoogleAuthButton from '../../../components/GoogleAuthButton/GoogleAuthButton';
 import { FaUserMd, FaStethoscope, FaHospital, FaNotesMedical, FaUsers, FaClipboardList, FaTheaterMasks, FaFileAlt } from 'react-icons/fa';
-import { getDoctorData } from '../../../data/doctorData';
+import { useGlobalData } from '../../../context/GlobalDataContext';
 import SharedAuthForm from '../../../components/SharedAuthForm/SharedAuthForm';
 
 export default function DoctorLoginPage({ initialIsLogin = true }) {
@@ -20,8 +20,6 @@ export default function DoctorLoginPage({ initialIsLogin = true }) {
         if (location.pathname.includes('/doctor-login')) return true;
         return initialIsLogin;
     });
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
     const [formData, setFormData] = useState({ name: '', age: '', email: '', gender: 'Male', phone: '', password: '', confirmPassword: '' });
     const [loading, setLoading] = useState(false);
 
@@ -42,7 +40,8 @@ export default function DoctorLoginPage({ initialIsLogin = true }) {
         return s;
     };
     
-    const { features, strengthColors } = getDoctorData(isArabic);
+    const { appData } = useGlobalData();
+    const { features, strengthColors } = appData ? appData[isArabic ? 'ar' : 'en'].doctorData : { features: [], strengthColors: [] };
     const featureIcons = [<FaUsers />, <FaClipboardList />, <FaTheaterMasks />, <FaFileAlt />];
 
     const handleSubmit = async (e) => {
@@ -51,7 +50,7 @@ export default function DoctorLoginPage({ initialIsLogin = true }) {
         if (isLogin) {
             if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) { toast.error(isArabic ? 'أدخل بريداً إلكترونياً صحيحاً' : 'Enter a valid email'); setLoading(false); return; }
             if (!formData.password) { toast.error(isArabic ? 'أدخل كلمة المرور' : 'Enter your password'); setLoading(false); return; }
-            const res = loginDoctor(formData.email.trim(), formData.password);
+            const res = await loginDoctor(formData.email.trim(), formData.password);
             if (res.success) {
                 toast.success(isArabic ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
                 navigate('/doctor-dashboard');
@@ -63,7 +62,7 @@ export default function DoctorLoginPage({ initialIsLogin = true }) {
             const phoneRegex = /^01[0-9]{9}$/;
             if (!phoneRegex.test(formData.phone.trim())) { toast.error(isArabic ? 'رقم الهاتف يجب أن يتكون من 11 رقماً ويبدأ بـ 01' : 'Phone number must be exactly 11 digits starting with 01'); setLoading(false); return; }
             if (formData.password !== formData.confirmPassword) { toast.error(isArabic ? 'كلمات المرور غير متطابقة' : 'Passwords do not match'); setLoading(false); return; }
-            const res = registerDoctor(formData);
+            const res = await registerDoctor(formData);
             if (res.success) {
                 toast.success(isArabic ? 'تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول.' : 'Account created successfully! Please log in.');
                 setIsLogin(true);
@@ -75,7 +74,6 @@ export default function DoctorLoginPage({ initialIsLogin = true }) {
         setLoading(false);
     };
 
-    const inputWrapperCls = `${isDark ? 'bg-bg-dark border-border-dark' : 'bg-[#F9FAFB] border-border'}`;
 
     return (
         <div className={`min-h-screen flex font-[Inter,'Segoe_UI',sans-serif] ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
@@ -147,7 +145,7 @@ export default function DoctorLoginPage({ initialIsLogin = true }) {
                     <GoogleAuthButton 
                         role="doctor" 
                         mode={isLogin ? 'login' : 'signup'} 
-                        onSuccess={(res) => {
+                        onSuccess={() => {
                             if (isLogin) {
                                 toast.success(isArabic ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
                                 navigate('/doctor-dashboard');

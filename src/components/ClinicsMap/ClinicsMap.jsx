@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useApp } from '../../context/AppContext';
-import { clinicsData, egyptCities, serviceLabels } from '../../data/clinicsData';
+import { useGlobalData } from '../../context/GlobalDataContext';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -26,8 +26,14 @@ export default function ClinicsMap() {
     const [mapZoom, setMapZoom] = useState(6);
     const [filterService, setFilterService] = useState('all');
 
+    const { clinics, isLoading } = useGlobalData();
+    const { data: clinicsData, egyptCities, serviceLabels } = clinics;
+
     const accent = '#6C63FF';
-    const cities = useMemo(() => Array.from(new Set(clinicsData.map(c => c.city))), []);
+    const cities = useMemo(() => {
+        if (!clinicsData) return [];
+        return Array.from(new Set(clinicsData.map(c => c.city)));
+    }, [clinicsData]);
 
     const handleSearch = useCallback(async () => {
         if (!searchQuery.trim()) return;
@@ -82,6 +88,10 @@ export default function ClinicsMap() {
     const handleCityClick = useCallback((city) => { const d = egyptCities.find(c => c.name === city || c.nameAr === city); if (d) { setMapCenter([d.lat, d.lng]); setMapZoom(12); setSelectedCity(city); } }, []);
     const showAll = useCallback(() => { setSelectedCity(null); setFilterService('all'); setMapCenter([30.0444, 31.2357]); setMapZoom(6); setSearchQuery(''); }, []);
     const stars = (rating) => '⭐'.repeat(Math.floor(rating)) + (rating % 1 >= 0.5 ? '½' : '');
+
+    if (isLoading || !clinicsData) {
+        return <div className="h-[600px] flex items-center justify-center">Loading map data...</div>;
+    }
 
     return (
         <div className={`rounded-[40px] border-none shadow-none ${isDark ? 'bg-transparent text-white' : 'bg-transparent text-[#0C0D17]'}`}>
