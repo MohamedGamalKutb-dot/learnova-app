@@ -2,7 +2,32 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { collection, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
+// ── Local data imports (used as fallback when Firebase is unavailable) ──
+import { allItems as pecsItems, categories as pecsCategories, categoryIcons, categoryLabels, categoryLabelsAr } from '../../data/pecsData';
+import { defaultRoutine, timeOfDayLabels, timeOfDayLabelsAr, availableIcons } from '../../data/routineData';
+import { clinicsData, egyptCities, serviceLabels } from '../../data/clinicsData';
+import { allEmotions } from '../../data/emotionData';
+import { autismKnowledgeBase } from '../../data/autismKnowledgeBase';
+import { childBotData } from '../../data/childBotData';
+import { getProfileData } from '../../data/profileData';
+import { appDataFallback } from '../../data/appDataFallback';
+
 const GlobalDataContext = createContext(null);
+
+function buildLocalFallback() {
+    const profileData = getProfileData(false);
+    return {
+        pecs: { items: pecsItems, categories: pecsCategories, categoryIcons, categoryLabels, categoryLabelsAr },
+        routine: { defaultRoutine, timeOfDayLabels, timeOfDayLabelsAr, availableIcons },
+        clinics: { data: clinicsData, egyptCities, serviceLabels },
+        emotions: { allEmotions },
+        knowledgeBase: { data: autismKnowledgeBase, defaultResponse: 'I can help you with autism-related questions.', searchFallback: 'Could you rephrase that?' },
+        childBot: { data: childBotData, childDefaultResponse: 'I am your friend! How can I help?', childFallbackResponse: 'Can you say that again?' },
+        profile: profileData,
+        appData: appDataFallback,
+        isLoading: false,
+    };
+}
 
 export function GlobalDataProvider({ children }) {
     const [globalData, setGlobalData] = useState({
@@ -22,7 +47,7 @@ export function GlobalDataProvider({ children }) {
         async function loadAllData() {
             try {
                 // 1. PECS
-                const pecsItems = (await getDocs(collection(db, 'pecs_items'))).docs.map(d => ({ ...d.data(), id: d.id }));
+                const pecsItemsDb = (await getDocs(collection(db, 'pecs_items'))).docs.map(d => ({ ...d.data(), id: d.id }));
                 const pecsMetaDoc = await getDoc(doc(db, 'pecs_config', 'metadata'));
                 const pecsMeta = pecsMetaDoc.exists() ? pecsMetaDoc.data() : { categories: [], categoryIcons: {}, categoryLabels: {}, categoryLabelsAr: {} };
 
@@ -32,7 +57,7 @@ export function GlobalDataProvider({ children }) {
                 const routineMeta = routineMetaDoc.exists() ? routineMetaDoc.data() : { timeOfDayLabels: {}, timeOfDayLabelsAr: {}, availableIcons: {} };
 
                 // 3. Clinics
-                const clinicsData = (await getDocs(collection(db, 'clinics_data'))).docs.map(d => ({ ...d.data(), id: d.id }));
+                const clinicsDataDb = (await getDocs(collection(db, 'clinics_data'))).docs.map(d => ({ ...d.data(), id: d.id }));
                 const clinicsMetaDoc = await getDoc(doc(db, 'clinics_config', 'metadata'));
                 const clinicsMeta = clinicsMetaDoc.exists() ? clinicsMetaDoc.data() : { egyptCities: [], serviceLabels: {} };
 
@@ -45,13 +70,13 @@ export function GlobalDataProvider({ children }) {
                 const kbMeta = kbMetaDoc.exists() ? kbMetaDoc.data() : { defaultResponse: '', searchFallback: '' };
 
                 // 6. Child Bot
-                const childBotData = (await getDocs(collection(db, 'child_bot_data'))).docs.map(d => d.data());
+                const childBotDataDb = (await getDocs(collection(db, 'child_bot_data'))).docs.map(d => d.data());
                 const childBotMetaDoc = await getDoc(doc(db, 'child_bot_config', 'metadata'));
                 const childBotMeta = childBotMetaDoc.exists() ? childBotMetaDoc.data() : { childDefaultResponse: '', childFallbackResponse: '' };
 
                 // 7. Profile Data
                 const profileDataDoc = await getDoc(doc(db, 'system', 'profileData'));
-                const profileData = profileDataDoc.exists() ? profileDataDoc.data() : { sensoryOptions: [], avatarOptions: [] };
+                const profileDataDb = profileDataDoc.exists() ? profileDataDoc.data() : { sensoryOptions: [], avatarOptions: [] };
 
                 // 8. App Data
                 const appDataRef = doc(db, 'system', 'appData');
@@ -61,7 +86,6 @@ export function GlobalDataProvider({ children }) {
                 if (appDataDoc.exists()) {
                     appData = appDataDoc.data();
                 } else {
-                    const { appDataFallback } = await import('../../data/appDataFallback.js');
                     appData = appDataFallback;
                 }
 
@@ -99,27 +123,21 @@ export function GlobalDataProvider({ children }) {
 
                 if (isMounted) {
                     setGlobalData({
-                        pecs: { items: pecsItems, ...pecsMeta },
+                        pecs: { items: pecsItemsDb, ...pecsMeta },
                         routine: { defaultRoutine: routineItems, ...routineMeta },
-                        clinics: { data: clinicsData, ...clinicsMeta },
+                        clinics: { data: clinicsDataDb, ...clinicsMeta },
                         emotions: { allEmotions: emotionsData },
                         knowledgeBase: { data: kbData, ...kbMeta },
-                        childBot: { data: childBotData, ...childBotMeta },
-                        profile: profileData,
+                        childBot: { data: childBotDataDb, ...childBotMeta },
+                        profile: profileDataDb,
                         appData: appData,
                         isLoading: false
                     });
                 }
             } catch (err) {
-                console.error("Failed to fetch global data:", err);
+                console.error("Firebase unavailable, loading local data:", err);
                 if (isMounted) {
-                    try {
-                        const { appDataFallback } = await import('../../data/appDataFallback.js');
-                        setGlobalData(prev => ({ ...prev, appData: appDataFallback, isLoading: false }));
-                    } catch (fallbackErr) {
-                        console.error("Failed to load fallback data:", fallbackErr);
-                        setGlobalData(prev => ({ ...prev, isLoading: false }));
-                    }
+                    setGlobalData(buildLocalFallback());
                 }
             }
         }

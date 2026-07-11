@@ -6,13 +6,13 @@ import { getDoctorData } from './doctorData';
 
 const childHomeData = {
     modules: [
-        { key: 'pecs', emoji: '🖼️', color: '#4ECDC4', gradient: ['#4ECDC4', '#A8E6CF'], path: '/pecs' },
-        { key: 'routine', emoji: '⏰', color: '#FFD166', gradient: ['#FFD166', '#FFDF91'], path: '/routine' },
-        { key: 'emotions', emoji: '😊', color: '#6C63FF', gradient: ['#6C63FF', '#8B85FF'], path: '/emotions' },
-        { key: 'calming', emoji: '🌟', color: '#118AB2', gradient: ['#118AB2', '#5DBBE6'], path: '/calming' },
-        { key: 'bot', emoji: '🤖', color: '#FF6584', gradient: ['#FF6584', '#FF8FA3'], path: 'modal' },
-        { key: 'profile', emoji: '👤', color: '#F5C7A9', gradient: ['#F5C7A9', '#F9DCC4'], path: '/profile' },
-        { key: 'games', emoji: '🎮', color: '#A78BFA', gradient: ['#A78BFA', '#C4B5FD'], path: '/games-hub' }
+        { key: 'pecs', icon: '/icons/pecs.png', color: '#4ECDC4', gradient: 'from-teal-500/20 to-emerald-500/10', path: '/pecs' },
+        { key: 'routine', icon: '/icons/routine.png', color: '#FFD166', gradient: 'from-amber-500/20 to-yellow-500/10', path: '/routine' },
+        { key: 'emotions', icon: '/icons/emotions.png', color: '#6C63FF', gradient: 'from-indigo-500/20 to-purple-500/10', path: '/emotions' },
+        { key: 'calming', icon: '/icons/calming_icon.png', color: '#118AB2', gradient: 'from-sky-500/20 to-blue-500/10', path: '/calming' },
+        { key: 'bot', icon: '/icons/bot.png', color: '#FF6584', gradient: 'from-pink-500/20 to-rose-500/10', path: 'modal' },
+        { key: 'profile', icon: '/icons/profile.png', color: '#F5C7A9', gradient: 'from-orange-500/20 to-amber-500/10', path: '/profile' },
+        { key: 'games', icon: '/icons/games.png', color: '#A78BFA', gradient: 'from-purple-500/20 to-violet-500/10', path: '/games' }
     ],
     labels: {
         pecs: { en: 'PECS Communication', ar: 'التواصل بالصور' },
@@ -27,19 +27,22 @@ const childHomeData = {
 
 const gamesHubData = {
     games: [
-        { id: 'math-adventure', emoji: '🔢', color: '#3B82F6', gradient: ['#3B82F6', '#60A5FA'], path: '/games/math' },
-        { id: 'word-safari', emoji: '🦁', color: '#10B981', gradient: ['#10B981', '#34D399'], path: '/games/words' },
-        { id: 'shape-match', emoji: '🟦', color: '#F59E0B', gradient: ['#F59E0B', '#FBBF24'], path: '/games/shapes' }
+        { key: 'puzzle', emoji: '🧩', color: '#3B82F6', gradient: 'from-blue-500/20 to-indigo-500/10', path: '/games/puzzle' },
+        { key: 'words', emoji: '🦁', color: '#10B981', gradient: 'from-emerald-500/20 to-teal-500/10', path: '/games/words' },
+        { key: 'drawing', emoji: '🎨', color: '#F59E0B', gradient: 'from-amber-500/20 to-yellow-500/10', path: '/games/drawing' },
+        { key: 'piano', emoji: '🎹', color: '#EC4899', gradient: 'from-pink-500/20 to-rose-500/10', path: '/games/piano' }
     ],
     labels: {
-        'math-adventure': { en: 'Math Adventure', ar: 'مغامرة الرياضيات' },
-        'word-safari': { en: 'Word Safari', ar: 'سفاري الكلمات' },
-        'shape-match': { en: 'Shape Match', ar: 'تطابق الأشكال' }
+        puzzle: { en: 'Puzzle Arena', ar: 'ساحة الألغاز' },
+        words: { en: 'Word Safari', ar: 'سفاري الكلمات' },
+        drawing: { en: 'Art Studio', ar: 'استوديو الرسم' },
+        piano: { en: 'Melody Piano', ar: 'بيانو الألحان' }
     },
     descriptions: {
-        'math-adventure': { en: 'Learn numbers & basic math with fun', ar: 'تعلم الأرقام والرياضيات الأساسية بمرح' },
-        'word-safari': { en: 'Discover new words and animals', ar: 'اكتشف كلمات وحيوانات جديدة' },
-        'shape-match': { en: 'Match colors and basic shapes', ar: 'طابق الألوان والأشكال الأساسية' }
+        puzzle: { en: 'Match pieces & solve shapes', ar: 'طابق القطع وحل الأشكال' },
+        words: { en: 'Discover new words & spelling', ar: 'اكتشف كلمات جديدة وطريقة الهجاء' },
+        drawing: { en: 'Express yourself with colors', ar: 'عبر عن نفسك بالألوان' },
+        piano: { en: 'Play music & learn notes', ar: 'اعزف الموسيقى وتعرف على النغمات' }
     }
 };
 
