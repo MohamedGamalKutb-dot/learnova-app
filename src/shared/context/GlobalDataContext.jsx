@@ -56,7 +56,14 @@ export function GlobalDataProvider({ children }) {
                 // 8. App Data
                 const appDataRef = doc(db, 'system', 'appData');
                 const appDataDoc = await getDoc(appDataRef);
-                const appData = appDataDoc.exists() ? appDataDoc.data() : null;
+                
+                let appData = null;
+                if (appDataDoc.exists()) {
+                    appData = appDataDoc.data();
+                } else {
+                    const { appDataFallback } = await import('../../data/appDataFallback.js');
+                    appData = appDataFallback;
+                }
 
                 // AUTO FIX HERO CARDS ICONS IN FIREBASE
                 if (appData && appData.ar && appData.ar.landingData && appData.ar.landingData.heroCards) {
@@ -106,7 +113,13 @@ export function GlobalDataProvider({ children }) {
             } catch (err) {
                 console.error("Failed to fetch global data:", err);
                 if (isMounted) {
-                    setGlobalData(prev => ({ ...prev, isLoading: false }));
+                    try {
+                        const { appDataFallback } = await import('../../data/appDataFallback.js');
+                        setGlobalData(prev => ({ ...prev, appData: appDataFallback, isLoading: false }));
+                    } catch (fallbackErr) {
+                        console.error("Failed to load fallback data:", fallbackErr);
+                        setGlobalData(prev => ({ ...prev, isLoading: false }));
+                    }
                 }
             }
         }
