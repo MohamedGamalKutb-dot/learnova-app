@@ -29,13 +29,7 @@ function saveGameStats(childId, stats) {
     } catch { /* ignore */ }
 }
 
-export async function getPuzzleConfig() {
-    try {
-        const snap = await getDoc(doc(db, 'game_config', 'puzzle'));
-        if (snap.exists()) return snap.data();
-    } catch (err) { console.warn('Error fetching puzzle config from Firestore:', err); }
-    return null;
-}
+export { getPuzzleConfig } from '../../../shared/services/gamesService';
 
 export function getPuzzleStats(childId) {
     if (!childId) return getDefaultGameStats();

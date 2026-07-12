@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, memoryLocalCache } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -15,7 +15,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Export instances
-export const db = getFirestore(app);
+// Export instances - Use memory local cache to prevent IndexedDB tab-lock/HMR assertion failures
+export const db = initializeFirestore(app, {
+  localCache: memoryLocalCache()
+});
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();

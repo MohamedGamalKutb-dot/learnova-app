@@ -25,7 +25,8 @@ export default function ChildHome() {
 
     if (!appData) return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" color="primary" /></div>;
 
-    const { modules, labels } = appData.childHomeData;
+    const { modules: rawModules, labels } = appData.childHomeData;
+    const modules = rawModules.filter(mod => mod.key !== 'profile');
 
     if (!currentChild) {
         return (

@@ -11,7 +11,6 @@ const childHomeData = {
         { key: 'emotions', icon: '/icons/emotions.png', color: '#6C63FF', gradient: 'from-indigo-500/20 to-purple-500/10', path: '/emotions' },
         { key: 'calming', icon: '/icons/calming_icon.png', color: '#118AB2', gradient: 'from-sky-500/20 to-blue-500/10', path: '/calming' },
         { key: 'bot', icon: '/icons/bot.png', color: '#FF6584', gradient: 'from-pink-500/20 to-rose-500/10', path: 'modal' },
-        { key: 'profile', icon: '/icons/profile.png', color: '#F5C7A9', gradient: 'from-orange-500/20 to-amber-500/10', path: '/profile' },
         { key: 'games', icon: '/icons/games.png', color: '#A78BFA', gradient: 'from-purple-500/20 to-violet-500/10', path: '/games' }
     ],
     labels: {

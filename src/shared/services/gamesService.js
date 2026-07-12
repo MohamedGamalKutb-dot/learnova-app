@@ -22,6 +22,15 @@ const GAMES_STORAGE_KEY = 'learnova_games_';
 const DRAWINGS_KEY = 'learnova_drawings_';
 const MELODIES_KEY = 'learnova_melodies_';
 
+import { 
+    pianoConfig as fallbackPiano, 
+    drawingConfig as fallbackDrawing, 
+    puzzleConfig as fallbackPuzzle, 
+    wordGameConfig as fallbackWordGame, 
+    wordsEnConfig as fallbackWordsEn, 
+    wordsArConfig as fallbackWordsAr 
+} from '../../data/gamesFallbackData';
+
 // ============ FIREBASE GETTERS ============
 
 export async function getWordsConfig(isArabic) {
@@ -32,9 +41,9 @@ export async function getWordsConfig(isArabic) {
             return snap.data();
         }
     } catch (err) {
-        console.warn(`Error fetching words config (${isArabic ? 'ar' : 'en'}) from Firestore:`, err);
+        console.warn(`Error fetching words config (${isArabic ? 'ar' : 'en'}) from Firestore, using local fallback:`, err);
     }
-    return null;
+    return isArabic ? fallbackWordsAr : fallbackWordsEn;
 }
 
 export async function getPianoConfig() {
@@ -42,32 +51,40 @@ export async function getPianoConfig() {
         const pianoRef = doc(db, 'game_config', 'piano');
         const snap = await getDoc(pianoRef);
         if (snap.exists()) return snap.data();
-    } catch (err) { console.warn('Error fetching piano config from Firestore:', err); }
-    return null;
+    } catch (err) { 
+        console.warn('Error fetching piano config from Firestore, using local fallback:', err); 
+    }
+    return fallbackPiano;
 }
 
 export async function getDrawingConfig() {
     try {
         const snap = await getDoc(doc(db, 'game_config', 'drawing'));
         if (snap.exists()) return snap.data();
-    } catch (err) { console.warn('Error fetching drawing config from Firestore:', err); }
-    return null;
+    } catch (err) { 
+        console.warn('Error fetching drawing config from Firestore, using local fallback:', err); 
+    }
+    return fallbackDrawing;
 }
 
 export async function getPuzzleConfig() {
     try {
         const snap = await getDoc(doc(db, 'game_config', 'puzzle'));
         if (snap.exists()) return snap.data();
-    } catch (err) { console.warn('Error fetching puzzle config from Firestore:', err); }
-    return null;
+    } catch (err) { 
+        console.warn('Error fetching puzzle config from Firestore, using local fallback:', err); 
+    }
+    return fallbackPuzzle;
 }
 
 export async function getWordGameConfig() {
     try {
         const snap = await getDoc(doc(db, 'game_config', 'word_game'));
         if (snap.exists()) return snap.data();
-    } catch (err) { console.warn('Error fetching word game config from Firestore:', err); }
-    return null;
+    } catch (err) { 
+        console.warn('Error fetching word game config from Firestore, using local fallback:', err); 
+    }
+    return fallbackWordGame;
 }
 
 // ============ LOCAL STORAGE HELPERS ============
