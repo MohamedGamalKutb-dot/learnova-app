@@ -49,7 +49,7 @@ export const autismKnowledgeBase = [
     {
         keywords: ['school', 'nursery', 'class', 'teacher', 'bully', 'kids', 'مدرسة', 'حضانة', 'فصل', 'مدرس', 'تنمر', 'أطفال', 'دمج', 'مدرسه', 'حضانه', 'معلمه', 'بيتنمروا', 'بيضربوه', 'رفض المدرسة'],
         answerAr: "المدرسة والدمج خطوة كبيرة. \n\n💡 **نصائح للمدرسة:**\n1. **تواصل مع المعلم:** اشرح له محفزات ابنك وطرق تهدئته.\n2. **زميل مساند:** اطلب من المعلم تعيين 'صديق' يساعده في الفصل.\n3. **وقت مستقطع:** اتفق على إشارة (كارت أحمر) يرفعها الطفل إذا احتاج للخروج للهدوء.\n4. **التنمر:** علمه جملة واحدة قوية ('توقف!') واللجوء لشخص بالغ فوراً.",
-        answerEn: "School inclusion is a big step.\n\n💡 **School Tips:**\n1. **Communication:** Explain triggers and calming methods to the teacher.\n2. **Buddy System:** Ask for a peer buddy to help in class.\n3. **Break Card:** Use a 'Break Card' they can show to leave for a quiet spot.\n4. **Bullying:** Teach one strong phrase ('Stop!') and to go to an adult immediately."
+        answerEn: "School inclusion is a big step.\n\n💡 **School Tips:**\n1. **Communication:** Explain triggers to the teacher.\n2. **Buddy System:** Ask for a peer buddy to help in class.\n3. **Break Card:** Use a 'Break Card' they can show to leave for a quiet spot.\n4. **Bullying:** Teach one strong phrase ('Stop!') and to go to an adult immediately."
     },
     {
         keywords: ['social', 'friend', 'play', 'alone', 'sharing', 'turn', 'اجتماعي', 'أصدقاء', 'لعب', 'وحده', 'تواصل بصري', 'مشاركة', 'دوري', 'دورك', 'مش بيلعب', 'مبيلعبش', 'لوحده', 'مش اجتماعي', 'انعزال'],
@@ -159,7 +159,7 @@ export const autismKnowledgeBase = [
     {
         keywords: ['app', 'this app', 'how to use', 'learnova', 'learnnova', 'التطبيق', 'البرنامج', 'ازاي استخدم', 'شرح', 'ده بيعمل ايه'],
         answerAr: "مرحباً! هذا التطبيق (LearNeur) مصمم لمساعدة أطفال التوحد وأولياء أمورهم.\n\n📱 **الأقسام المتاحة:**\n🗣️ **PECS:** تواصل بالصور - الطفل يضغط على صور ليعبر عن احتياجاته.\n😊 **المشاعر:** تعليم التعرف على المشاعر + اختبارات.\n📅 **الروتين:** جدول مرئي للروتين اليومي.\n🧘 **منطقة الهدوء:** تمارين تنفس وأنشطة تهدئة.\n📊 **لوحة التحكم:** متابعة تقدم الطفل.\n🤖 **المساعد الذكي:** أنا! اسألني أي سؤال.\n\n💡 ابدأ بقسم PECS والروتين.",
-        answerEn: "Welcome! This app (LearNeur) is designed to help autistic children and their parents.\n\n📱 **Available Sections:**\n🗣️ **PECS:** Picture communication - child taps images to express needs.\n😊 **Emotions:** Emotion recognition learning + quizzes.\n📅 **Routine:** Visual daily routine schedule.\n🧘 **Calming Zone:** Breathing exercises and calming activities.\n📊 **Dashboard:** Track child's progress.\n🤖 **AI Assistant:** That's me! Ask any question.\n\n💡 Start with the PECS and Routine sections."
+        answerEn: "Welcome! This app (LearNeur) is designed to help autistic children and their parents.\n\n📱 **Available Sections:**\n🗣️ **PECS:** Picture communication - child taps images to express needs.\n😊 **Emotions:** Emotion recognition learning + quizzes.\n📅 **Routine:** Visual daily routine schedule.\n📊 **Dashboard:** Track child's progress.\n🤖 **AI Assistant:** That's me! Ask any question.\n\n💡 Start with the PECS and Routine sections."
     },
 
     // --- NEW: Thank You / شكر ---

@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../../shared/firebase/config';
 
 const GAMES_STORAGE_KEY = 'learnova_games_';

@@ -9,7 +9,7 @@ const childHomeData = {
         { key: 'pecs', icon: '/icons/pecs.png', color: '#4ECDC4', gradient: 'from-teal-500/20 to-emerald-500/10', path: '/pecs' },
         { key: 'routine', icon: '/icons/routine.png', color: '#FFD166', gradient: 'from-amber-500/20 to-yellow-500/10', path: '/routine' },
         { key: 'emotions', icon: '/icons/emotions.png', color: '#6C63FF', gradient: 'from-indigo-500/20 to-purple-500/10', path: '/emotions' },
-        { key: 'calming', icon: '/icons/calming_icon.png', color: '#118AB2', gradient: 'from-sky-500/20 to-blue-500/10', path: '/calming' },
+
         { key: 'bot', icon: '/icons/bot.png', color: '#FF6584', gradient: 'from-pink-500/20 to-rose-500/10', path: 'modal' },
         { key: 'games', icon: '/icons/games.png', color: '#A78BFA', gradient: 'from-purple-500/20 to-violet-500/10', path: '/games' }
     ],
@@ -17,7 +17,7 @@ const childHomeData = {
         pecs: { en: 'PECS Communication', ar: 'التواصل بالصور' },
         routine: { en: 'Daily Routine', ar: 'الروتين اليومي' },
         emotions: { en: 'Emotions', ar: 'المشاعر' },
-        calming: { en: 'Calming Zone', ar: 'منطقة الهدوء' },
+
         bot: { en: 'My Robot Friend', ar: 'صديقي الروبوت' },
         profile: { en: 'Profile', ar: 'الملف الشخصي' },
         games: { en: 'Games Hub', ar: 'مركز الألعاب' }

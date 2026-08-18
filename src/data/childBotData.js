@@ -31,7 +31,7 @@ export const childBotData = [
     {
         keywords: ['tired', 'sleep', 'bed', 'nap', 'تعبان', 'نام', 'سرير', 'نعسان', 'اجهاد', 'عايز انام', 'نفسي انام'],
         answerAr: "شكلك بذلت مجهود كبير النهاردة! 😴 \nيلا نريح شوية أو ننام في السرير الدافي. 🛌\n\n🌙 هل تحب أسمعك صوت هادي قبل النوم؟ جرب قسم 'الهدوء' في التطبيق!",
-        answerEn: "You worked hard today! 😴 \nLet's rest a bit or go to your cozy bed. 🛌\n\n🌙 Want some calming sounds? Try the 'Calming' section in the app!"
+        answerEn: "You worked hard today! 😴 \nLet's rest a bit or go to your cozy bed. 🛌"
     },
 
     // --- Sensory / حسي ---

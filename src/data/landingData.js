@@ -1,4 +1,4 @@
-export const getLandingData = (isArabic, navigate) => {
+export const getLandingData = (isArabic) => {
     const T = {
         heroPill: isArabic ? 'منصة متخصصة في طيف التوحد' : 'Specialized Autism Support Platform',
         heroH1a: isArabic ? 'رحلة التعلم تبدأ' : "Every child's journey",

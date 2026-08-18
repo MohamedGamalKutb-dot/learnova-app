@@ -1,14 +1,13 @@
 export const getDashboardData = (isArabic) => {
     const moduleNames = isArabic 
-        ? { pecs: 'التواصل', emotions: 'المشاعر', routine: 'الروتين', calming: 'الهدوء', 'تهدئة': 'تهدئة', 'صور أعضاء الصدر': 'التواصل' } 
-        : { pecs: 'PECS', emotions: 'Emotions', routine: 'Routine', calming: 'Calming', 'تهدئة': 'Calming', 'صور أعضاء الصدر': 'PECS' };
+        ? { pecs: 'التواصل', emotions: 'المشاعر', routine: 'الروتين', 'صور أعضاء الصدر': 'التواصل' } 
+        : { pecs: 'PECS', emotions: 'Emotions', routine: 'Routine', 'صور أعضاء الصدر': 'PECS' };
     
     const moduleEmojis = { 
         pecs: '/icons/pecs.png', 
         emotions: '/icons/emotions.png', 
         routine: '/icons/routine.png', 
-        calming: '/icons/calming_icon.png', 
-        'تهدئة': '/icons/calming_icon.png', 
+
         'صور أعضاء الصدر': '/icons/pecs.png' 
     };
 
